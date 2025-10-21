@@ -234,7 +234,7 @@ function DesktopLanding() {
         <div className="container mx-auto px-12 relative z-10">
           <div className="max-w-3xl animate-fade-in">
             <p 
-              className="font-bold tracking-[0.25em] mb-8 uppercase"
+              className="tracking-[0.25em] mb-8 uppercase text-4xl font-extrabold"
               style={{ 
                 color: '#D4AF37',
                 fontSize: '26px',
