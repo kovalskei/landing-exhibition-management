@@ -363,6 +363,104 @@ function DesktopLanding() {
         </div>
       </section>
 
+      <section id="exponent" className="py-24 relative overflow-hidden">
+        <div 
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.3'/%3E%3C/svg%3E")`
+          }}
+        />
+        <div className="container mx-auto px-12 relative z-10">
+          <div className="grid md:grid-cols-2 gap-16 items-start">
+            <div className="animate-fade-in">
+              <h2 className="font-heading font-bold text-6xl mb-4 text-white relative inline-block">
+                №1 «Экспонент»
+                <div className="absolute bottom-0 left-0 w-full h-[8px] -z-10" style={{
+                  background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)',
+                  backgroundImage: `
+                    url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E"),
+                    linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)
+                  `
+                }} />
+              </h2>
+              <p className="text-xl text-white/90 mb-12 mt-8">
+                Представить свой продукт/услугу в экспозоне
+              </p>
+
+              <div className="mb-10">
+                <h3 className="text-3xl font-semibold mb-6 text-[#6B9FFF]">Формат участия</h3>
+                <ul className="space-y-4 text-lg text-white/90">
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>Площадь 2x2 м (4 кв.м.)</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>2 бейджа экспонента</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>Логотип участника на сайте с активной ссылкой</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>Место под хранение промо-материалов в отдельной зоне</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>2 билета на Конференцию и Выставку</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>Размещение информации о продукте или услуге на сайте мероприятия</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>Сертификат экспонента</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mb-10">
+                <h3 className="text-3xl font-semibold mb-6 text-[#6B9FFF]">Стоимость</h3>
+                <div className="space-y-3">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-4xl font-bold text-white">180 000 р.</span>
+                    <span className="text-xl text-white/70">до 31 октября</span>
+                    <span className="text-sm text-white/50 ml-2">
+                      раннее<br/>бронирование
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-4xl font-bold text-white">210 000 р.</span>
+                    <span className="text-xl text-white/70">до 14 ноября</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border border-white/20 bg-black/40 p-6 rounded-lg backdrop-blur-sm">
+                <p className="text-base text-white/90 mb-4">
+                  <span className="font-semibold">Бонус: Маркетинговая поддержка «Экспонент»</span><br/>
+                  (включение информации о продукте в рассылки, анонсы)
+                </p>
+                <p className="text-base text-white/80">
+                  Также имеется выставочная площадь 3x2 м (6 кв.м.)<br/>
+                  Стоимость уточнять у менеджера
+                </p>
+              </div>
+            </div>
+
+            <div className="animate-fade-in">
+              <img 
+                src="https://cdn.poehali.dev/files/f6e65250-add3-4632-bed6-68ca8f4d5853.png" 
+                alt="Экспонент"
+                className="rounded-lg w-full h-auto object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="conference" className="py-24">
         <div className="container mx-auto px-6">
           <h2 className="font-heading font-bold text-5xl mb-6 gradient-border pb-4 inline-block">
