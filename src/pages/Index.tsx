@@ -358,7 +358,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
             </div>
             <div>
               <img
-                src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/15a7358a-6819-47da-9841-620eafa987b4.jpg"
+                src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format"
                 alt="Speaker"
                 crossOrigin="anonymous"
                 style={{ width: '100%', height: '500px', objectFit: 'cover', borderRadius: '8px' }}
@@ -367,19 +367,19 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginTop: '48px' }}>
             <img
-              src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/15a7358a-6819-47da-9841-620eafa987b4.jpg"
+              src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&auto=format"
               alt="Networking"
               crossOrigin="anonymous"
               style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px' }}
             />
             <img
-              src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/6a58af11-39a3-40df-932c-67182a61df03.jpg"
+              src="https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&auto=format"
               alt="Exhibition"
               crossOrigin="anonymous"
               style={{ width: '100%', height: '280px', objectFit: 'cover', borderRadius: '8px' }}
             />
             <img
-              src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/6a58af11-39a3-40df-932c-67182a61df03.jpg"
+              src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800&auto=format"
               alt="Conversation"
               crossOrigin="anonymous"
               style={{ width: '100%', height: '280px', objectFit: 'cover', borderRadius: '8px' }}
