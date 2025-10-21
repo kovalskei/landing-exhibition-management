@@ -1,6 +1,10 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
+function compressImage(canvas: HTMLCanvasElement, quality: number = 0.7): string {
+  return canvas.toDataURL('image/jpeg', quality);
+}
+
 export async function exportSiteToPdf() {
   const sections = [
     'hero',
@@ -14,9 +18,13 @@ export async function exportSiteToPdf() {
 
   const pdf = new jsPDF({
     orientation: 'landscape',
-    unit: 'px',
-    format: [1920, 1080]
+    unit: 'mm',
+    format: 'a4',
+    compress: true
   });
+
+  const pdfWidth = 297;
+  const pdfHeight = 210;
 
   let isFirstPage = true;
 
@@ -25,25 +33,64 @@ export async function exportSiteToPdf() {
     if (!element) continue;
 
     const canvas = await html2canvas(element, {
-      scale: 2,
+      scale: 1.5,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#0a0a0f',
-      width: 1920,
-      height: 1080,
-      windowWidth: 1920,
-      windowHeight: 1080
+      logging: false,
+      imageTimeout: 0
     });
 
-    const imgData = canvas.toDataURL('image/png');
+    const imgData = compressImage(canvas, 0.75);
 
     if (!isFirstPage) {
       pdf.addPage();
     }
     isFirstPage = false;
 
-    pdf.addImage(imgData, 'PNG', 0, 0, 1920, 1080);
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
   }
 
-  pdf.save('presentation.pdf');
+  const pdfBlob = pdf.output('blob');
+  const sizeInMB = pdfBlob.size / (1024 * 1024);
+
+  if (sizeInMB > 9) {
+    console.warn(`PDF size: ${sizeInMB.toFixed(2)}MB, re-compressing...`);
+    
+    const recompressedPdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4',
+      compress: true
+    });
+
+    isFirstPage = true;
+    const lowerQuality = Math.max(0.5, 0.75 * (9 / sizeInMB));
+
+    for (const sectionId of sections) {
+      const element = document.getElementById(sectionId);
+      if (!element) continue;
+
+      const canvas = await html2canvas(element, {
+        scale: 1.2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#0a0a0f',
+        logging: false
+      });
+
+      const imgData = compressImage(canvas, lowerQuality);
+
+      if (!isFirstPage) {
+        recompressedPdf.addPage();
+      }
+      isFirstPage = false;
+
+      recompressedPdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+    }
+
+    recompressedPdf.save('presentation.pdf');
+  } else {
+    pdf.save('presentation.pdf');
+  }
 }
