@@ -48,13 +48,17 @@ export async function exportSiteToPdf() {
     clone.style.position = 'relative';
     clone.style.overflow = 'hidden';
     
-    const allElements = Array.from(clone.getElementsByTagName('*')) as HTMLElement[];
-    allElements.forEach((el, i) => {
-      const computedStyle = window.getComputedStyle(element.getElementsByTagName('*')[i]);
+    const allDivs = Array.from(clone.querySelectorAll('div')) as HTMLElement[];
+    allDivs.forEach(el => {
+      const hasAbsoluteClass = el.className.includes('absolute');
+      const hasInsetClass = el.className.includes('inset-0');
+      const hasBackgroundStyle = el.style.background || el.style.backgroundImage;
       
-      if (computedStyle.position === 'absolute' && 
-          computedStyle.inset === '0px') {
-        console.log(`Removing absolute inset-0 element from ${sectionId}`);
+      if (hasAbsoluteClass && hasInsetClass) {
+        console.log(`Removing overlay div from ${sectionId}:`, el.className);
+        el.remove();
+      } else if (hasAbsoluteClass && hasBackgroundStyle) {
+        console.log(`Removing background overlay from ${sectionId}`);
         el.remove();
       }
     });
