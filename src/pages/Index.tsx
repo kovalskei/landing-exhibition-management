@@ -361,6 +361,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
                 src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/7654e33a-fc9a-46c5-a5a0-a3db02695766.jpg"
                 alt="Speaker"
                 crossOrigin="anonymous"
+                onError={(e) => console.error('Image failed to load:', e.currentTarget.src)}
                 style={{ width: '100%', height: '500px', objectFit: 'cover', borderRadius: '8px' }}
               />
             </div>
