@@ -1,7 +1,24 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+async function preloadImages() {
+  const images = document.querySelectorAll('img[crossOrigin]');
+  const promises = Array.from(images).map((img: any) => {
+    return new Promise((resolve) => {
+      if (img.complete) {
+        resolve(true);
+      } else {
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+      }
+    });
+  });
+  await Promise.all(promises);
+}
+
 export async function exportSiteToPdf() {
+  await preloadImages();
+  
   const sections = [
     'hero',
     'about',
@@ -29,9 +46,9 @@ export async function exportSiteToPdf() {
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,
-      allowTaint: true,
+      allowTaint: false,
       backgroundColor: null,
-      logging: false,
+      logging: true,
       width: slideWidth,
       height: slideHeight,
       windowWidth: slideWidth,
