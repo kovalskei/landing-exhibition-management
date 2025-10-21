@@ -4,10 +4,13 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
+import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 
 const SLIDES_COUNT = 5;
+const GOOGLE_SHEET_URL = '';
 
 export default function Index() {
+  const { data: exponentData } = useGoogleSheets(GOOGLE_SHEET_URL);
   const [isMobile, setIsMobile] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -425,15 +428,15 @@ function DesktopLanding() {
                 <h3 className="text-3xl font-semibold mb-6 text-[#6B9FFF]">Стоимость</h3>
                 <div className="space-y-3">
                   <div className="flex items-baseline gap-3">
-                    <span className="text-4xl font-bold text-white">180 000 р.</span>
-                    <span className="text-xl text-white/70">до 31 октября</span>
+                    <span className="text-4xl font-bold text-white">{exponentData.price_early}</span>
+                    <span className="text-xl text-white/70">{exponentData.date_early}</span>
                     <span className="text-sm text-white/50 ml-2">
                       раннее<br/>бронирование
                     </span>
                   </div>
                   <div className="flex items-baseline gap-3">
-                    <span className="text-4xl font-bold text-white">210 000 р.</span>
-                    <span className="text-xl text-white/70">до 14 ноября</span>
+                    <span className="text-4xl font-bold text-white">{exponentData.price_regular}</span>
+                    <span className="text-xl text-white/70">{exponentData.date_regular}</span>
                   </div>
                 </div>
               </div>
