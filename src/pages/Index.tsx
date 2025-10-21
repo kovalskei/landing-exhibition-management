@@ -228,61 +228,27 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/ac507beb-835a-42d8-9449-0df63e3039bd.jpg')`,
+            backgroundImage: `url('https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/ac507beb-835a-42d8-9449-0df63e3039bd.jpg')`
           }}
         />
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.7))',
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E")`,
-            backgroundBlendMode: 'overlay'
-          }}
-        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70" />
         <div className="container mx-auto px-12 relative z-10">
-          <div className="max-w-3xl animate-fade-in">
-            <p 
-              className="tracking-[0.25em] mb-8 uppercase text-4xl font-extrabold"
-              style={{ 
-                color: '#D4AF37',
-                fontSize: '26px',
-                letterSpacing: '0.25em',
-                textShadow: '0 0 20px rgba(212, 175, 55, 0.3)'
-              }}
-            >
+          <div className="max-w-3xl">
+            <p className="text-[#D4AF37] text-[26px] tracking-[0.25em] mb-8 uppercase font-extrabold">
               20 НОЯБРЯ 2025
             </p>
-            <h1 
-              className="font-heading font-black leading-[0.95] mb-10 text-white uppercase text-7xl"
-              style={{
-                fontSize: '96px',
-                fontWeight: 900,
-                letterSpacing: '-0.02em',
-                textShadow: '0 4px 30px rgba(0,0,0,0.5), 0 0 40px rgba(59, 130, 246, 0.2)'
-              }}
-            >
+            <h1 className="font-heading font-black text-[96px] leading-[0.95] mb-10 text-white uppercase tracking-tight">
               МАСШТАБНАЯ<br />
               КОНФЕРЕНЦИЯ<br />
               И ВЫСТАВКА
             </h1>
-            <div className="w-[97.5%] h-[7.5px] mb-12" style={{
-              background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 50%, #06B6D4 100%)',
-              boxShadow: '0 0 25px rgba(79, 70, 229, 0.5)'
-            }} />
+            <div className="w-[97.5%] h-[7.5px] mb-12 bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#06B6D4]" />
             <div className="space-y-2">
-              <div className="flex gap-16 font-bold text-white uppercase" style={{
-                fontSize: '30px',
-                letterSpacing: '0.03em',
-                textShadow: '0 2px 10px rgba(0,0,0,0.3)'
-              }}>
+              <div className="flex gap-16 text-[30px] tracking-[0.03em] font-bold text-white uppercase">
                 <span>70 ЭКСПОНЕНТОВ</span>
                 <span>70 СПИКЕРОВ</span>
               </div>
-              <div className="font-bold text-white uppercase" style={{
-                fontSize: '30px',
-                letterSpacing: '0.03em',
-                textShadow: '0 2px 10px rgba(0,0,0,0.3)'
-              }}>
+              <div className="text-[30px] tracking-[0.03em] font-bold text-white uppercase">
                 1200 ПОСЕТИТЕЛЕЙ
               </div>
             </div>
@@ -290,38 +256,24 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
         </div>
       </section>
 
-      <section id="about" className="py-24 relative">
-        <div 
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E")`,
-            backgroundBlendMode: 'overlay',
-            pointerEvents: 'none'
-          }}
-        />
+      <section id="about" className="py-24 relative bg-[#0f172a]">
         <div className="container mx-auto px-12 relative z-10">
           <div className="grid md:grid-cols-2 gap-20 items-start">
-            <div className="animate-fade-in">
+            <div>
               <h2 className="font-heading font-bold text-6xl mb-12 text-white relative inline-block">
                 О мероприятии
-                <div className="absolute bottom-0 left-0 w-full h-[8px] -z-10" style={{
-                  background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)',
-                  backgroundImage: `
-                    url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E"),
-                    linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)
-                  `
-                }} />
+                <div className="absolute bottom-0 left-0 w-full h-[8px] -z-10 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED]" />
               </h2>
               <div className="space-y-8 mt-8">
-                <p className="text-xl leading-relaxed text-white font-normal">
+                <p className="text-xl leading-relaxed text-white">
                   Поток - это масштабное событие, которое объединяет 2000 руководителей и ведущих специалистов по персоналу.
                 </p>
-                <p className="text-xl leading-relaxed text-white/80 font-normal">
+                <p className="text-xl leading-relaxed text-white/80">
                   Посетители мероприятия интересуются продуктами и услугами для развития, ищут кейсы и идеи для внедрения в свои компании.
                 </p>
               </div>
             </div>
-            <div className="relative">
+            <div>
               <img
                 src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/7654e33a-fc9a-46c5-a5a0-a3db02695766.jpg"
                 alt="Speaker"
@@ -351,45 +303,34 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
 
       <section id="audience" className="py-24 bg-card/30">
         <div className="container mx-auto px-6">
-          <h2 className="font-heading font-bold text-5xl mb-16 text-center gradient-border pb-4 inline-block">
+          <h2 className="font-heading font-bold text-5xl mb-16 text-center text-white w-full">
             Аудитория мероприятия
+            <div className="h-1 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] mt-4 mx-auto max-w-md" />
           </h2>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mt-12">
-            <Card className="p-8 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 text-center animate-fade-in">
-              <div className="text-7xl font-bold text-primary mb-4">43%</div>
-              <p className="text-base">Руководители по персоналу, HR-директора, HRBP</p>
+            <Card className="p-8 bg-gradient-to-br from-[#4F46E5]/10 to-[#4F46E5]/5 border-[#4F46E5]/20 text-center">
+              <div className="text-7xl font-bold text-[#4F46E5] mb-4">43%</div>
+              <p className="text-base text-white">Руководители по персоналу, HR-директора, HRBP</p>
             </Card>
-            <Card className="p-8 bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20 text-center animate-fade-in">
-              <div className="text-7xl font-bold text-secondary mb-4">36%</div>
-              <p className="text-base">ТОП-менеджмент, генеральные директора</p>
+            <Card className="p-8 bg-gradient-to-br from-[#7C3AED]/10 to-[#7C3AED]/5 border-[#7C3AED]/20 text-center">
+              <div className="text-7xl font-bold text-[#7C3AED] mb-4">36%</div>
+              <p className="text-base text-white">ТОП-менеджмент, генеральные директора</p>
             </Card>
-            <Card className="p-8 bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20 text-center animate-fade-in">
-              <div className="text-7xl font-bold text-accent mb-4">21%</div>
-              <p className="text-base">HR-специалисты, HR-менеджеры</p>
+            <Card className="p-8 bg-gradient-to-br from-[#06B6D4]/10 to-[#06B6D4]/5 border-[#06B6D4]/20 text-center">
+              <div className="text-7xl font-bold text-[#06B6D4] mb-4">21%</div>
+              <p className="text-base text-white">HR-специалисты, HR-менеджеры</p>
             </Card>
           </div>
         </div>
       </section>
 
-      <section id="exponent" className="py-24 relative overflow-hidden">
-        <div 
-          className="absolute inset-0 opacity-20"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.3'/%3E%3C/svg%3E")`
-          }}
-        />
+      <section id="exponent" className="py-24 relative overflow-hidden bg-[#0a0f1e]">
         <div className="container mx-auto px-12 relative z-10">
           <div className="grid md:grid-cols-2 gap-16 items-start">
-            <div className="animate-fade-in">
+            <div>
               <h2 className="font-heading font-bold text-6xl mb-4 text-white relative inline-block">
                 №1 «Экспонент»
-                <div className="absolute bottom-0 left-0 w-full h-[8px] -z-10" style={{
-                  background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)',
-                  backgroundImage: `
-                    url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E"),
-                    linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)
-                  `
-                }} />
+                <div className="absolute bottom-0 left-0 w-full h-[8px] -z-10 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED]" />
               </h2>
               <p className="text-xl text-white/90 mb-12 mt-8">
                 Представить свой продукт/услугу в экспозоне
@@ -435,9 +376,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
                   <div className="flex items-baseline gap-3">
                     <span className="text-4xl font-bold text-white">{exponentData.price_early}</span>
                     <span className="text-xl text-white/70">{exponentData.date_early}</span>
-                    <span className="text-sm text-white/50 ml-2">
-                      раннее<br/>бронирование
-                    </span>
+                    <span className="text-sm text-white/50 ml-2">раннее бронирование</span>
                   </div>
                   <div className="flex items-baseline gap-3">
                     <span className="text-4xl font-bold text-white">{exponentData.price_regular}</span>
@@ -446,7 +385,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
                 </div>
               </div>
 
-              <div className="border border-white/20 bg-black/40 p-6 rounded-lg backdrop-blur-sm">
+              <div className="border border-white/20 bg-black/40 p-6 rounded-lg">
                 <p className="text-base text-white/90 mb-4">
                   <span className="font-semibold">Бонус: Маркетинговая поддержка «Экспонент»</span><br/>
                   (включение информации о продукте в рассылки, анонсы)
@@ -458,7 +397,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
               </div>
             </div>
 
-            <div className="animate-fade-in">
+            <div>
               <img 
                 src="https://cdn.poehali.dev/files/f6e65250-add3-4632-bed6-68ca8f4d5853.png" 
                 alt="Экспонент"
@@ -469,19 +408,20 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
         </div>
       </section>
 
-      <section id="conference" className="py-24">
+      <section id="conference" className="py-24 bg-[#0f172a]">
         <div className="container mx-auto px-6">
-          <h2 className="font-heading font-bold text-5xl mb-6 gradient-border pb-4 inline-block">
+          <h2 className="font-heading font-bold text-5xl mb-6 text-white w-full">
             Конференция и Выставка
+            <div className="h-1 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] mt-4 max-w-2xl" />
           </h2>
-          <p className="text-lg text-muted-foreground mb-12 max-w-4xl">
+          <p className="text-lg text-white/60 mb-12 max-w-4xl">
             На мероприятии представлены самые современные продукты и услуги для развития компаний, российские и зарубежные кейсы
           </p>
           
           <div className="grid md:grid-cols-2 gap-12 max-w-6xl">
             <div>
-              <h3 className="font-heading font-semibold text-xl mb-6">Платформы:</h3>
-              <ul className="space-y-3 text-base">
+              <h3 className="text-xl font-semibold mb-6 text-white">Платформы:</h3>
+              <ul className="space-y-3 text-base text-white/90">
                 <li>Размещение вакансий</li>
                 <li>Автоматизация рекрутинга</li>
                 <li>Онбординг</li>
@@ -495,8 +435,8 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
               </ul>
             </div>
             <div>
-              <h3 className="font-heading font-semibold text-xl mb-6">Услуги:</h3>
-              <ul className="space-y-3 text-base">
+              <h3 className="text-xl font-semibold mb-6 text-white">Услуги:</h3>
+              <ul className="space-y-3 text-base text-white/90">
                 <li>Поиск и подбор персонала</li>
                 <li>Корпоративное обучение</li>
                 <li>Создание курсов, тестов, вебинаров</li>
@@ -512,8 +452,8 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
           </div>
 
           <div className="mt-12 text-right max-w-6xl">
-            <p className="text-5xl font-bold gradient-text">БОЛЕЕ 50</p>
-            <p className="text-xl font-semibold">КОМПАНИЙ И ПРОЕКТОВ</p>
+            <p className="text-5xl font-bold bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] bg-clip-text text-transparent">БОЛЕЕ 50</p>
+            <p className="text-xl font-semibold text-white">КОМПАНИЙ И ПРОЕКТОВ</p>
           </div>
         </div>
       </section>
