@@ -58,7 +58,7 @@ export async function exportSiteToPdf() {
 
   for (const sectionId of sections) {
     if (sectionId === 'hero') {
-      const heroImage = await loadImageAsBase64('/images/h1.png');
+      const heroImage = await loadImageAsBase64('/images/hero-bg');
       
       if (!isFirstPage) {
         pdf.addPage();
