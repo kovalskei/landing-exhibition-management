@@ -294,9 +294,9 @@ function DesktopLanding() {
         <div className="container mx-auto px-12 relative z-10">
           <div className="grid md:grid-cols-2 gap-20 items-start">
             <div className="animate-fade-in">
-              <h2 className="font-heading font-bold text-6xl mb-12 text-white relative inline-block pb-3">
+              <h2 className="font-heading font-bold text-6xl mb-12 text-white relative inline-block">
                 О мероприятии
-                <div className="absolute bottom-0 left-0 w-full h-[5px]" style={{
+                <div className="absolute bottom-0 left-0 w-full h-[8px]" style={{
                   background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)'
                 }} />
               </h2>
