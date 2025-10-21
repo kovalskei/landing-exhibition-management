@@ -48,21 +48,16 @@ export async function exportSiteToPdf() {
     clone.style.position = 'relative';
     clone.style.overflow = 'hidden';
     
-    const overlayDivs = clone.querySelectorAll('.absolute.inset-0');
-    overlayDivs.forEach(overlay => {
-      console.log(`Removing absolute inset-0 overlay from ${sectionId}`);
-      overlay.remove();
-    });
-    
-    const allElements = clone.getElementsByTagName('*');
-    for (let i = 0; i < allElements.length; i++) {
-      const el = allElements[i] as HTMLElement;
+    const allElements = Array.from(clone.getElementsByTagName('*')) as HTMLElement[];
+    allElements.forEach((el, i) => {
       const computedStyle = window.getComputedStyle(element.getElementsByTagName('*')[i]);
       
-      if (computedStyle.backgroundImage && computedStyle.backgroundImage.includes('noiseFilter')) {
-        el.style.backgroundImage = 'none';
+      if (computedStyle.position === 'absolute' && 
+          computedStyle.inset === '0px') {
+        console.log(`Removing absolute inset-0 element from ${sectionId}`);
+        el.remove();
       }
-    }
+    });
 
     tempContainer.innerHTML = '';
     tempContainer.appendChild(clone);
