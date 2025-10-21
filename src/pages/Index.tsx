@@ -360,6 +360,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
               <img
                 src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/7654e33a-fc9a-46c5-a5a0-a3db02695766.jpg"
                 alt="Speaker"
+                crossOrigin="anonymous"
                 style={{ width: '100%', height: '500px', objectFit: 'cover', borderRadius: '8px' }}
               />
             </div>
@@ -368,16 +369,19 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
             <img
               src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/25a31e94-8d84-4f73-a0ec-8f9fd409d28c.jpg"
               alt="Networking"
+              crossOrigin="anonymous"
               style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px' }}
             />
             <img
               src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/b422f665-8127-4557-bd8f-998890904df5.jpg"
               alt="Exhibition"
+              crossOrigin="anonymous"
               style={{ width: '100%', height: '280px', objectFit: 'cover', borderRadius: '8px' }}
             />
             <img
               src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/41a88ad5-0e5c-45ae-9f90-d7a19b6a31ee.jpg"
               alt="Conversation"
+              crossOrigin="anonymous"
               style={{ width: '100%', height: '280px', objectFit: 'cover', borderRadius: '8px' }}
             />
           </div>
@@ -508,6 +512,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
               <img 
                 src="https://cdn.poehali.dev/files/f6e65250-add3-4632-bed6-68ca8f4d5853.png" 
                 alt="Экспонент"
+                crossOrigin="anonymous"
                 style={{ borderRadius: '8px', width: '100%', height: 'auto', objectFit: 'cover' }}
               />
             </div>
