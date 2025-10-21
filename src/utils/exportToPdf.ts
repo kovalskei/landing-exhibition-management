@@ -48,15 +48,11 @@ export async function exportSiteToPdf() {
     clone.style.position = 'relative';
     clone.style.overflow = 'hidden';
     
-    const absoluteElements = clone.querySelectorAll('.absolute.inset-0');
-    absoluteElements.forEach((el) => {
-      const htmlEl = el as HTMLElement;
-      if (htmlEl.style.background || htmlEl.style.backgroundImage) {
-        console.log(`Clearing background from absolute overlay in ${sectionId}`);
-        htmlEl.style.background = 'transparent';
-        htmlEl.style.backgroundImage = 'none';
-        htmlEl.style.opacity = '0';
-      }
+    const absoluteOverlays = clone.querySelectorAll('.absolute.inset-0');
+    console.log(`Found ${absoluteOverlays.length} absolute overlays in ${sectionId}`);
+    absoluteOverlays.forEach((overlay) => {
+      console.log(`Removing absolute overlay from ${sectionId}`);
+      overlay.remove();
     });
 
     tempContainer.innerHTML = '';
