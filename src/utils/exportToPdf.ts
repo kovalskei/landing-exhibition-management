@@ -57,21 +57,17 @@ export async function exportSiteToPdf() {
     
     await new Promise(resolve => setTimeout(resolve, 50));
     
-    const allDivs = tempContainer.querySelectorAll('div');
+    const directChildren = Array.from(clone.children) as HTMLElement[];
     let removedCount = 0;
-    allDivs.forEach((div) => {
-      const computed = window.getComputedStyle(div);
-      if (computed.position === 'absolute' && 
-          computed.top === '0px' && 
-          computed.left === '0px' && 
-          computed.right === '0px' && 
-          computed.bottom === '0px') {
-        console.log(`Removing absolute inset-0 div from ${sectionId}`, div.className);
-        div.remove();
+    directChildren.forEach((child) => {
+      const computed = window.getComputedStyle(child);
+      if (computed.position === 'absolute') {
+        console.log(`Removing absolute child from ${sectionId}:`, child.className || child.tagName);
+        child.remove();
         removedCount++;
       }
     });
-    console.log(`Removed ${removedCount} overlays from ${sectionId}`);
+    console.log(`Removed ${removedCount} absolute children from ${sectionId}`);
 
     await new Promise(resolve => setTimeout(resolve, 100));
 
