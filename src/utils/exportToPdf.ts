@@ -76,8 +76,8 @@ export async function exportSiteToPdf() {
 
     const canvas = await html2canvas(element, {
       scale: 2,
-      useCORS: false,
-      allowTaint: true,
+      useCORS: true,
+      allowTaint: false,
       backgroundColor: null,
       logging: false,
       width: slideWidth,
