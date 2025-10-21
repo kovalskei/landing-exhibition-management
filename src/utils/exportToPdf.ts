@@ -56,15 +56,8 @@ export async function exportSiteToPdf() {
       const computedStyle = window.getComputedStyle(element.getElementsByTagName('*')[i]);
       
       if (computedStyle.backgroundImage && computedStyle.backgroundImage.includes('noiseFilter')) {
-        const opacity = parseFloat(computedStyle.opacity);
-        console.log(`Found noise filter in ${sectionId}, opacity: ${opacity}`);
-        
-        if (opacity >= 0.5) {
-          console.log(`Removing noise (opacity ${opacity} >= 0.5)`);
-          el.style.backgroundImage = 'none';
-        } else {
-          console.log(`Keeping noise (opacity ${opacity} < 0.5)`);
-        }
+        console.log(`Removing noise filter from ${sectionId}`);
+        el.style.backgroundImage = 'none';
       }
     }
 
