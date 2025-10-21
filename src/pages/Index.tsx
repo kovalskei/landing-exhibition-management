@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
-import { exportSiteToPdf } from '@/utils/exportToPdf';
+import { usePDF } from 'react-to-pdf';
 
 const SLIDES_COUNT = 5;
 const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1e7Wxc3Yhrk9N4_fA3ox2S_ksG1IONPrjNNFq7BIpcvE/edit?usp=sharing';
@@ -199,6 +199,7 @@ function ParticipantsSlide() {
 
 function DesktopLanding({ exponentData }: { exponentData: { price_early: string; date_early: string; price_regular: string; date_regular: string } }) {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const { toPDF, targetRef } = usePDF({ filename: 'presentation.pdf' });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -206,7 +207,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" ref={targetRef}>
       <nav className="fixed top-0 w-full z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="font-heading font-bold text-2xl gradient-text">ПОТОК 2025</div>
@@ -216,7 +217,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
             <a href="#conference" className="text-sm hover:text-primary transition-colors">Конференция</a>
             <a href="#participants" className="text-sm hover:text-primary transition-colors">Участники</a>
             <a href="#contact" className="text-sm hover:text-primary transition-colors">Контакты</a>
-            <Button onClick={exportSiteToPdf} variant="outline" size="sm" className="ml-4">
+            <Button onClick={() => toPDF()} variant="outline" size="sm" className="ml-4">
               <Icon name="Download" size={16} className="mr-2" />
               Скачать PDF
             </Button>
