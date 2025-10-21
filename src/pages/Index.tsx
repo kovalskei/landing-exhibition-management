@@ -223,26 +223,60 @@ function DesktopLanding() {
             backgroundImage: `url('https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/ac507beb-835a-42d8-9449-0df63e3039bd.jpg')`,
           }}
         />
-        <div className="absolute inset-0 bg-black/50" />
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.7))',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E")`,
+            backgroundBlendMode: 'overlay'
+          }}
+        />
         <div className="container mx-auto px-12 relative z-10">
           <div className="max-w-3xl animate-fade-in">
-            <p className="text-base font-semibold tracking-wider mb-8" style={{ color: '#D4AF37' }}>
+            <p 
+              className="font-bold tracking-[0.3em] mb-6 uppercase"
+              style={{ 
+                color: '#D4AF37',
+                fontSize: '14px',
+                letterSpacing: '0.3em',
+                textShadow: '0 0 20px rgba(212, 175, 55, 0.3)'
+              }}
+            >
               20 НОЯБРЯ 2025
             </p>
-            <h1 className="font-heading font-extrabold text-8xl leading-[1.1] mb-8 text-white">
+            <h1 
+              className="font-heading font-black leading-[0.95] mb-10 text-white uppercase"
+              style={{
+                fontSize: '96px',
+                fontWeight: 900,
+                letterSpacing: '-0.02em',
+                textShadow: '0 4px 30px rgba(0,0,0,0.5), 0 0 40px rgba(59, 130, 246, 0.2)'
+              }}
+            >
               МАСШТАБНАЯ<br />
               КОНФЕРЕНЦИЯ<br />
               И ВЫСТАВКА
             </h1>
-            <div className="w-[70%] h-1 mb-10" style={{
-              background: 'linear-gradient(to right, #3B82F6, #8B5CF6, #06B6D4)'
+            <div className="w-[65%] h-[3px] mb-12" style={{
+              background: 'linear-gradient(to right, #3B82F6, #8B5CF6, #06B6D4)',
+              boxShadow: '0 0 20px rgba(59, 130, 246, 0.4)'
             }} />
-            <div className="flex gap-16 text-xl font-semibold text-white">
-              <span>70 ЭКСПОНЕНТОВ</span>
-              <span>70 СПИКЕРОВ</span>
-            </div>
-            <div className="text-xl font-semibold text-white mt-2">
-              1200 ПОСЕТИТЕЛЕЙ
+            <div className="space-y-3">
+              <div className="flex gap-20 font-bold text-white uppercase" style={{
+                fontSize: '18px',
+                letterSpacing: '0.05em',
+                textShadow: '0 2px 10px rgba(0,0,0,0.3)'
+              }}>
+                <span>70 ЭКСПОНЕНТОВ</span>
+                <span>70 СПИКЕРОВ</span>
+              </div>
+              <div className="font-bold text-white uppercase" style={{
+                fontSize: '18px',
+                letterSpacing: '0.05em',
+                textShadow: '0 2px 10px rgba(0,0,0,0.3)'
+              }}>
+                1200 ПОСЕТИТЕЛЕЙ
+              </div>
             </div>
           </div>
         </div>
