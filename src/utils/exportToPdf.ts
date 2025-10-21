@@ -1,5 +1,5 @@
-import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 export async function exportSiteToPdf() {
   const sections = [
@@ -12,44 +12,34 @@ export async function exportSiteToPdf() {
     'contact'
   ];
 
-  const slideWidth = 1920;
-  const slideHeight = 1080;
-
   const pdf = new jsPDF({
     orientation: 'landscape',
     unit: 'px',
-    format: [slideWidth, slideHeight],
-    compress: true
+    format: [1920, 1080]
   });
+
+  let isFirst = true;
 
   for (const sectionId of sections) {
     const element = document.getElementById(sectionId);
     if (!element) continue;
 
-    element.scrollIntoView();
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: null,
-      logging: false,
-      width: slideWidth,
-      height: slideHeight,
-      windowWidth: slideWidth,
-      windowHeight: slideHeight
-    });
-
-    const imgData = canvas.toDataURL('image/png', 1.0);
-
-    if (sectionId !== 'hero') {
+    if (!isFirst) {
       pdf.addPage();
     }
+    isFirst = false;
 
-    pdf.addImage(imgData, 'PNG', 0, 0, slideWidth, slideHeight, undefined, 'FAST');
+    const canvas = await html2canvas(element, {
+      scale: 1,
+      useCORS: true,
+      logging: false,
+      width: 1920,
+      height: 1080
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    pdf.addImage(imgData, 'PNG', 0, 0, 1920, 1080);
   }
 
-  window.scrollTo(0, 0);
   pdf.save('presentation.pdf');
 }
