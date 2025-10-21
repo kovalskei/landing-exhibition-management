@@ -296,8 +296,12 @@ function DesktopLanding() {
             <div className="animate-fade-in">
               <h2 className="font-heading font-bold text-6xl mb-12 text-white relative inline-block">
                 О мероприятии
-                <div className="absolute bottom-0 left-0 w-full h-[8px]" style={{
-                  background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)'
+                <div className="absolute bottom-0 left-0 w-full h-[8px] -z-10" style={{
+                  background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)',
+                  backgroundImage: `
+                    url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E"),
+                    linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)
+                  `
                 }} />
               </h2>
               <div className="space-y-8 mt-8">
