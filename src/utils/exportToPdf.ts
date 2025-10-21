@@ -57,6 +57,18 @@ export async function exportSiteToPdf() {
   let isFirstPage = true;
 
   for (const sectionId of sections) {
+    if (sectionId === 'hero') {
+      const heroImage = await loadImageAsBase64('/images/hero-bg.png');
+      
+      if (!isFirstPage) {
+        pdf.addPage();
+      }
+      isFirstPage = false;
+      
+      pdf.addImage(heroImage, 'PNG', 0, 0, 1920, 1080, undefined, 'FAST');
+      continue;
+    }
+
     const element = document.getElementById(sectionId);
     if (!element) continue;
 
