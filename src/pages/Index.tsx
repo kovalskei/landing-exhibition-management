@@ -283,29 +283,48 @@ function DesktopLanding() {
       </section>
 
       <section id="about" className="py-24 relative">
-        <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="container mx-auto px-12">
+          <div className="grid md:grid-cols-2 gap-20 items-start">
             <div className="animate-fade-in">
-              <h2 className="font-heading font-bold text-5xl mb-8 gradient-border pb-4">О мероприятии</h2>
-              <p className="text-lg leading-relaxed mb-6">
-                Поток - это масштабное событие, которое объединяет 2000 руководителей и ведущих специалистов по персоналу.
-              </p>
-              <p className="text-lg leading-relaxed text-muted-foreground">
-                Посетители мероприятия интересуются продуктами и услугами для развития, ищут кейсы и идеи для внедрения в свои компании.
-              </p>
+              <h2 className="font-heading font-bold text-6xl mb-12 text-white relative inline-block pb-3">
+                О мероприятии
+                <div className="absolute bottom-0 left-0 w-full h-[5px]" style={{
+                  background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)'
+                }} />
+              </h2>
+              <div className="space-y-8 mt-8">
+                <p className="text-xl leading-relaxed text-white font-normal">
+                  Поток - это масштабное событие, которое объединяет 2000 руководителей и ведущих специалистов по персоналу.
+                </p>
+                <p className="text-xl leading-relaxed text-white/80 font-normal">
+                  Посетители мероприятия интересуются продуктами и услугами для развития, ищут кейсы и идеи для внедрения в свои компании.
+                </p>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="relative">
               <img
-                src="https://cdn.poehali.dev/files/58ef7c9e-a8d7-4e1e-bf3b-7681f3726475.png"
-                alt="Event"
-                className="w-full h-64 object-cover rounded-lg"
-              />
-              <img
-                src="https://cdn.poehali.dev/files/58ef7c9e-a8d7-4e1e-bf3b-7681f3726475.png"
-                alt="Event"
-                className="w-full h-64 object-cover rounded-lg mt-8"
+                src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/7654e33a-fc9a-46c5-a5a0-a3db02695766.jpg"
+                alt="Speaker"
+                className="w-full h-[500px] object-cover rounded-lg"
               />
             </div>
+          </div>
+          <div className="grid grid-cols-3 gap-6 mt-12">
+            <img
+              src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/25a31e94-8d84-4f73-a0ec-8f9fd409d28c.jpg"
+              alt="Networking"
+              className="w-full h-[280px] object-cover rounded-lg"
+            />
+            <img
+              src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/b422f665-8127-4557-bd8f-998890904df5.jpg"
+              alt="Exhibition"
+              className="w-full h-[280px] object-cover rounded-lg"
+            />
+            <img
+              src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/41a88ad5-0e5c-45ae-9f90-d7a19b6a31ee.jpg"
+              alt="Conversation"
+              className="w-full h-[280px] object-cover rounded-lg"
+            />
           </div>
         </div>
       </section>
