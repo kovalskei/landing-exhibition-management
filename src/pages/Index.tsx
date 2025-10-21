@@ -28,7 +28,7 @@ export default function Index() {
     return <MobileStories currentSlide={currentSlide} nextSlide={nextSlide} prevSlide={prevSlide} />;
   }
 
-  return <DesktopLanding />;
+  return <DesktopLanding exponentData={exponentData} />;
 }
 
 function MobileStories({ currentSlide, nextSlide, prevSlide }: { currentSlide: number; nextSlide: () => void; prevSlide: () => void }) {
@@ -196,7 +196,7 @@ function ParticipantsSlide() {
   );
 }
 
-function DesktopLanding() {
+function DesktopLanding({ exponentData }: { exponentData: { price_early: string; date_early: string; price_regular: string; date_regular: string } }) {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
 
   const handleSubmit = (e: React.FormEvent) => {
