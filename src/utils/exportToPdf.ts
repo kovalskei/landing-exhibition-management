@@ -53,13 +53,30 @@ export async function exportSiteToPdf() {
     for (let i = 0; i < allElements.length; i++) {
       const el = allElements[i] as HTMLElement;
       
+      const tagName = el.tagName.toLowerCase();
+      const isText = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'a', 'li', 'button', 'label', 'div'].includes(tagName);
+      const hasTextContent = el.textContent && el.textContent.trim().length > 0;
+      const isImage = tagName === 'img';
+      
+      if (isText && hasTextContent && !isImage) {
+        el.style.zIndex = '1000';
+        el.style.position = 'relative';
+      }
+      
       if (el.style.backgroundImage && el.style.backgroundImage.includes('noiseFilter')) {
-        el.style.backgroundImage = 'none';
+        el.style.zIndex = '500';
+        el.style.position = 'relative';
       }
       
       const computedStyle = window.getComputedStyle(element.getElementsByTagName('*')[i]);
-      if (computedStyle.backgroundImage && computedStyle.backgroundImage.includes('noiseFilter')) {
-        el.style.backgroundImage = 'none';
+      if (computedStyle.backgroundImage && computedStyle.backgroundImage !== 'none' && !computedStyle.backgroundImage.includes('noiseFilter')) {
+        el.style.zIndex = '1';
+        el.style.position = 'relative';
+      }
+      
+      if (isImage) {
+        el.style.zIndex = '1';
+        el.style.position = 'relative';
       }
     }
 
