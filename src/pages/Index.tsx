@@ -358,7 +358,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
             </div>
             <div>
               <img
-                src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/269af2e1-6629-4b62-8299-5fb8e4b951b2.jpg"
+                src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/15a7358a-6819-47da-9841-620eafa987b4.jpg"
                 alt="Speaker"
                 crossOrigin="anonymous"
                 style={{ width: '100%', height: '500px', objectFit: 'cover', borderRadius: '8px' }}
@@ -367,7 +367,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginTop: '48px' }}>
             <img
-              src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/428a9aa2-fba6-42f3-8e89-a25f0c5aa3cd.jpg"
+              src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/15a7358a-6819-47da-9841-620eafa987b4.jpg"
               alt="Networking"
               crossOrigin="anonymous"
               style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px' }}
@@ -379,7 +379,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
               style={{ width: '100%', height: '280px', objectFit: 'cover', borderRadius: '8px' }}
             />
             <img
-              src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/15a7358a-6819-47da-9841-620eafa987b4.jpg"
+              src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/6a58af11-39a3-40df-932c-67182a61df03.jpg"
               alt="Conversation"
               crossOrigin="anonymous"
               style={{ width: '100%', height: '280px', objectFit: 'cover', borderRadius: '8px' }}
