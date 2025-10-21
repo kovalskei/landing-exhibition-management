@@ -228,7 +228,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/ac507beb-835a-42d8-9449-0df63e3039bd.jpg')`
+            backgroundImage: `url('/images/hero-bg.png')`
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70" />
