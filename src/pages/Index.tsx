@@ -33,8 +33,8 @@ function MobileStories({ currentSlide, nextSlide, prevSlide }: { currentSlide: n
     <HeroSlide key="hero" />,
     <AboutSlide key="about" />,
     <AudienceSlide key="audience" />,
-    <ParticipantsSlide key="participants" />,
-    <PricingSlide key="pricing" />
+    <ConferenceSlide key="conference" />,
+    <ParticipantsSlide key="participants" />
   ];
 
   return (
@@ -66,7 +66,7 @@ function MobileStories({ currentSlide, nextSlide, prevSlide }: { currentSlide: n
 function HeroSlide() {
   return (
     <div className="h-full w-full flex flex-col justify-center items-start px-6 py-12 bg-gradient-to-br from-background via-background to-primary/10">
-      <p className="text-accent text-sm font-semibold tracking-wider mb-4">20 НОЯБРЯ 2025</p>
+      <p className="text-gold text-sm font-semibold tracking-wider mb-4">20 НОЯБРЯ 2025</p>
       <h1 className="font-heading font-bold text-4xl leading-tight mb-6">
         МАСШТАБНАЯ <br />
         КОНФЕРЕНЦИЯ <br />
@@ -118,40 +118,77 @@ function AudienceSlide() {
   );
 }
 
-function ParticipantsSlide() {
-  const participants = [
-    'Avito', 'Рокет Ворк', 'ПУЛЬС', 'КВИО', 'HOMEOFFICE',
-    'ГРАНЬ.РФ', 'Teal HR', 'Я ПОНИМАЮ', 'AON', 'ЭКИПСИ',
-    'HR Lab', 'examus', 'highlight', 'FriendWork', 'HRBOX'
-  ];
-
+function ConferenceSlide() {
   return (
-    <div className="h-full w-full flex flex-col justify-center px-6 py-12 bg-background overflow-y-auto">
-      <h2 className="font-heading font-bold text-3xl mb-6 gradient-border pb-3">Наши участники</h2>
-      <p className="text-sm text-muted-foreground mb-6">в форматах с выступлениями и стендами</p>
-      <div className="grid grid-cols-2 gap-4">
-        {participants.map((name, i) => (
-          <div key={i} className="bg-card p-4 rounded-lg border border-border text-center text-sm font-semibold">
-            {name}
-          </div>
-        ))}
+    <div className="h-full w-full flex flex-col justify-start px-6 py-12 bg-background overflow-y-auto">
+      <h2 className="font-heading font-bold text-3xl mb-4 gradient-border pb-3">Конференция и Выставка</h2>
+      <p className="text-sm text-muted-foreground mb-6">
+        На мероприятии представлены самые современные продукты и услуги для развития компаний, российские и зарубежные кейсы
+      </p>
+      
+      <div className="grid grid-cols-2 gap-6 text-xs mb-8">
+        <div>
+          <h3 className="font-semibold mb-3">Платформы:</h3>
+          <ul className="space-y-2 text-muted-foreground">
+            <li>Размещение вакансий</li>
+            <li>Автоматизация рекрутинга</li>
+            <li>Онбординг</li>
+            <li>Обучение персонала, e-learning</li>
+            <li>Автоматизация HR-процессов и аналитика</li>
+            <li>Оценка персонала</li>
+            <li>Well-being платформы</li>
+            <li>AR/VR обучение</li>
+            <li>Биржи фриланса и поиска сотрудников на смену</li>
+            <li>Сервисы для автоматизации выплат и зарплаты</li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="font-semibold mb-3">Услуги:</h3>
+          <ul className="space-y-2 text-muted-foreground">
+            <li>Поиск и подбор персонала</li>
+            <li>Корпоративное обучение</li>
+            <li>Создание курсов, тестов, вебинаров</li>
+            <li>Оценка персонала</li>
+            <li>Управление изменениями, стратегии</li>
+            <li>HR-консалтинг</li>
+            <li>Телемедицина для сотрудников</li>
+            <li>Психологическая диагностика сотрудников</li>
+            <li>Корпоративная культура</li>
+            <li>Бренд работодателя</li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="text-right mt-4">
+        <p className="text-2xl font-bold gradient-text">БОЛЕЕ 50</p>
+        <p className="text-sm font-semibold">КОМПАНИЙ</p>
+        <p className="text-sm font-semibold">И ПРОЕКТОВ</p>
       </div>
     </div>
   );
 }
 
-function PricingSlide() {
+function ParticipantsSlide() {
+  const participants = [
+    'Avito Работа', 'Avito Подработка × GigAnt', 'Рокет Ворк', 'ПУЛЬС', 'СБЕР ЗДОРОВЬЕ КОМПАНИЯМ',
+    'КВИО', 'HOMEOFFICE', 'ГРАНЬ.РФ', 'Teal HR', 'Я ПОНИМАЮ',
+    'AON', 'ЭКИПСИ', 'HR Lab', 'examus', 'highlight',
+    'FriendWork', 'HRBOX', 'T/&/D/G', 'StartExam', 'KWORK',
+    'HAPPY JOB', 'HR Prime', 'TSQ Consulting', 'Jalinga', 'WHEN SPEAK',
+    'intella', 'talent.Q', 'TEMPi', 'HintEd', 'WEBSOFT', 'Dаoffice', 'ФИТМОСТ'
+  ];
+
   return (
-    <div className="h-full w-full flex flex-col justify-center px-6 py-12 bg-background">
-      <h2 className="font-heading font-bold text-3xl mb-6 gradient-border pb-3">Цены</h2>
-      <Card className="p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20">
-        <h3 className="font-heading font-bold text-xl mb-4">Стандартный стенд</h3>
-        <div className="text-4xl font-bold gradient-text mb-2">250 000 ₽</div>
-        <p className="text-sm text-muted-foreground mb-6">Действует до 15 ноября</p>
-        <Button className="w-full bg-gradient-to-r from-primary via-secondary to-accent text-white font-semibold">
-          Забронировать
-        </Button>
-      </Card>
+    <div className="h-full w-full flex flex-col justify-start px-6 py-12 bg-background overflow-y-auto">
+      <h2 className="font-heading font-bold text-3xl mb-4 gradient-border pb-3">Наши участники мероприятий</h2>
+      <p className="text-sm text-muted-foreground mb-6">в форматах с выступлениями и стендами</p>
+      <div className="grid grid-cols-2 gap-3">
+        {participants.map((name, i) => (
+          <div key={i} className="bg-card p-3 rounded-lg border border-border text-center text-xs font-semibold">
+            {name}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -172,8 +209,8 @@ function DesktopLanding() {
           <div className="flex gap-8">
             <a href="#about" className="text-sm hover:text-primary transition-colors">О мероприятии</a>
             <a href="#audience" className="text-sm hover:text-primary transition-colors">Аудитория</a>
+            <a href="#conference" className="text-sm hover:text-primary transition-colors">Конференция</a>
             <a href="#participants" className="text-sm hover:text-primary transition-colors">Участники</a>
-            <a href="#pricing" className="text-sm hover:text-primary transition-colors">Цены</a>
             <a href="#contact" className="text-sm hover:text-primary transition-colors">Контакты</a>
           </div>
         </div>
@@ -183,7 +220,7 @@ function DesktopLanding() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5" />
         <div className="container mx-auto px-6 relative z-10">
           <div className="max-w-4xl animate-fade-in">
-            <p className="text-accent text-lg font-semibold tracking-wider mb-6">20 НОЯБРЯ 2025</p>
+            <p className="text-gold text-lg font-semibold tracking-wider mb-6">20 НОЯБРЯ 2025</p>
             <h1 className="font-heading font-extrabold text-7xl leading-tight mb-8">
               МАСШТАБНАЯ<br />
               КОНФЕРЕНЦИЯ<br />
@@ -192,15 +229,12 @@ function DesktopLanding() {
             <div className="gradient-border pb-6 mb-8" />
             <div className="flex gap-12 text-2xl mb-12">
               <div className="flex items-center gap-3">
-                <Icon name="Users" className="text-primary" size={32} />
                 <span className="font-semibold">70 ЭКСПОНЕНТОВ</span>
               </div>
               <div className="flex items-center gap-3">
-                <Icon name="Mic" className="text-secondary" size={32} />
                 <span className="font-semibold">70 СПИКЕРОВ</span>
               </div>
               <div className="flex items-center gap-3">
-                <Icon name="UserCheck" className="text-accent" size={32} />
                 <span className="font-semibold">1200 ПОСЕТИТЕЛЕЙ</span>
               </div>
             </div>
@@ -261,20 +295,69 @@ function DesktopLanding() {
         </div>
       </section>
 
-      <section id="participants" className="py-24">
+      <section id="conference" className="py-24">
+        <div className="container mx-auto px-6">
+          <h2 className="font-heading font-bold text-5xl mb-6 gradient-border pb-4 inline-block">
+            Конференция и Выставка
+          </h2>
+          <p className="text-lg text-muted-foreground mb-12 max-w-4xl">
+            На мероприятии представлены самые современные продукты и услуги для развития компаний, российские и зарубежные кейсы
+          </p>
+          
+          <div className="grid md:grid-cols-2 gap-12 max-w-6xl">
+            <div>
+              <h3 className="font-heading font-semibold text-xl mb-6">Платформы:</h3>
+              <ul className="space-y-3 text-base">
+                <li>Размещение вакансий</li>
+                <li>Автоматизация рекрутинга</li>
+                <li>Онбординг</li>
+                <li>Обучение персонала, e-learning</li>
+                <li>Автоматизация HR-процессов и аналитика</li>
+                <li>Оценка персонала</li>
+                <li>Well-being платформы</li>
+                <li>AR/VR обучение</li>
+                <li>Биржи фриланса и поиска сотрудников на смену</li>
+                <li>Сервисы для автоматизации выплат и зарплаты</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-heading font-semibold text-xl mb-6">Услуги:</h3>
+              <ul className="space-y-3 text-base">
+                <li>Поиск и подбор персонала</li>
+                <li>Корпоративное обучение</li>
+                <li>Создание курсов, тестов, вебинаров</li>
+                <li>Оценка персонала</li>
+                <li>Управление изменениями, стратегии</li>
+                <li>HR-консалтинг</li>
+                <li>Телемедицина для сотрудников</li>
+                <li>Психологическая диагностика сотрудников</li>
+                <li>Корпоративная культура</li>
+                <li>Бренд работодателя</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-12 text-right max-w-6xl">
+            <p className="text-5xl font-bold gradient-text">БОЛЕЕ 50</p>
+            <p className="text-xl font-semibold">КОМПАНИЙ И ПРОЕКТОВ</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="participants" className="py-24 bg-card/30">
         <div className="container mx-auto px-6">
           <h2 className="font-heading font-bold text-5xl mb-6 text-center gradient-border pb-4 inline-block">
             Наши участники мероприятий
           </h2>
           <p className="text-center text-muted-foreground mb-12">в форматах с выступлениями и стендами</p>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-6 max-w-6xl mx-auto">
             {[
-              'Avito Работа', 'Avito Подработка × GigAnt', 'Рокет Ворк', 'ПУЛЬС', 'СБЕР ЗДОРОВЬЕ',
-              'КВИО', 'HOMEOFFICE', 'ГРАНЬ.РФ', 'Teal HR', 'Я ПОНИМАЮ',
-              'AON', 'ЭКИПСИ', 'HR Lab', 'examus', 'highlight',
-              'FriendWork', 'HRBOX', 'T/&/D/G', 'StartExam', 'KWORK',
-              'HAPPY JOB', 'HR Prime', 'TSQ Consulting', 'Jalinga', 'WHEN SPEAK',
-              'intella', 'talent.Q', 'TEMPi', 'HintEd', 'WEBSOFT'
+              'Avito Работа', 'Avito Подработка × GigAnt', 'Рокет Ворк', 'ПУЛЬС', 'СБЕР ЗДОРОВЬЕ КОМПАНИЯМ', 'КВИО',
+              'HOMEOFFICE', 'ГРАНЬ.РФ', 'Teal HR', 'Я ПОНИМАЮ', 'AON', 'ЭКИПСИ',
+              'HR Lab', 'examus', 'highlight', 'FriendWork', 'HRBOX', 'T/&/D/G',
+              'StartExam', 'KWORK', 'HAPPY JOB', 'HR Prime', 'TSQ Consulting', 'Jalinga',
+              'WHEN SPEAK', 'intella', 'talent.Q', 'TEMPi', 'HintEd', 'WEBSOFT',
+              'Dаoffice', 'ФИТМОСТ'
             ].map((name, i) => (
               <Card
                 key={i}
@@ -283,93 +366,6 @@ function DesktopLanding() {
                 {name}
               </Card>
             ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="pricing" className="py-24 bg-card/30">
-        <div className="container mx-auto px-6">
-          <h2 className="font-heading font-bold text-5xl mb-16 text-center gradient-border pb-4 inline-block">Цены</h2>
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <Card className="p-8 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20">
-              <h3 className="font-heading font-bold text-2xl mb-6">Стандартный стенд</h3>
-              <div className="text-5xl font-bold gradient-text mb-3">250 000 ₽</div>
-              <p className="text-sm text-muted-foreground mb-8">Действует до 15 ноября</p>
-              <ul className="space-y-3 mb-8 text-sm">
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-primary mt-1" size={16} />
-                  <span>Площадь 9 м²</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-primary mt-1" size={16} />
-                  <span>Стандартное оборудование</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-primary mt-1" size={16} />
-                  <span>Брендирование стенда</span>
-                </li>
-              </ul>
-              <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white font-semibold">
-                Забронировать
-              </Button>
-            </Card>
-
-            <Card className="p-8 bg-gradient-to-br from-secondary/10 to-accent/10 border-secondary/20 relative overflow-hidden">
-              <div className="absolute top-4 right-4 bg-accent text-white text-xs font-bold px-3 py-1 rounded-full">
-                ПОПУЛЯРНЫЙ
-              </div>
-              <h3 className="font-heading font-bold text-2xl mb-6">VIP стенд</h3>
-              <div className="text-5xl font-bold gradient-text mb-3">500 000 ₽</div>
-              <p className="text-sm text-muted-foreground mb-8">Действует до 15 ноября</p>
-              <ul className="space-y-3 mb-8 text-sm">
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-secondary mt-1" size={16} />
-                  <span>Площадь 18 м²</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-secondary mt-1" size={16} />
-                  <span>Premium оборудование</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-secondary mt-1" size={16} />
-                  <span>Приоритетное расположение</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-secondary mt-1" size={16} />
-                  <span>Выступление спикера</span>
-                </li>
-              </ul>
-              <Button className="w-full bg-gradient-to-r from-secondary to-accent text-white font-semibold">
-                Забронировать
-              </Button>
-            </Card>
-
-            <Card className="p-8 bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20">
-              <h3 className="font-heading font-bold text-2xl mb-6">Индивидуальный</h3>
-              <div className="text-5xl font-bold gradient-text mb-3">От 750 000 ₽</div>
-              <p className="text-sm text-muted-foreground mb-8">Под ваши задачи</p>
-              <ul className="space-y-3 mb-8 text-sm">
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-accent mt-1" size={16} />
-                  <span>Площадь от 25 м²</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-accent mt-1" size={16} />
-                  <span>Индивидуальный дизайн</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-accent mt-1" size={16} />
-                  <span>Эксклюзивная локация</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon name="Check" className="text-accent mt-1" size={16} />
-                  <span>Полный пакет возможностей</span>
-                </li>
-              </ul>
-              <Button className="w-full bg-gradient-to-r from-accent to-primary text-white font-semibold">
-                Обсудить детали
-              </Button>
-            </Card>
           </div>
         </div>
       </section>
