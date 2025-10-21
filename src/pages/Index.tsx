@@ -7,7 +7,7 @@ import Icon from '@/components/ui/icon';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 
 const SLIDES_COUNT = 5;
-const GOOGLE_SHEET_URL = '';
+const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1e7Wxc3Yhrk9N4_fA3ox2S_ksG1IONPrjNNFq7BIpcvE/edit?usp=sharing';
 
 export default function Index() {
   const { data: exponentData } = useGoogleSheets(GOOGLE_SHEET_URL);
