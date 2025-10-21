@@ -49,8 +49,8 @@ export async function exportSiteToPdf() {
     clone.style.overflow = 'hidden';
     
     clone.className = '';
-    clone.style.background = 'white';
-    clone.style.color = 'black';
+    clone.style.backgroundColor = '#0a0a0f';
+    clone.style.color = 'white';
 
     tempContainer.innerHTML = '';
     tempContainer.appendChild(clone);
