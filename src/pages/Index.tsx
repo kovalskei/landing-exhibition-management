@@ -325,7 +325,7 @@ function DesktopLanding() {
             <img
               src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/25a31e94-8d84-4f73-a0ec-8f9fd409d28c.jpg"
               alt="Networking"
-              className="w-full h-[280px] object-cover rounded-lg"
+              className="w-full h-[200px] object-cover rounded-lg"
             />
             <img
               src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/b422f665-8127-4557-bd8f-998890904df5.jpg"
