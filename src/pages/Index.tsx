@@ -220,14 +220,13 @@ function DesktopLanding() {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('https://cdn.poehali.dev/files/1674fb90-83d1-41ac-b2cc-01eb509613f0.png')`,
-            filter: 'brightness(0.4)'
+            backgroundImage: `url('https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/ac507beb-835a-42d8-9449-0df63e3039bd.jpg')`,
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+        <div className="absolute inset-0 bg-black/50" />
         <div className="container mx-auto px-12 relative z-10">
           <div className="max-w-3xl animate-fade-in">
-            <p className="text-gold text-base font-semibold tracking-wider mb-8" style={{ color: '#D4AF37' }}>
+            <p className="text-base font-semibold tracking-wider mb-8" style={{ color: '#D4AF37' }}>
               20 НОЯБРЯ 2025
             </p>
             <h1 className="font-heading font-extrabold text-8xl leading-[1.1] mb-8 text-white">
