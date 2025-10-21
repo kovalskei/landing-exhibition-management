@@ -12,34 +12,44 @@ export async function exportSiteToPdf() {
     'contact'
   ];
 
+  const slideWidth = 1920;
+  const slideHeight = 1080;
+
   const pdf = new jsPDF({
     orientation: 'landscape',
     unit: 'px',
-    format: [1920, 1080]
+    format: [slideWidth, slideHeight],
+    compress: true
   });
-
-  let isFirst = true;
 
   for (const sectionId of sections) {
     const element = document.getElementById(sectionId);
     if (!element) continue;
 
-    if (!isFirst) {
-      pdf.addPage();
-    }
-    isFirst = false;
+    element.scrollIntoView();
+    await new Promise(resolve => setTimeout(resolve, 300));
 
     const canvas = await html2canvas(element, {
-      scale: 1,
+      scale: 2,
       useCORS: true,
+      allowTaint: true,
+      backgroundColor: null,
       logging: false,
-      width: 1920,
-      height: 1080
+      width: slideWidth,
+      height: slideHeight,
+      windowWidth: slideWidth,
+      windowHeight: slideHeight
     });
 
-    const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, 1920, 1080);
+    const imgData = canvas.toDataURL('image/jpeg', 0.7);
+
+    if (sectionId !== 'hero') {
+      pdf.addPage();
+    }
+
+    pdf.addImage(imgData, 'JPEG', 0, 0, slideWidth, slideHeight, undefined, 'FAST');
   }
 
+  window.scrollTo(0, 0);
   pdf.save('presentation.pdf');
 }

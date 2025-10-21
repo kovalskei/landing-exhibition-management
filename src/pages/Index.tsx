@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
-import { usePDF } from 'react-to-pdf';
+import { exportSiteToPdf } from '@/utils/exportToPdf';
 
 const SLIDES_COUNT = 5;
 const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1e7Wxc3Yhrk9N4_fA3ox2S_ksG1IONPrjNNFq7BIpcvE/edit?usp=sharing';
@@ -199,7 +199,6 @@ function ParticipantsSlide() {
 
 function DesktopLanding({ exponentData }: { exponentData: { price_early: string; date_early: string; price_regular: string; date_regular: string } }) {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const { toPDF, targetRef } = usePDF({ filename: 'presentation.pdf' });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -207,7 +206,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
   };
 
   return (
-    <div className="min-h-screen bg-background" ref={targetRef}>
+    <div className="min-h-screen bg-background">
       <nav className="fixed top-0 w-full z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="font-heading font-bold text-2xl gradient-text">ПОТОК 2025</div>
@@ -217,7 +216,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
             <a href="#conference" className="text-sm hover:text-primary transition-colors">Конференция</a>
             <a href="#participants" className="text-sm hover:text-primary transition-colors">Участники</a>
             <a href="#contact" className="text-sm hover:text-primary transition-colors">Контакты</a>
-            <Button onClick={() => toPDF()} variant="outline" size="sm" className="ml-4">
+            <Button onClick={exportSiteToPdf} variant="outline" size="sm" className="ml-4">
               <Icon name="Download" size={16} className="mr-2" />
               Скачать PDF
             </Button>
@@ -439,98 +438,77 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
         </div>
       </section>
 
-      <section id="exponent" className="py-24 relative overflow-hidden">
-        <div 
-          className="absolute inset-0 opacity-20"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.3'/%3E%3C/svg%3E")`
-          }}
-        />
-        <div className="container mx-auto px-12 relative z-10">
-          <div className="grid md:grid-cols-2 gap-16 items-start">
-            <div className="animate-fade-in">
-              <h2 className="font-heading font-bold text-6xl mb-4 text-white relative inline-block">
+      <section id="exponent" style={{ padding: '96px 0', position: 'relative', overflow: 'hidden', backgroundColor: '#0a0f1e' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 48px', position: 'relative', zIndex: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'flex-start' }}>
+            <div>
+              <h2 style={{ 
+                fontSize: '60px', 
+                fontWeight: 700, 
+                marginBottom: '16px', 
+                color: 'white',
+                position: 'relative',
+                display: 'inline-block'
+              }}>
                 №1 «Экспонент»
-                <div className="absolute bottom-0 left-0 w-full h-[8px] -z-10" style={{
-                  background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)',
-                  backgroundImage: `
-                    url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E"),
-                    linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)
-                  `
+                <div style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '8px',
+                  zIndex: -1,
+                  background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)'
                 }} />
               </h2>
-              <p className="text-xl text-white/90 mb-12 mt-8">
+              <p style={{ fontSize: '20px', color: 'rgba(255,255,255,0.9)', marginBottom: '48px', marginTop: '32px' }}>
                 Представить свой продукт/услугу в экспозоне
               </p>
 
-              <div className="mb-10">
-                <h3 className="text-3xl font-semibold mb-6 text-[#6B9FFF]">Формат участия</h3>
-                <ul className="space-y-4 text-lg text-white/90">
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#6B9FFF] mt-1">•</span>
-                    <span>Площадь 2x2 м (4 кв.м.)</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#6B9FFF] mt-1">•</span>
-                    <span>2 бейджа экспонента</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#6B9FFF] mt-1">•</span>
-                    <span>Логотип участника на сайте с активной ссылкой</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#6B9FFF] mt-1">•</span>
-                    <span>Место под хранение промо-материалов в отдельной зоне</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#6B9FFF] mt-1">•</span>
-                    <span>2 билета на Конференцию и Выставку</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#6B9FFF] mt-1">•</span>
-                    <span>Размещение информации о продукте или услуге на сайте мероприятия</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#6B9FFF] mt-1">•</span>
-                    <span>Сертификат экспонента</span>
-                  </li>
+              <div style={{ marginBottom: '40px' }}>
+                <h3 style={{ fontSize: '30px', fontWeight: 600, marginBottom: '24px', color: '#6B9FFF' }}>Формат участия</h3>
+                <ul style={{ listStyle: 'none', padding: 0 }}>
+                  {['Площадь 2x2 м (4 кв.м.)', '2 бейджа экспонента', 'Логотип участника на сайте с активной ссылкой', 'Место под хранение промо-материалов в отдельной зоне', '2 билета на Конференцию и Выставку', 'Размещение информации о продукте или услуге на сайте мероприятия', 'Сертификат экспонента'].map((item, i) => (
+                    <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px', fontSize: '18px', color: 'rgba(255,255,255,0.9)' }}>
+                      <span style={{ color: '#6B9FFF', marginTop: '4px' }}>•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
 
-              <div className="mb-10">
-                <h3 className="text-3xl font-semibold mb-6 text-[#6B9FFF]">Стоимость</h3>
-                <div className="space-y-3">
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-4xl font-bold text-white">{exponentData.price_early}</span>
-                    <span className="text-xl text-white/70">{exponentData.date_early}</span>
-                    <span className="text-sm text-white/50 ml-2">
-                      раннее<br/>бронирование
-                    </span>
+              <div style={{ marginBottom: '40px' }}>
+                <h3 style={{ fontSize: '30px', fontWeight: 600, marginBottom: '24px', color: '#6B9FFF' }}>Стоимость</h3>
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+                    <span style={{ fontSize: '36px', fontWeight: 700, color: 'white' }}>{exponentData.price_early}</span>
+                    <span style={{ fontSize: '20px', color: 'rgba(255,255,255,0.7)' }}>{exponentData.date_early}</span>
+                    <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', marginLeft: '8px' }}>раннее бронирование</span>
                   </div>
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-4xl font-bold text-white">{exponentData.price_regular}</span>
-                    <span className="text-xl text-white/70">{exponentData.date_regular}</span>
-                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+                  <span style={{ fontSize: '36px', fontWeight: 700, color: 'white' }}>{exponentData.price_regular}</span>
+                  <span style={{ fontSize: '20px', color: 'rgba(255,255,255,0.7)' }}>{exponentData.date_regular}</span>
                 </div>
               </div>
 
-              <div className="border border-white/20 bg-black/40 p-6 rounded-lg backdrop-blur-sm">
-                <p className="text-base text-white/90 mb-4">
-                  <span className="font-semibold">Бонус: Маркетинговая поддержка «Экспонент»</span><br/>
+              <div style={{ border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.4)', padding: '24px', borderRadius: '8px' }}>
+                <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.9)', marginBottom: '16px' }}>
+                  <span style={{ fontWeight: 600 }}>Бонус: Маркетинговая поддержка «Экспонент»</span><br/>
                   (включение информации о продукте в рассылки, анонсы)
                 </p>
-                <p className="text-base text-white/80">
+                <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.8)' }}>
                   Также имеется выставочная площадь 3x2 м (6 кв.м.)<br/>
                   Стоимость уточнять у менеджера
                 </p>
               </div>
             </div>
 
-            <div className="animate-fade-in">
+            <div>
               <img 
                 src="https://cdn.poehali.dev/files/f6e65250-add3-4632-bed6-68ca8f4d5853.png" 
                 alt="Экспонент"
-                className="rounded-lg w-full h-auto object-cover"
+                style={{ borderRadius: '8px', width: '100%', height: 'auto', objectFit: 'cover' }}
               />
             </div>
           </div>
