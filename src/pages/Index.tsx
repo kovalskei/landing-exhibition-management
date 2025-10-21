@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
+import { exportSiteToPdf } from '@/utils/exportToPdf';
 
 const SLIDES_COUNT = 5;
 const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1e7Wxc3Yhrk9N4_fA3ox2S_ksG1IONPrjNNFq7BIpcvE/edit?usp=sharing';
@@ -209,17 +210,21 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
       <nav className="fixed top-0 w-full z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="font-heading font-bold text-2xl gradient-text">ПОТОК 2025</div>
-          <div className="flex gap-8">
+          <div className="flex gap-8 items-center">
             <a href="#about" className="text-sm hover:text-primary transition-colors">О мероприятии</a>
             <a href="#audience" className="text-sm hover:text-primary transition-colors">Аудитория</a>
             <a href="#conference" className="text-sm hover:text-primary transition-colors">Конференция</a>
             <a href="#participants" className="text-sm hover:text-primary transition-colors">Участники</a>
             <a href="#contact" className="text-sm hover:text-primary transition-colors">Контакты</a>
+            <Button onClick={exportSiteToPdf} variant="outline" size="sm" className="ml-4">
+              <Icon name="Download" size={16} className="mr-2" />
+              Скачать PDF
+            </Button>
           </div>
         </div>
       </nav>
 
-      <section className="min-h-screen flex items-center justify-start relative overflow-hidden pt-20">
+      <section id="hero" className="min-h-screen flex items-center justify-start relative overflow-hidden pt-20">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
