@@ -245,7 +245,7 @@ function DesktopLanding() {
               20 НОЯБРЯ 2025
             </p>
             <h1 
-              className="font-heading font-black leading-[0.95] mb-10 text-white uppercase"
+              className="font-heading font-black leading-[0.95] mb-10 text-white uppercase text-7xl"
               style={{
                 fontSize: '96px',
                 fontWeight: 900,
