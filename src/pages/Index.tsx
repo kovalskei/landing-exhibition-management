@@ -216,31 +216,35 @@ function DesktopLanding() {
         </div>
       </nav>
 
-      <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5" />
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="max-w-4xl animate-fade-in">
-            <p className="text-gold text-lg font-semibold tracking-wider mb-6">20 НОЯБРЯ 2025</p>
-            <h1 className="font-heading font-extrabold text-7xl leading-tight mb-8">
+      <section className="min-h-screen flex items-center justify-start relative overflow-hidden pt-20">
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url('https://cdn.poehali.dev/files/1674fb90-83d1-41ac-b2cc-01eb509613f0.png')`,
+            filter: 'brightness(0.4)'
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+        <div className="container mx-auto px-12 relative z-10">
+          <div className="max-w-3xl animate-fade-in">
+            <p className="text-gold text-base font-semibold tracking-wider mb-8" style={{ color: '#D4AF37' }}>
+              20 НОЯБРЯ 2025
+            </p>
+            <h1 className="font-heading font-extrabold text-8xl leading-[1.1] mb-8 text-white">
               МАСШТАБНАЯ<br />
               КОНФЕРЕНЦИЯ<br />
               И ВЫСТАВКА
             </h1>
-            <div className="gradient-border pb-6 mb-8" />
-            <div className="flex gap-12 text-2xl mb-12">
-              <div className="flex items-center gap-3">
-                <span className="font-semibold">70 ЭКСПОНЕНТОВ</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="font-semibold">70 СПИКЕРОВ</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="font-semibold">1200 ПОСЕТИТЕЛЕЙ</span>
-              </div>
+            <div className="w-[70%] h-1 mb-10" style={{
+              background: 'linear-gradient(to right, #3B82F6, #8B5CF6, #06B6D4)'
+            }} />
+            <div className="flex gap-16 text-xl font-semibold text-white">
+              <span>70 ЭКСПОНЕНТОВ</span>
+              <span>70 СПИКЕРОВ</span>
             </div>
-            <Button size="lg" className="bg-gradient-to-r from-primary via-secondary to-accent text-white font-semibold px-8 py-6 text-lg">
-              Стать участником
-            </Button>
+            <div className="text-xl font-semibold text-white mt-2">
+              1200 ПОСЕТИТЕЛЕЙ
+            </div>
           </div>
         </div>
       </section>
