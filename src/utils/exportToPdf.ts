@@ -22,60 +22,18 @@ export async function exportSiteToPdf() {
     compress: true
   });
 
-  window.scrollTo(0, 0);
-  
-  const tempContainer = document.createElement('div');
-  tempContainer.style.position = 'fixed';
-  tempContainer.style.top = '0';
-  tempContainer.style.left = '0';
-  tempContainer.style.width = `${slideWidth}px`;
-  tempContainer.style.height = `${slideHeight}px`;
-  tempContainer.style.overflow = 'hidden';
-  tempContainer.style.zIndex = '-9999';
-  tempContainer.style.backgroundColor = 'white';
-  document.body.appendChild(tempContainer);
-
-  let isFirstPage = true;
-
   for (const sectionId of sections) {
     const element = document.getElementById(sectionId);
     if (!element) continue;
 
-    const clone = element.cloneNode(true) as HTMLElement;
-    clone.style.width = `${slideWidth}px`;
-    clone.style.height = `${slideHeight}px`;
-    clone.style.minHeight = `${slideHeight}px`;
-    clone.style.position = 'relative';
-    clone.style.overflow = 'hidden';
-    
-    clone.className = '';
-    clone.style.backgroundColor = 'white';
-    clone.style.color = 'black';
+    element.scrollIntoView();
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-    tempContainer.innerHTML = '';
-    tempContainer.appendChild(clone);
-    
-    await new Promise(resolve => setTimeout(resolve, 50));
-    
-    const directChildren = Array.from(clone.children) as HTMLElement[];
-    let removedCount = 0;
-    directChildren.forEach((child) => {
-      const computed = window.getComputedStyle(child);
-      if (computed.position === 'absolute') {
-        console.log(`Removing absolute child from ${sectionId}:`, child.className || child.tagName);
-        child.remove();
-        removedCount++;
-      }
-    });
-    console.log(`Removed ${removedCount} absolute children from ${sectionId}`);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    const canvas = await html2canvas(tempContainer, {
+    const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,
       allowTaint: true,
-      backgroundColor: 'white',
+      backgroundColor: null,
       logging: false,
       width: slideWidth,
       height: slideHeight,
@@ -83,17 +41,15 @@ export async function exportSiteToPdf() {
       windowHeight: slideHeight
     });
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.85);
+    const imgData = canvas.toDataURL('image/png', 1.0);
 
-    if (!isFirstPage) {
+    if (sectionId !== 'hero') {
       pdf.addPage();
     }
-    isFirstPage = false;
 
-    pdf.addImage(imgData, 'JPEG', 0, 0, slideWidth, slideHeight, undefined, 'FAST');
+    pdf.addImage(imgData, 'PNG', 0, 0, slideWidth, slideHeight, undefined, 'FAST');
   }
 
-  document.body.removeChild(tempContainer);
-  
+  window.scrollTo(0, 0);
   pdf.save('presentation.pdf');
 }
