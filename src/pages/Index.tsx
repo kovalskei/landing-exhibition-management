@@ -224,87 +224,64 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
         </div>
       </nav>
 
-      <section id="hero" style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'flex-start', 
-        position: 'relative', 
-        overflow: 'hidden',
-        paddingTop: '80px'
-      }}>
+      <section id="hero" className="min-h-screen flex items-center justify-start relative overflow-hidden pt-20">
         <div 
+          className="absolute inset-0 bg-cover bg-center"
           style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: `url('https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/28289127-dabc-4d7b-aba7-fb686fb72963.jpg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
+            backgroundImage: `url('https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/ac507beb-835a-42d8-9449-0df63e3039bd.jpg')`,
           }}
         />
         <div 
+          className="absolute inset-0"
           style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.7))'
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.7))',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E")`,
+            backgroundBlendMode: 'overlay'
           }}
         />
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 48px', position: 'relative', zIndex: 10 }}>
-          <div style={{ maxWidth: '768px' }}>
-            <p style={{ 
-              color: '#D4AF37',
-              fontSize: '26px',
-              letterSpacing: '0.25em',
-              textShadow: '0 0 20px rgba(212, 175, 55, 0.3)',
-              marginBottom: '32px',
-              textTransform: 'uppercase',
-              fontWeight: 800
-            }}>
+        <div className="container mx-auto px-12 relative z-10">
+          <div className="max-w-3xl animate-fade-in">
+            <p 
+              className="tracking-[0.25em] mb-8 uppercase text-4xl font-extrabold"
+              style={{ 
+                color: '#D4AF37',
+                fontSize: '26px',
+                letterSpacing: '0.25em',
+                textShadow: '0 0 20px rgba(212, 175, 55, 0.3)'
+              }}
+            >
               20 НОЯБРЯ 2025
             </p>
-            <h1 style={{
-              fontSize: '96px',
-              fontWeight: 900,
-              letterSpacing: '-0.02em',
-              textShadow: '0 4px 30px rgba(0,0,0,0.5), 0 0 40px rgba(59, 130, 246, 0.2)',
-              color: 'white',
-              textTransform: 'uppercase',
-              lineHeight: 0.95,
-              marginBottom: '40px'
-            }}>
+            <h1 
+              className="font-heading font-black leading-[0.95] mb-10 text-white uppercase text-7xl"
+              style={{
+                fontSize: '96px',
+                fontWeight: 900,
+                letterSpacing: '-0.02em',
+                textShadow: '0 4px 30px rgba(0,0,0,0.5), 0 0 40px rgba(59, 130, 246, 0.2)'
+              }}
+            >
               МАСШТАБНАЯ<br />
               КОНФЕРЕНЦИЯ<br />
               И ВЫСТАВКА
             </h1>
-            <div style={{
-              width: '97.5%',
-              height: '7.5px',
+            <div className="w-[97.5%] h-[7.5px] mb-12" style={{
               background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 50%, #06B6D4 100%)',
-              boxShadow: '0 0 25px rgba(79, 70, 229, 0.5)',
-              marginBottom: '48px'
+              boxShadow: '0 0 25px rgba(79, 70, 229, 0.5)'
             }} />
-            <div>
-              <div style={{
-                display: 'flex',
-                gap: '64px',
+            <div className="space-y-2">
+              <div className="flex gap-16 font-bold text-white uppercase" style={{
                 fontSize: '30px',
                 letterSpacing: '0.03em',
-                textShadow: '0 2px 10px rgba(0,0,0,0.3)',
-                color: 'white',
-                fontWeight: 700,
-                textTransform: 'uppercase'
+                textShadow: '0 2px 10px rgba(0,0,0,0.3)'
               }}>
                 <span>70 ЭКСПОНЕНТОВ</span>
                 <span>70 СПИКЕРОВ</span>
               </div>
-              <div style={{
+              <div className="font-bold text-white uppercase" style={{
                 fontSize: '30px',
                 letterSpacing: '0.03em',
-                textShadow: '0 2px 10px rgba(0,0,0,0.3)',
-                color: 'white',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                marginTop: '8px'
+                textShadow: '0 2px 10px rgba(0,0,0,0.3)'
               }}>
                 1200 ПОСЕТИТЕЛЕЙ
               </div>
@@ -313,261 +290,230 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
         </div>
       </section>
 
-      <section id="about" style={{ padding: '96px 0', position: 'relative', backgroundColor: '#0f172a' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 48px', position: 'relative', zIndex: 10 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'flex-start' }}>
-            <div>
-              <h2 style={{ 
-                fontSize: '60px', 
-                fontWeight: 700, 
-                marginBottom: '48px', 
-                color: 'white',
-                position: 'relative',
-                display: 'inline-block'
-              }}>
+      <section id="about" className="py-24 relative">
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E")`,
+            backgroundBlendMode: 'overlay',
+            pointerEvents: 'none'
+          }}
+        />
+        <div className="container mx-auto px-12 relative z-10">
+          <div className="grid md:grid-cols-2 gap-20 items-start">
+            <div className="animate-fade-in">
+              <h2 className="font-heading font-bold text-6xl mb-12 text-white relative inline-block">
                 О мероприятии
-                <div style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '8px',
-                  zIndex: -1,
-                  background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)'
+                <div className="absolute bottom-0 left-0 w-full h-[8px] -z-10" style={{
+                  background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)',
+                  backgroundImage: `
+                    url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E"),
+                    linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)
+                  `
                 }} />
               </h2>
-              <div style={{ marginTop: '32px' }}>
-                <p style={{ 
-                  fontSize: '20px', 
-                  lineHeight: '1.8', 
-                  color: 'white', 
-                  fontWeight: 400,
-                  marginBottom: '32px'
-                }}>
+              <div className="space-y-8 mt-8">
+                <p className="text-xl leading-relaxed text-white font-normal">
                   Поток - это масштабное событие, которое объединяет 2000 руководителей и ведущих специалистов по персоналу.
                 </p>
-                <p style={{ 
-                  fontSize: '20px', 
-                  lineHeight: '1.8', 
-                  color: 'rgba(255,255,255,0.8)', 
-                  fontWeight: 400
-                }}>
+                <p className="text-xl leading-relaxed text-white/80 font-normal">
                   Посетители мероприятия интересуются продуктами и услугами для развития, ищут кейсы и идеи для внедрения в свои компании.
                 </p>
               </div>
             </div>
-            <div>
+            <div className="relative">
               <img
-                src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format"
+                src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/7654e33a-fc9a-46c5-a5a0-a3db02695766.jpg"
                 alt="Speaker"
-                crossOrigin="anonymous"
-                style={{ width: '100%', height: '500px', objectFit: 'cover', borderRadius: '8px' }}
+                className="w-full h-[500px] object-cover rounded-lg"
               />
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginTop: '48px' }}>
+          <div className="grid grid-cols-3 gap-6 mt-12">
             <img
-              src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&auto=format"
+              src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/25a31e94-8d84-4f73-a0ec-8f9fd409d28c.jpg"
               alt="Networking"
-              crossOrigin="anonymous"
-              style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px' }}
+              className="w-full h-[200px] object-cover rounded-lg"
             />
             <img
-              src="https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&auto=format"
+              src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/b422f665-8127-4557-bd8f-998890904df5.jpg"
               alt="Exhibition"
-              crossOrigin="anonymous"
-              style={{ width: '100%', height: '280px', objectFit: 'cover', borderRadius: '8px' }}
+              className="w-full h-[280px] object-cover rounded-lg"
             />
             <img
-              src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800&auto=format"
+              src="https://cdn.poehali.dev/projects/daf53b5d-153d-4ab0-8c8c-b14375e2b34d/files/41a88ad5-0e5c-45ae-9f90-d7a19b6a31ee.jpg"
               alt="Conversation"
-              crossOrigin="anonymous"
-              style={{ width: '100%', height: '280px', objectFit: 'cover', borderRadius: '8px' }}
+              className="w-full h-[280px] object-cover rounded-lg"
             />
           </div>
         </div>
       </section>
 
-      <section id="audience" style={{ padding: '96px 0', backgroundColor: 'rgba(17, 24, 39, 0.3)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
-          <h2 style={{ 
-            fontSize: '48px', 
-            fontWeight: 700, 
-            marginBottom: '64px', 
-            textAlign: 'center',
-            color: 'white',
-            position: 'relative',
-            display: 'inline-block',
-            width: '100%'
-          }}>
+      <section id="audience" className="py-24 bg-card/30">
+        <div className="container mx-auto px-6">
+          <h2 className="font-heading font-bold text-5xl mb-16 text-center gradient-border pb-4 inline-block">
             Аудитория мероприятия
-            <div style={{
-              height: '4px',
-              background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)',
-              marginTop: '16px'
-            }} />
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px', maxWidth: '1000px', margin: '48px auto 0' }}>
-            <div style={{ 
-              padding: '32px', 
-              background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%)',
-              border: '1px solid rgba(79, 70, 229, 0.2)',
-              borderRadius: '8px',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '72px', fontWeight: 700, color: '#4F46E5', marginBottom: '16px' }}>43%</div>
-              <p style={{ fontSize: '16px', color: 'white' }}>Руководители по персоналу, HR-директора, HRBP</p>
-            </div>
-            <div style={{ 
-              padding: '32px', 
-              background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%)',
-              border: '1px solid rgba(124, 58, 237, 0.2)',
-              borderRadius: '8px',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '72px', fontWeight: 700, color: '#7C3AED', marginBottom: '16px' }}>36%</div>
-              <p style={{ fontSize: '16px', color: 'white' }}>ТОП-менеджмент, генеральные директора</p>
-            </div>
-            <div style={{ 
-              padding: '32px', 
-              background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%)',
-              border: '1px solid rgba(6, 182, 212, 0.2)',
-              borderRadius: '8px',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '72px', fontWeight: 700, color: '#06B6D4', marginBottom: '16px' }}>21%</div>
-              <p style={{ fontSize: '16px', color: 'white' }}>HR-специалисты, HR-менеджеры</p>
-            </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mt-12">
+            <Card className="p-8 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 text-center animate-fade-in">
+              <div className="text-7xl font-bold text-primary mb-4">43%</div>
+              <p className="text-base">Руководители по персоналу, HR-директора, HRBP</p>
+            </Card>
+            <Card className="p-8 bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20 text-center animate-fade-in">
+              <div className="text-7xl font-bold text-secondary mb-4">36%</div>
+              <p className="text-base">ТОП-менеджмент, генеральные директора</p>
+            </Card>
+            <Card className="p-8 bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20 text-center animate-fade-in">
+              <div className="text-7xl font-bold text-accent mb-4">21%</div>
+              <p className="text-base">HR-специалисты, HR-менеджеры</p>
+            </Card>
           </div>
         </div>
       </section>
 
-      <section id="exponent" style={{ padding: '96px 0', position: 'relative', overflow: 'hidden', backgroundColor: '#0a0f1e' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 48px', position: 'relative', zIndex: 10 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'flex-start' }}>
-            <div>
-              <h2 style={{ 
-                fontSize: '60px', 
-                fontWeight: 700, 
-                marginBottom: '16px', 
-                color: 'white',
-                position: 'relative',
-                display: 'inline-block'
-              }}>
+      <section id="exponent" className="py-24 relative overflow-hidden">
+        <div 
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.3'/%3E%3C/svg%3E")`
+          }}
+        />
+        <div className="container mx-auto px-12 relative z-10">
+          <div className="grid md:grid-cols-2 gap-16 items-start">
+            <div className="animate-fade-in">
+              <h2 className="font-heading font-bold text-6xl mb-4 text-white relative inline-block">
                 №1 «Экспонент»
-                <div style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '8px',
-                  zIndex: -1,
-                  background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)'
+                <div className="absolute bottom-0 left-0 w-full h-[8px] -z-10" style={{
+                  background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)',
+                  backgroundImage: `
+                    url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E"),
+                    linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)
+                  `
                 }} />
               </h2>
-              <p style={{ fontSize: '20px', color: 'rgba(255,255,255,0.9)', marginBottom: '48px', marginTop: '32px' }}>
+              <p className="text-xl text-white/90 mb-12 mt-8">
                 Представить свой продукт/услугу в экспозоне
               </p>
 
-              <div style={{ marginBottom: '40px' }}>
-                <h3 style={{ fontSize: '30px', fontWeight: 600, marginBottom: '24px', color: '#6B9FFF' }}>Формат участия</h3>
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {['Площадь 2x2 м (4 кв.м.)', '2 бейджа экспонента', 'Логотип участника на сайте с активной ссылкой', 'Место под хранение промо-материалов в отдельной зоне', '2 билета на Конференцию и Выставку', 'Размещение информации о продукте или услуге на сайте мероприятия', 'Сертификат экспонента'].map((item, i) => (
-                    <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px', fontSize: '18px', color: 'rgba(255,255,255,0.9)' }}>
-                      <span style={{ color: '#6B9FFF', marginTop: '4px' }}>•</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
+              <div className="mb-10">
+                <h3 className="text-3xl font-semibold mb-6 text-[#6B9FFF]">Формат участия</h3>
+                <ul className="space-y-4 text-lg text-white/90">
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>Площадь 2x2 м (4 кв.м.)</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>2 бейджа экспонента</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>Логотип участника на сайте с активной ссылкой</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>Место под хранение промо-материалов в отдельной зоне</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>2 билета на Конференцию и Выставку</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>Размещение информации о продукте или услуге на сайте мероприятия</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#6B9FFF] mt-1">•</span>
+                    <span>Сертификат экспонента</span>
+                  </li>
                 </ul>
               </div>
 
-              <div style={{ marginBottom: '40px' }}>
-                <h3 style={{ fontSize: '30px', fontWeight: 600, marginBottom: '24px', color: '#6B9FFF' }}>Стоимость</h3>
-                <div style={{ marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
-                    <span style={{ fontSize: '36px', fontWeight: 700, color: 'white' }}>{exponentData.price_early}</span>
-                    <span style={{ fontSize: '20px', color: 'rgba(255,255,255,0.7)' }}>{exponentData.date_early}</span>
-                    <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', marginLeft: '8px' }}>раннее бронирование</span>
+              <div className="mb-10">
+                <h3 className="text-3xl font-semibold mb-6 text-[#6B9FFF]">Стоимость</h3>
+                <div className="space-y-3">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-4xl font-bold text-white">{exponentData.price_early}</span>
+                    <span className="text-xl text-white/70">{exponentData.date_early}</span>
+                    <span className="text-sm text-white/50 ml-2">
+                      раннее<br/>бронирование
+                    </span>
                   </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
-                  <span style={{ fontSize: '36px', fontWeight: 700, color: 'white' }}>{exponentData.price_regular}</span>
-                  <span style={{ fontSize: '20px', color: 'rgba(255,255,255,0.7)' }}>{exponentData.date_regular}</span>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-4xl font-bold text-white">{exponentData.price_regular}</span>
+                    <span className="text-xl text-white/70">{exponentData.date_regular}</span>
+                  </div>
                 </div>
               </div>
 
-              <div style={{ border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.4)', padding: '24px', borderRadius: '8px' }}>
-                <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.9)', marginBottom: '16px' }}>
-                  <span style={{ fontWeight: 600 }}>Бонус: Маркетинговая поддержка «Экспонент»</span><br/>
+              <div className="border border-white/20 bg-black/40 p-6 rounded-lg backdrop-blur-sm">
+                <p className="text-base text-white/90 mb-4">
+                  <span className="font-semibold">Бонус: Маркетинговая поддержка «Экспонент»</span><br/>
                   (включение информации о продукте в рассылки, анонсы)
                 </p>
-                <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.8)' }}>
+                <p className="text-base text-white/80">
                   Также имеется выставочная площадь 3x2 м (6 кв.м.)<br/>
                   Стоимость уточнять у менеджера
                 </p>
               </div>
             </div>
 
-            <div>
+            <div className="animate-fade-in">
               <img 
                 src="https://cdn.poehali.dev/files/f6e65250-add3-4632-bed6-68ca8f4d5853.png" 
                 alt="Экспонент"
-                crossOrigin="anonymous"
-                style={{ borderRadius: '8px', width: '100%', height: 'auto', objectFit: 'cover' }}
+                className="rounded-lg w-full h-auto object-cover"
               />
             </div>
           </div>
         </div>
       </section>
 
-      <section id="conference" style={{ padding: '96px 0', backgroundColor: '#0f172a' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
-          <h2 style={{ 
-            fontSize: '48px', 
-            fontWeight: 700, 
-            marginBottom: '24px',
-            color: 'white',
-            position: 'relative',
-            display: 'inline-block'
-          }}>
+      <section id="conference" className="py-24">
+        <div className="container mx-auto px-6">
+          <h2 className="font-heading font-bold text-5xl mb-6 gradient-border pb-4 inline-block">
             Конференция и Выставка
-            <div style={{
-              height: '4px',
-              background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 100%)',
-              marginTop: '16px'
-            }} />
           </h2>
-          <p style={{ 
-            fontSize: '18px', 
-            color: 'rgba(255, 255, 255, 0.6)', 
-            marginBottom: '48px', 
-            maxWidth: '896px'
-          }}>
+          <p className="text-lg text-muted-foreground mb-12 max-w-4xl">
             На мероприятии представлены самые современные продукты и услуги для развития компаний, российские и зарубежные кейсы
           </p>
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', maxWidth: '1152px' }}>
+          <div className="grid md:grid-cols-2 gap-12 max-w-6xl">
             <div>
-              <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '24px', color: 'white' }}>Платформы:</h3>
-              <ul style={{ listStyle: 'none', padding: 0 }}>
-                {['Размещение вакансий', 'Автоматизация рекрутинга', 'Онбординг', 'Обучение персонала, e-learning', 'Автоматизация HR-процессов и аналитика', 'Оценка персонала', 'Well-being платформы', 'AR/VR обучение', 'Биржи фриланса и поиска сотрудников на смену', 'Сервисы для автоматизации выплат и зарплаты'].map((item, i) => (
-                  <li key={i} style={{ marginBottom: '12px', fontSize: '16px', color: 'rgba(255, 255, 255, 0.9)' }}>{item}</li>
-                ))}
+              <h3 className="font-heading font-semibold text-xl mb-6">Платформы:</h3>
+              <ul className="space-y-3 text-base">
+                <li>Размещение вакансий</li>
+                <li>Автоматизация рекрутинга</li>
+                <li>Онбординг</li>
+                <li>Обучение персонала, e-learning</li>
+                <li>Автоматизация HR-процессов и аналитика</li>
+                <li>Оценка персонала</li>
+                <li>Well-being платформы</li>
+                <li>AR/VR обучение</li>
+                <li>Биржи фриланса и поиска сотрудников на смену</li>
+                <li>Сервисы для автоматизации выплат и зарплаты</li>
               </ul>
             </div>
             <div>
-              <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '24px', color: 'white' }}>Услуги:</h3>
-              <ul style={{ listStyle: 'none', padding: 0 }}>
-                {['Поиск и подбор персонала', 'Корпоративное обучение', 'Создание курсов, тестов, вебинаров', 'Оценка персонала', 'Управление изменениями, стратегии', 'HR-консалтинг', 'Телемедицина для сотрудников', 'Психологическая диагностика сотрудников', 'Корпоративная культура', 'Бренд работодателя'].map((item, i) => (
-                  <li key={i} style={{ marginBottom: '12px', fontSize: '16px', color: 'rgba(255, 255, 255, 0.9)' }}>{item}</li>
-                ))}
+              <h3 className="font-heading font-semibold text-xl mb-6">Услуги:</h3>
+              <ul className="space-y-3 text-base">
+                <li>Поиск и подбор персонала</li>
+                <li>Корпоративное обучение</li>
+                <li>Создание курсов, тестов, вебинаров</li>
+                <li>Оценка персонала</li>
+                <li>Управление изменениями, стратегии</li>
+                <li>HR-консалтинг</li>
+                <li>Телемедицина для сотрудников</li>
+                <li>Психологическая диагностика сотрудников</li>
+                <li>Корпоративная культура</li>
+                <li>Бренд работодателя</li>
               </ul>
             </div>
           </div>
 
-          <div style={{ marginTop: '48px', textAlign: 'right', maxWidth: '1152px' }}>
-            <p style={{ fontSize: '48px', fontWeight: 700, background: 'linear-gradient(to right, #4F46E5, #7C3AED)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>БОЛЕЕ 50</p>
-            <p style={{ fontSize: '20px', fontWeight: 600, color: 'white' }}>КОМПАНИЙ И ПРОЕКТОВ</p>
+          <div className="mt-12 text-right max-w-6xl">
+            <p className="text-5xl font-bold gradient-text">БОЛЕЕ 50</p>
+            <p className="text-xl font-semibold">КОМПАНИЙ И ПРОЕКТОВ</p>
           </div>
         </div>
       </section>
