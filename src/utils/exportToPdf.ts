@@ -26,9 +26,6 @@ export async function exportSiteToPdf() {
     const element = document.getElementById(sectionId);
     if (!element) continue;
 
-    element.scrollIntoView();
-    await new Promise(resolve => setTimeout(resolve, 300));
-
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,
@@ -50,6 +47,5 @@ export async function exportSiteToPdf() {
     pdf.addImage(imgData, 'JPEG', 0, 0, slideWidth, slideHeight, undefined, 'FAST');
   }
 
-  window.scrollTo(0, 0);
   pdf.save('presentation.pdf');
 }
