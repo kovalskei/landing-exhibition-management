@@ -48,9 +48,9 @@ export async function exportSiteToPdf() {
     clone.style.position = 'relative';
     clone.style.overflow = 'hidden';
     
-    // ТЕСТОВАЯ КРАСНАЯ РАМКА - чтобы проверить что код работает
-    clone.style.border = '20px solid red';
-    clone.style.backgroundColor = 'lime';
+    clone.className = '';
+    clone.style.background = 'white';
+    clone.style.color = 'black';
 
     tempContainer.innerHTML = '';
     tempContainer.appendChild(clone);
