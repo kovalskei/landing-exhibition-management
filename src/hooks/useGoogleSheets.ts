@@ -31,15 +31,21 @@ export function useGoogleSheets(sheetUrl: string) {
         const response = await fetch(csvUrl);
         const text = await response.text();
         
-        const lines = text.split('\n');
-        const newData: ExponentData = {
-          price_early: lines[0]?.split(',')[1]?.trim() || DEFAULT_DATA.price_early,
-          date_early: lines[1]?.split(',')[1]?.trim() || DEFAULT_DATA.date_early,
-          price_regular: lines[2]?.split(',')[1]?.trim() || DEFAULT_DATA.price_regular,
-          date_regular: lines[3]?.split(',')[1]?.trim() || DEFAULT_DATA.date_regular
-        };
+        const lines = text.split('\n').map(line => line.split(',').map(cell => cell.trim()));
         
-        setData(newData);
+        const exponentRow = lines.find(row => row[0] === 'Экспонент');
+        
+        if (exponentRow && exponentRow.length >= 5) {
+          const newData: ExponentData = {
+            price_early: exponentRow[1] || DEFAULT_DATA.price_early,
+            date_early: exponentRow[2] || DEFAULT_DATA.date_early,
+            price_regular: exponentRow[3] || DEFAULT_DATA.price_regular,
+            date_regular: exponentRow[4] || DEFAULT_DATA.date_regular
+          };
+          setData(newData);
+        } else {
+          setData(DEFAULT_DATA);
+        }
       } catch (error) {
         console.error('Failed to load Google Sheets data:', error);
         setData(DEFAULT_DATA);
