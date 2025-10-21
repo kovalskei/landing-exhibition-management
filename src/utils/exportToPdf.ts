@@ -32,7 +32,7 @@ export async function exportSiteToPdf() {
   tempContainer.style.height = `${slideHeight}px`;
   tempContainer.style.overflow = 'hidden';
   tempContainer.style.zIndex = '-9999';
-  tempContainer.style.backgroundColor = '#0a0a0f';
+  tempContainer.style.backgroundColor = 'white';
   document.body.appendChild(tempContainer);
 
   let isFirstPage = true;
@@ -49,8 +49,8 @@ export async function exportSiteToPdf() {
     clone.style.overflow = 'hidden';
     
     clone.className = '';
-    clone.style.backgroundColor = '#0a0a0f';
-    clone.style.color = 'white';
+    clone.style.backgroundColor = 'white';
+    clone.style.color = 'black';
 
     tempContainer.innerHTML = '';
     tempContainer.appendChild(clone);
@@ -75,7 +75,7 @@ export async function exportSiteToPdf() {
       scale: 2,
       useCORS: true,
       allowTaint: true,
-      backgroundColor: '#0a0a0f',
+      backgroundColor: 'white',
       logging: false,
       width: slideWidth,
       height: slideHeight,
