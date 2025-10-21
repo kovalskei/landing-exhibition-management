@@ -22,14 +22,54 @@ export async function exportSiteToPdf() {
     compress: true
   });
 
+  const originalWidth = window.innerWidth;
+  window.scrollTo(0, 0);
+  
+  const tempContainer = document.createElement('div');
+  tempContainer.style.position = 'fixed';
+  tempContainer.style.top = '0';
+  tempContainer.style.left = '0';
+  tempContainer.style.width = `${slideWidth}px`;
+  tempContainer.style.height = `${slideHeight}px`;
+  tempContainer.style.overflow = 'hidden';
+  tempContainer.style.zIndex = '-9999';
+  tempContainer.style.backgroundColor = '#0a0a0f';
+  document.body.appendChild(tempContainer);
+
   let isFirstPage = true;
 
   for (const sectionId of sections) {
     const element = document.getElementById(sectionId);
     if (!element) continue;
 
-    const canvas = await html2canvas(element, {
-      scale: 1,
+    const clone = element.cloneNode(true) as HTMLElement;
+    clone.style.width = `${slideWidth}px`;
+    clone.style.height = `${slideHeight}px`;
+    clone.style.minHeight = `${slideHeight}px`;
+    clone.style.position = 'relative';
+    clone.style.overflow = 'hidden';
+    
+    const allElements = clone.getElementsByTagName('*');
+    for (let i = 0; i < allElements.length; i++) {
+      const el = allElements[i] as HTMLElement;
+      
+      if (el.style.backgroundImage && el.style.backgroundImage.includes('noiseFilter')) {
+        el.style.backgroundImage = 'none';
+      }
+      
+      const computedStyle = window.getComputedStyle(element.getElementsByTagName('*')[i]);
+      if (computedStyle.backgroundImage && computedStyle.backgroundImage.includes('noiseFilter')) {
+        el.style.backgroundImage = 'none';
+      }
+    }
+
+    tempContainer.innerHTML = '';
+    tempContainer.appendChild(clone);
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const canvas = await html2canvas(tempContainer, {
+      scale: 2,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#0a0a0f',
@@ -37,65 +77,10 @@ export async function exportSiteToPdf() {
       width: slideWidth,
       height: slideHeight,
       windowWidth: slideWidth,
-      windowHeight: slideHeight,
-      onclone: (clonedDoc) => {
-        const clonedElement = clonedDoc.getElementById(sectionId);
-        if (!clonedElement) return;
-
-        clonedElement.style.width = `${slideWidth}px`;
-        clonedElement.style.height = `${slideHeight}px`;
-        clonedElement.style.minHeight = `${slideHeight}px`;
-        clonedElement.style.overflow = 'hidden';
-        clonedElement.style.position = 'relative';
-
-        const allElements = clonedElement.getElementsByTagName('*');
-        for (let i = 0; i < allElements.length; i++) {
-          const el = allElements[i] as HTMLElement;
-          const bgImage = el.style.backgroundImage;
-          if (bgImage && bgImage.includes('noiseFilter')) {
-            el.style.backgroundImage = 'none';
-          }
-          if (el.style.opacity && parseFloat(el.style.opacity) < 0.3) {
-            const parent = el.parentElement;
-            if (parent && parent.style.backgroundImage?.includes('noiseFilter')) {
-              el.style.display = 'none';
-            }
-          }
-        }
-      }
+      windowHeight: slideHeight
     });
 
-    const aspectRatio = canvas.width / canvas.height;
-    const targetAspectRatio = slideWidth / slideHeight;
-
-    let finalCanvas = canvas;
-    if (Math.abs(aspectRatio - targetAspectRatio) > 0.01) {
-      finalCanvas = document.createElement('canvas');
-      finalCanvas.width = slideWidth;
-      finalCanvas.height = slideHeight;
-      const ctx = finalCanvas.getContext('2d');
-      if (ctx) {
-        ctx.fillStyle = '#0a0a0f';
-        ctx.fillRect(0, 0, slideWidth, slideHeight);
-
-        let drawWidth = slideWidth;
-        let drawHeight = slideHeight;
-        let offsetX = 0;
-        let offsetY = 0;
-
-        if (aspectRatio > targetAspectRatio) {
-          drawHeight = slideWidth / aspectRatio;
-          offsetY = (slideHeight - drawHeight) / 2;
-        } else {
-          drawWidth = slideHeight * aspectRatio;
-          offsetX = (slideWidth - drawWidth) / 2;
-        }
-
-        ctx.drawImage(canvas, offsetX, offsetY, drawWidth, drawHeight);
-      }
-    }
-
-    const imgData = finalCanvas.toDataURL('image/jpeg', 0.8);
+    const imgData = canvas.toDataURL('image/jpeg', 0.85);
 
     if (!isFirstPage) {
       pdf.addPage();
@@ -105,5 +90,7 @@ export async function exportSiteToPdf() {
     pdf.addImage(imgData, 'JPEG', 0, 0, slideWidth, slideHeight, undefined, 'FAST');
   }
 
+  document.body.removeChild(tempContainer);
+  
   pdf.save('presentation.pdf');
 }
