@@ -57,37 +57,20 @@ export async function exportSiteToPdf() {
       const isText = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'a', 'li', 'button', 'label'].includes(tagName);
       const hasTextContent = el.textContent && el.textContent.trim().length > 0;
       const isImage = tagName === 'img';
-      const isAbsolute = el.style.position === 'absolute' || window.getComputedStyle(element.getElementsByTagName('*')[i]).position === 'absolute';
-      
-      if (isAbsolute && el.className.includes('inset-0')) {
-        const bgImage = el.style.backgroundImage || window.getComputedStyle(element.getElementsByTagName('*')[i]).backgroundImage;
-        if (bgImage && bgImage.includes('noiseFilter')) {
-          el.style.opacity = '0.1';
-          el.style.zIndex = '5';
-        } else if (bgImage && bgImage !== 'none') {
-          el.style.zIndex = '1';
-        }
-      }
       
       if (isText && hasTextContent && !isImage) {
-        if (!isAbsolute || !el.className.includes('inset-0')) {
-          el.style.zIndex = '100';
-          if (!el.style.position || el.style.position === 'static') {
-            el.style.position = 'relative';
-          }
-        }
+        el.style.zIndex = '100';
+        el.style.position = 'relative';
       }
       
-      if (el.className.includes('container') || el.className.includes('z-10')) {
-        el.style.zIndex = '10';
+      if (el.className.includes('container') || el.className.includes('relative z-10')) {
+        el.style.zIndex = '50';
         el.style.position = 'relative';
       }
       
       if (isImage) {
-        el.style.zIndex = '2';
-        if (!el.style.position || el.style.position === 'static') {
-          el.style.position = 'relative';
-        }
+        el.style.zIndex = '10';
+        el.style.position = 'relative';
       }
     }
 
