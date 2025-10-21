@@ -228,7 +228,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('/images/hero-bg')`
+            backgroundImage: `url('/images/hero-bg.png')`
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70" />
