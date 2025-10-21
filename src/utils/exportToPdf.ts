@@ -48,6 +48,10 @@ export async function exportSiteToPdf() {
     clone.style.position = 'relative';
     clone.style.overflow = 'hidden';
     
+    // ТЕСТОВАЯ КРАСНАЯ РАМКА - чтобы проверить что код работает
+    clone.style.border = '20px solid red';
+    clone.style.backgroundColor = 'lime';
+    
     const absoluteOverlays = clone.querySelectorAll('.absolute.inset-0');
     console.log(`Found ${absoluteOverlays.length} absolute overlays in ${sectionId}`);
     absoluteOverlays.forEach((overlay) => {
