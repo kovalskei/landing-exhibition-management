@@ -257,9 +257,9 @@ function DesktopLanding() {
               КОНФЕРЕНЦИЯ<br />
               И ВЫСТАВКА
             </h1>
-            <div className="w-[65%] h-[3px] mb-12" style={{
-              background: 'linear-gradient(to right, #3B82F6, #8B5CF6, #06B6D4)',
-              boxShadow: '0 0 20px rgba(59, 130, 246, 0.4)'
+            <div className="w-[65%] h-[5px] mb-12" style={{
+              background: 'linear-gradient(to right, #4F46E5 0%, #7C3AED 50%, #06B6D4 100%)',
+              boxShadow: '0 0 25px rgba(79, 70, 229, 0.5)'
             }} />
             <div className="space-y-2">
               <div className="flex gap-16 font-bold text-white uppercase" style={{
