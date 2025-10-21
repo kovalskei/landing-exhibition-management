@@ -234,11 +234,11 @@ function DesktopLanding() {
         <div className="container mx-auto px-12 relative z-10">
           <div className="max-w-3xl animate-fade-in">
             <p 
-              className="font-bold tracking-[0.3em] mb-6 uppercase"
+              className="font-bold tracking-[0.25em] mb-8 uppercase"
               style={{ 
                 color: '#D4AF37',
-                fontSize: '14px',
-                letterSpacing: '0.3em',
+                fontSize: '26px',
+                letterSpacing: '0.25em',
                 textShadow: '0 0 20px rgba(212, 175, 55, 0.3)'
               }}
             >
@@ -261,18 +261,18 @@ function DesktopLanding() {
               background: 'linear-gradient(to right, #3B82F6, #8B5CF6, #06B6D4)',
               boxShadow: '0 0 20px rgba(59, 130, 246, 0.4)'
             }} />
-            <div className="space-y-3">
-              <div className="flex gap-20 font-bold text-white uppercase" style={{
-                fontSize: '18px',
-                letterSpacing: '0.05em',
+            <div className="space-y-2">
+              <div className="flex gap-16 font-bold text-white uppercase" style={{
+                fontSize: '30px',
+                letterSpacing: '0.03em',
                 textShadow: '0 2px 10px rgba(0,0,0,0.3)'
               }}>
                 <span>70 ЭКСПОНЕНТОВ</span>
                 <span>70 СПИКЕРОВ</span>
               </div>
               <div className="font-bold text-white uppercase" style={{
-                fontSize: '18px',
-                letterSpacing: '0.05em',
+                fontSize: '30px',
+                letterSpacing: '0.03em',
                 textShadow: '0 2px 10px rgba(0,0,0,0.3)'
               }}>
                 1200 ПОСЕТИТЕЛЕЙ
