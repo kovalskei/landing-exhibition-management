@@ -31,12 +31,12 @@ export default function SessionCard({ session, theme, onAddToPlan }: SessionCard
         }
       `}</style>
 
-      <div className="text-xs font-semibold text-[var(--muted)] mb-2">
+      <div className="text-[13px] font-medium text-[var(--muted)] mb-3">
         {session.start} — {session.end}
       </div>
 
       {session.tagsCanon && session.tagsCanon.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-2">
+        <div className="flex flex-wrap gap-2 mb-3">
           {session.tagsCanon.map(c => {
             const h = hashStr(c) % 360;
             const isLight = theme === 'light';
@@ -57,20 +57,34 @@ export default function SessionCard({ session, theme, onAddToPlan }: SessionCard
       )}
 
       {session.speaker && (
-        <div className="font-bold text-base">{session.speaker}</div>
+        <div className="font-bold text-[15px] leading-tight">{session.speaker}</div>
       )}
 
       {session.role && (
-        <div className="text-sm text-[var(--muted)]">{session.role}</div>
+        <div className="text-[13px] text-[var(--muted)] mt-1">{session.role}</div>
       )}
 
       {session.title && (
-        <div className="font-bold mt-2 mb-2">{session.title}</div>
+        <div className="font-bold text-[14px] mt-3 mb-2 leading-snug">{session.title}</div>
       )}
 
       {session.desc && (
-        <div className="text-sm whitespace-pre-line" style={{ lineHeight: '1.6' }}>
-          {session.desc}
+        <div className="text-[13px] leading-relaxed">
+          {session.desc.split('\n').map((line, i) => {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('- ')) {
+              return (
+                <div key={i} className="flex gap-2 mb-1.5">
+                  <span className="flex-shrink-0 mt-0.5">•</span>
+                  <span className="flex-1">{trimmed.slice(2)}</span>
+                </div>
+              );
+            }
+            if (trimmed) {
+              return <div key={i} className="mb-2">{trimmed}</div>;
+            }
+            return null;
+          })}
         </div>
       )}
 
