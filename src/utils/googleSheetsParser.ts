@@ -139,7 +139,19 @@ function parseTalk(text: string): {
   }
 
   const cleanBody = pullTags(lines.join('\n')).trim();
-  out.abstract = cleanBody;
+  
+  const formattedBody = cleanBody
+    .split('\n')
+    .map(line => {
+      const trimmed = line.trim();
+      if (trimmed.match(/^\s*[-–—]\s+/)) {
+        return '• ' + trimmed.replace(/^\s*[-–—]\s+/, '');
+      }
+      return trimmed;
+    })
+    .join('\n');
+  
+  out.abstract = formattedBody;
 
   return {
     ...out,
