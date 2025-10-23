@@ -189,16 +189,12 @@ export async function fetchProgramData(): Promise<ProgramData> {
   try {
     const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
 
-    console.log('Загрузка данных из Google Sheets...');
-
     const response = await fetch(csvUrl, {
       method: 'GET',
       headers: {
         Accept: 'text/csv'
       }
     });
-
-    console.log('Response status:', response.status);
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -213,46 +209,57 @@ export async function fetchProgramData(): Promise<ProgramData> {
     }
 
     const csvText = await response.text();
-    console.log('CSV загружен, длина:', csvText.length);
-    console.log('Первые 3000 символов CSV:\n', csvText.substring(0, 3000));
 
-    const rows = csvText.split('\n').map(row => {
-      const cols: string[] = [];
-      let current = '';
-      let inQuotes = false;
-
-      for (let i = 0; i < row.length; i++) {
-        const char = row[i];
-        if (char === '"') {
-          if (inQuotes && row[i + 1] === '"') {
-            current += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (char === ',' && !inQuotes) {
-          cols.push(current);
-          current = '';
+    // Правильный CSV-парсинг: обрабатываем кавычки и переносы строк внутри ячеек
+    const rows: string[][] = [];
+    let currentRow: string[] = [];
+    let currentCell = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < csvText.length; i++) {
+      const char = csvText[i];
+      const nextChar = csvText[i + 1];
+      
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          // Экранированная кавычка внутри ячейки
+          currentCell += '"';
+          i++;
         } else {
-          current += char;
+          // Начало или конец quoted ячейки
+          inQuotes = !inQuotes;
         }
+      } else if (char === ',' && !inQuotes) {
+        // Разделитель колонок
+        currentRow.push(currentCell);
+        currentCell = '';
+      } else if (char === '\n' && !inQuotes) {
+        // Конец строки (если не внутри кавычек)
+        currentRow.push(currentCell);
+        if (currentRow.length > 0) rows.push(currentRow);
+        currentRow = [];
+        currentCell = '';
+      } else if (char === '\r') {
+        // Пропускаем \r
+        continue;
+      } else {
+        // Обычный символ (включая \n внутри кавычек)
+        currentCell += char;
       }
-      cols.push(current);
-      return cols;
-    });
-
+    }
+    
+    // Добавляем последнюю ячейку и строку
+    if (currentCell || currentRow.length > 0) {
+      currentRow.push(currentCell);
+      if (currentRow.length > 0) rows.push(currentRow);
+    }
+    
     if (rows.length < 6) {
       throw new Error('Недостаточно данных в таблице');
     }
 
     const R = rows.length;
     const C = rows[0].length;
-    
-    // DEBUG: выводим первые 30 строк для анализа
-    console.log('=== Первые 30 строк CSV ===');
-    for (let i = 0; i < Math.min(30, R); i++) {
-      console.log(`Row ${i}:`, rows[i].map((cell, idx) => `[${idx}]="${String(cell || '').substring(0, 20)}"`).join(' '));
-    }
     // START_ROW = 5 соответствует строке 6 в Excel (строки 1-4 это meta, row 5 это заголовки времени)
     const START_ROW = 5;
 
@@ -427,10 +434,8 @@ export async function fetchProgramData(): Promise<ProgramData> {
           tagsCanon
         });
       }
-      console.log(`Зал "${halls[h].name}": найдено ${hallCount} докладов`);
     }
 
-    console.log(`ИТОГО: ${totalParsed} докладов, пропущено ${skipped} строк с неполными данными`);
     sessions.sort((a, b) => toMin(a.start) - toMin(b.start) || a.hall.localeCompare(b.hall));
 
     const now = new Date();
