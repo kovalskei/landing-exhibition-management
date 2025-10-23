@@ -27,6 +27,7 @@ export interface ProgramData {
   now: string;
   meta: {
     title: string;
+    subtitle: string;
     date: string;
     venue: string;
   };
@@ -441,9 +442,11 @@ export async function fetchProgramData(): Promise<ProgramData> {
     const now = new Date();
     const nowTime = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
 
-    // Мета из первой строки
+    // Мета из первых строк
     const metaTitle = String(rows[0]?.[0] || 'Программа мероприятия').trim();
+    const metaSubtitle = String(rows[1]?.[0] || '').trim();
     const metaDate = String(rows[2]?.[0] || '').trim();
+    const metaVenue = String(rows[3]?.[0] || '').trim();
     
     return {
       title: metaTitle,
@@ -452,8 +455,9 @@ export async function fetchProgramData(): Promise<ProgramData> {
       now: nowTime,
       meta: {
         title: metaTitle,
+        subtitle: metaSubtitle,
         date: metaDate,
-        venue: ''
+        venue: metaVenue
       }
     };
   } catch (error) {

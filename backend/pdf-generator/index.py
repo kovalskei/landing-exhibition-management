@@ -8,6 +8,8 @@ Returns: HTTP response с base64-encoded PDF или ошибкой
 import json
 import io
 import base64
+import os
+import urllib.request
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 from reportlab.lib import colors
@@ -15,9 +17,12 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, HRFlowable, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, HRFlowable, Image
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+
+LOGO_FILE_ID = '1Od5EAbR38Nu53sswxwRUrBVYTCdSSivq'
+COVER_IMAGE_ID = '1Lam16DwG622LGqp0DrHwgY4xKWV3WLvU'
 
 
 @dataclass
@@ -38,22 +43,83 @@ class Meta:
     subtitle: str
     date: str
     venue: str
+    logo_id: str
+    cover_id: str
 
 
-def normalize_for_tags(s: str) -> str:
-    """Нормализация текста для извлечения тегов"""
-    s = s.replace('&lbrace;', '{').replace('&#123;', '{').replace('&#x7B;', '{')
-    s = s.replace('&rbrace;', '}').replace('&#125;', '}').replace('&#x7D;', '}')
+def setup_fonts():
+    """Регистрация шрифтов для поддержки кириллицы"""
+    from reportlab.pdfbase.pdfmetrics import registerFontFamily
+    
+    font_dir = '/tmp/fonts'
+    os.makedirs(font_dir, exist_ok=True)
+    
+    fonts_to_download = [
+        ('DejaVuSans', 'https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans.ttf'),
+        ('DejaVuSans-Bold', 'https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans-Bold.ttf'),
+        ('DejaVuSans-Oblique', 'https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans-Oblique.ttf'),
+        ('DejaVuSans-BoldOblique', 'https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans-BoldOblique.ttf'),
+    ]
+    
+    registered = []
+    for font_name, url in fonts_to_download:
+        font_path = os.path.join(font_dir, f'{font_name}.ttf')
+        
+        if not os.path.exists(font_path):
+            try:
+                urllib.request.urlretrieve(url, font_path)
+            except Exception as e:
+                print(f'Ошибка загрузки {font_name}: {e}')
+                continue
+        
+        try:
+            pdfmetrics.registerFont(TTFont(font_name, font_path))
+            registered.append(font_name)
+        except Exception as e:
+            print(f'Ошибка регистрации {font_name}: {e}')
+    
+    # Регистрация семейства
+    if len(registered) >= 4:
+        try:
+            registerFontFamily(
+                'DejaVuSans',
+                normal='DejaVuSans',
+                bold='DejaVuSans-Bold',
+                italic='DejaVuSans-Oblique',
+                boldItalic='DejaVuSans-BoldOblique'
+            )
+        except Exception as e:
+            print(f'Ошибка регистрации семейства: {e}')
+
+
+def download_image(file_id: str) -> Optional[io.BytesIO]:
+    """Загрузка изображения из Google Drive"""
+    if not file_id:
+        return None
+    
+    try:
+        url = f'https://drive.google.com/uc?export=download&id={file_id}'
+        response = urllib.request.urlopen(url)
+        data = response.read()
+        return io.BytesIO(data)
+    except Exception as e:
+        print(f'Ошибка загрузки изображения {file_id}: {e}')
+        return None
+
+
+def normalize_text(s: str) -> str:
+    """Нормализация текста"""
+    s = s.replace('&lbrace;', '{').replace('&#123;', '{')
+    s = s.replace('&rbrace;', '}').replace('&#125;', '}')
     s = s.replace('\u00A0', ' ')
     import re
-    s = re.sub(r'\s{2,}', ' ', s)
-    return s.strip()
+    return re.sub(r'\s{2,}', ' ', s).strip()
 
 
-def extract_tags_from_text(text: str) -> List[str]:
-    """Извлечение тегов из фигурных скобок {...}"""
+def extract_tags(text: str) -> List[str]:
+    """Извлечение тегов из {...}"""
     import re
-    text = normalize_for_tags(text)
+    text = normalize_text(text)
     found = []
     for match in re.finditer(r'\{([^}]*)\}', text):
         for tok in re.split(r'[;,|/]+', match.group(1)):
@@ -63,278 +129,303 @@ def extract_tags_from_text(text: str) -> List[str]:
     return list(dict.fromkeys(found))
 
 
-def strip_braces(text: str) -> str:
-    """Удаление блоков {...} из текста"""
+def strip_tags(text: str) -> str:
+    """Удаление {...} из текста"""
     import re
-    text = normalize_for_tags(text)
-    text = re.sub(r'\{[^}]*\}', '', text)
-    text = re.sub(r'\s{2,}', ' ', text)
-    return text.strip()
+    text = normalize_text(text)
+    return re.sub(r'\{[^}]*\}', '', text).strip()
 
 
-def collect_tags_for_session(session_data: Dict[str, Any]) -> List[str]:
-    """Собираем теги из всех источников"""
+def collect_tags(session_data: Dict[str, Any]) -> List[str]:
+    """Сбор всех тегов сессии"""
     tags = []
     
-    # Из массивов tagsCanon/tags
     if 'tagsCanon' in session_data and isinstance(session_data['tagsCanon'], list):
         tags.extend(session_data['tagsCanon'])
     if 'tags' in session_data and isinstance(session_data['tags'], list):
         tags.extend(session_data['tags'])
     
-    # Из фигурных скобок в полях
     for field in ['title', 'speaker', 'role', 'desc']:
         if field in session_data:
-            tags.extend(extract_tags_from_text(str(session_data[field])))
+            tags.extend(extract_tags(str(session_data[field])))
     
     return list(dict.fromkeys(tags))
 
 
+class FooterCanvas:
+    """Футер с логотипом"""
+    def __init__(self, logo_buffer: Optional[io.BytesIO], meta: Meta):
+        self.logo_buffer = logo_buffer
+        self.meta = meta
+    
+    def draw_footer(self, canvas, doc):
+        canvas.saveState()
+        
+        y = 15 * mm
+        
+        # Мета слева
+        meta_parts = []
+        if self.meta.date:
+            meta_parts.append(f'Дата проведения: {self.meta.date}')
+        if self.meta.venue:
+            meta_parts.append(self.meta.venue)
+        
+        if meta_parts:
+            try:
+                canvas.setFont('DejaVuSans', 10)
+            except:
+                canvas.setFont('Helvetica', 10)
+            canvas.setFillColor(colors.HexColor('#7A7A7A'))
+            canvas.drawString(20 * mm, y, ' • '.join(meta_parts))
+        
+        # Логотип справа
+        if self.logo_buffer:
+            try:
+                self.logo_buffer.seek(0)
+                x = A4[0] - 20 * mm - 30 * mm
+                canvas.drawImage(self.logo_buffer, x, y - 3*mm, 
+                               width=30*mm, height=10*mm, 
+                               preserveAspectRatio=True, mask='auto')
+            except Exception as e:
+                print(f'Ошибка отрисовки логотипа: {e}')
+        
+        canvas.restoreState()
+
+
 def create_pdf(data: Dict[str, Any]) -> bytes:
-    """Создание PDF документа"""
+    """Создание PDF"""
+    setup_fonts()
+    
     buffer = io.BytesIO()
     
-    # Метаданные
     meta_data = data.get('meta', {})
     meta = Meta(
-        title=meta_data.get('title', 'Программа мероприятия'),
+        title=meta_data.get('title', 'Программа'),
         subtitle=meta_data.get('subtitle', ''),
         date=meta_data.get('date', ''),
-        venue=meta_data.get('venue', '')
+        venue=meta_data.get('venue', ''),
+        logo_id=meta_data.get('logoId', LOGO_FILE_ID),
+        cover_id=meta_data.get('coverId', COVER_IMAGE_ID)
     )
     
-    # Документ
+    cover_img = download_image(meta.cover_id or COVER_IMAGE_ID)
+    logo_img = download_image(meta.logo_id or LOGO_FILE_ID)
+    
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
         rightMargin=20*mm,
         leftMargin=20*mm,
         topMargin=20*mm,
-        bottomMargin=20*mm,
+        bottomMargin=25*mm,
         title=meta.title
     )
     
-    # Стили
-    styles = getSampleStyleSheet()
+    # Стили - проверка доступности DejaVuSans
+    try:
+        test_font = pdfmetrics.getFont('DejaVuSans')
+        font_name = 'DejaVuSans'
+        font_bold = 'DejaVuSans-Bold'
+        font_italic = 'DejaVuSans-Oblique'
+    except:
+        # Fallback на Helvetica
+        font_name = 'Helvetica'
+        font_bold = 'Helvetica-Bold'
+        font_italic = 'Helvetica-Oblique'
     
     title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
+        'Title',
+        fontName=font_bold,
         fontSize=24,
-        textColor=colors.HexColor('#000000'),
+        textColor=colors.black,
         spaceAfter=12,
-        alignment=TA_CENTER,
-        fontName='Helvetica-Bold'
+        alignment=TA_CENTER
     )
     
     subtitle_style = ParagraphStyle(
-        'CustomSubtitle',
-        parent=styles['Normal'],
+        'Subtitle',
+        fontName=font_italic,
         fontSize=14,
         textColor=colors.HexColor('#666666'),
         spaceAfter=20,
-        alignment=TA_CENTER,
-        fontName='Helvetica-Oblique'
+        alignment=TA_CENTER
     )
     
     hall_style = ParagraphStyle(
-        'HallHeading',
-        parent=styles['Heading1'],
+        'Hall',
+        fontName=font_bold,
         fontSize=20,
-        textColor=colors.HexColor('#000000'),
-        spaceAfter=10,
-        fontName='Helvetica-Bold'
+        spaceAfter=10
     )
     
     time_style = ParagraphStyle(
-        'TimeStyle',
-        parent=styles['Normal'],
+        'Time',
+        fontName=font_bold,
         fontSize=14,
-        textColor=colors.HexColor('#000000'),
-        spaceAfter=4,
-        fontName='Helvetica-Bold'
+        spaceAfter=4
     )
     
     speaker_style = ParagraphStyle(
-        'SpeakerStyle',
-        parent=styles['Normal'],
+        'Speaker',
+        fontName=font_bold,
         fontSize=12,
-        textColor=colors.HexColor('#000000'),
-        spaceAfter=2,
-        fontName='Helvetica-Bold'
+        spaceAfter=2
     )
     
     role_style = ParagraphStyle(
-        'RoleStyle',
-        parent=styles['Normal'],
+        'Role',
+        fontName=font_name,
         fontSize=11,
         textColor=colors.HexColor('#1a1a1a'),
-        spaceAfter=6,
-        fontName='Helvetica'
+        spaceAfter=6
     )
     
     session_title_style = ParagraphStyle(
         'SessionTitle',
-        parent=styles['Normal'],
+        fontName=font_bold,
         fontSize=12,
-        textColor=colors.HexColor('#000000'),
-        spaceAfter=4,
-        fontName='Helvetica-Bold'
+        spaceAfter=4
     )
     
     desc_style = ParagraphStyle(
-        'DescStyle',
-        parent=styles['Normal'],
+        'Desc',
+        fontName=font_name,
         fontSize=11,
-        textColor=colors.HexColor('#000000'),
-        spaceAfter=2,
-        fontName='Helvetica'
+        spaceAfter=2
     )
     
     tags_style = ParagraphStyle(
-        'TagsStyle',
-        parent=styles['Normal'],
+        'Tags',
+        fontName=font_italic,
         fontSize=11,
         textColor=colors.HexColor('#6B6B6B'),
-        spaceAfter=6,
-        fontName='Helvetica-Oblique'
+        spaceAfter=6
     )
     
-    # Контент
     story = []
     
-    # Титульная страница
-    story.append(Spacer(1, 40*mm))
-    story.append(Paragraph(meta.title, title_style))
-    if meta.subtitle:
-        story.append(Paragraph(meta.subtitle, subtitle_style))
-    story.append(Spacer(1, 20*mm))
+    # Обложка
+    if cover_img:
+        try:
+            cover_img.seek(0)
+            img = Image(cover_img)
+            img_width = A4[0] - 40*mm
+            aspect = img.imageHeight / img.imageWidth
+            img.drawWidth = img_width
+            img.drawHeight = img_width * aspect
+            story.append(Spacer(1, 20*mm))
+            story.append(img)
+            story.append(PageBreak())
+        except Exception as e:
+            print(f'Ошибка обложки: {e}')
+            cover_img = None
     
-    meta_info = []
-    if meta.date:
-        meta_info.append(f"Дата проведения: {meta.date}")
-    if meta.venue:
-        meta_info.append(meta.venue)
+    # Текстовый заголовок если нет обложки
+    if not cover_img:
+        story.append(Spacer(1, 40*mm))
+        story.append(Paragraph(meta.title, title_style))
+        if meta.subtitle:
+            story.append(Paragraph(meta.subtitle, subtitle_style))
+        story.append(Spacer(1, 20*mm))
+        
+        meta_info = []
+        if meta.date:
+            meta_info.append(f"Дата проведения: {meta.date}")
+        if meta.venue:
+            meta_info.append(meta.venue)
+        
+        if meta_info:
+            story.append(Paragraph('<br/>'.join(meta_info), subtitle_style))
+        
+        story.append(PageBreak())
     
-    if meta_info:
-        meta_text = '<br/>'.join(meta_info)
-        story.append(Paragraph(meta_text, subtitle_style))
-    
-    story.append(PageBreak())
-    
-    # Залы и сессии
+    # Контент
     halls = data.get('halls', [])
     sessions_data = data.get('sessions', [])
     hall_intros = data.get('hallIntros', {})
     
-    # Группировка по залам
     by_hall: Dict[str, List[Session]] = {hall: [] for hall in halls}
     
-    for s_data in sessions_data:
-        hall_name = s_data.get('hall', '')
+    for s in sessions_data:
+        hall_name = s.get('hall', '')
         if hall_name not in by_hall:
             continue
         
-        # Очистка от тегов {...}
-        title = strip_braces(s_data.get('title', ''))
-        speaker = strip_braces(s_data.get('speaker', ''))
-        role = strip_braces(s_data.get('role', ''))
-        desc = strip_braces(s_data.get('desc', ''))
-        
-        tags = collect_tags_for_session(s_data)
-        
         session = Session(
             hall=hall_name,
-            start=s_data.get('start', ''),
-            end=s_data.get('end', ''),
-            title=title,
-            speaker=speaker,
-            role=role,
-            desc=desc,
-            tags_canon=tags
+            start=s.get('start', ''),
+            end=s.get('end', ''),
+            title=strip_tags(s.get('title', '')),
+            speaker=strip_tags(s.get('speaker', '')),
+            role=strip_tags(s.get('role', '')),
+            desc=strip_tags(s.get('desc', '')),
+            tags_canon=collect_tags(s)
         )
         by_hall[hall_name].append(session)
     
-    # Сортировка сессий
     for hall in by_hall:
-        by_hall[hall].sort(key=lambda s: s.start)
+        by_hall[hall].sort(key=lambda x: x.start)
     
-    # Рендер залов
-    first_hall = True
+    first = True
     for hall_name in halls:
-        sessions_list = by_hall.get(hall_name, [])
+        sessions = by_hall.get(hall_name, [])
         bullets = hall_intros.get(hall_name, [])
         
-        if not sessions_list and not bullets:
+        if not sessions and not bullets:
             continue
         
-        if not first_hall:
+        if not first:
             story.append(PageBreak())
-        first_hall = False
+        first = False
         
-        # Заголовок зала
         story.append(Paragraph(hall_name.upper(), hall_style))
         
-        # Интро-буллеты
         if bullets:
-            for bullet in bullets:
-                story.append(Paragraph(f"• {bullet}", desc_style))
+            for b in bullets:
+                story.append(Paragraph(f"• {b}", desc_style))
             story.append(Spacer(1, 8))
         
-        # Сессии
-        for i, session in enumerate(sessions_list):
-            # Время
-            time_text = f"{session.start}"
+        for i, session in enumerate(sessions):
+            time_text = session.start
             if session.end:
                 time_text += f" — {session.end}"
             story.append(Paragraph(time_text, time_style))
             
-            # Теги
             if session.tags_canon:
-                tags_text = f"Теги: {', '.join(session.tags_canon)}"
-                story.append(Paragraph(tags_text, tags_style))
+                story.append(Paragraph(f"Теги: {', '.join(session.tags_canon)}", tags_style))
             
-            # Спикер
             if session.speaker:
                 story.append(Paragraph(session.speaker, speaker_style))
             
-            # Роль
             if session.role:
                 story.append(Paragraph(session.role, role_style))
             
-            # Заголовок доклада
             if session.title:
                 story.append(Paragraph(session.title, session_title_style))
             
-            # Описание
             if session.desc:
-                desc_lines = session.desc.split('\n')
-                for line in desc_lines:
+                for line in session.desc.split('\n'):
                     line = line.strip()
                     if line.startswith('- '):
                         line = '• ' + line[2:]
                     if line:
                         story.append(Paragraph(line, desc_style))
             
-            # Разделитель между сессиями
-            if i < len(sessions_list) - 1:
+            if i < len(sessions) - 1:
                 story.append(Spacer(1, 8))
                 story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#CCCCCC')))
                 story.append(Spacer(1, 10))
     
-    # Генерация PDF
-    doc.build(story)
+    # Сборка
+    footer = FooterCanvas(logo_img, meta)
+    doc.build(story, onFirstPage=footer.draw_footer, onLaterPages=footer.draw_footer)
     
-    pdf_bytes = buffer.getvalue()
-    buffer.close()
-    
-    return pdf_bytes
+    return buffer.getvalue()
 
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
-    method: str = event.get('httpMethod', 'POST')
+    method = event.get('httpMethod', 'POST')
     
-    # CORS
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
@@ -360,9 +451,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     try:
-        body_str = event.get('body', '{}')
-        data = json.loads(body_str)
-        
+        data = json.loads(event.get('body', '{}'))
         pdf_bytes = create_pdf(data)
         b64 = base64.b64encode(pdf_bytes).decode('utf-8')
         
@@ -377,6 +466,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
         
     except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        
         return {
             'statusCode': 500,
             'headers': {
