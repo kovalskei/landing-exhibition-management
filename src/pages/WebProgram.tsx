@@ -14,6 +14,7 @@ export default function WebProgram() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [showPlan, setShowPlan] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
 
   const loadData = async () => {
     try {
@@ -36,6 +37,54 @@ export default function WebProgram() {
       await loadData();
     } finally {
       setRefreshing(false);
+    }
+  };
+
+  const downloadProgramPdf = async () => {
+    if (!data) return;
+    
+    try {
+      setGeneratingPdf(true);
+      
+      const source = filteredSessions.length ? filteredSessions : data.sessions;
+      const hallIntros: Record<string, string[]> = {};
+      data.halls.forEach(h => {
+        if (h.bullets && h.bullets.length) hallIntros[h.name] = h.bullets.slice();
+      });
+
+      const pdfData = {
+        halls: data.halls.map(h => h.name),
+        sessions: source.map(s => ({
+          hall: s.hall,
+          start: s.start,
+          end: s.end,
+          title: s.title || '',
+          speaker: s.speaker || '',
+          role: s.role || '',
+          desc: s.desc || '',
+          tagsCanon: (s.tagsCanon || []).slice()
+        })),
+        meta: {
+          date: data.meta.date || '',
+          title: data.meta.title || '',
+          subtitle: data.meta.subtitle || '',
+          venue: data.meta.venue || '',
+          logoId: '',
+          coverId: ''
+        },
+        hallIntros
+      };
+
+      // Здесь будет вызов бэкенд-функции для генерации PDF
+      // Пока заглушка
+      alert('Генерация PDF будет реализована через бэкенд-функцию');
+      console.log('PDF Data:', pdfData);
+      
+    } catch (err) {
+      console.error('Ошибка генерации PDF:', err);
+      alert('Ошибка при генерации PDF');
+    } finally {
+      setGeneratingPdf(false);
     }
   };
 
@@ -423,6 +472,16 @@ export default function WebProgram() {
                   </div>
                 )}
               </div>
+
+              <Button
+                onClick={downloadProgramPdf}
+                disabled={generatingPdf}
+                variant="outline"
+                size="sm"
+              >
+                <Icon name={generatingPdf ? 'Loader2' : 'FileDown'} size={16} className={generatingPdf ? 'animate-spin mr-2' : 'mr-2'} />
+                {generatingPdf ? 'Готовлю PDF...' : 'Скачать PDF'}
+              </Button>
 
               <Button variant="outline" size="sm">
                 <a
