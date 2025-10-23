@@ -286,10 +286,11 @@ export async function fetchProgramData(): Promise<ProgramData> {
     }
 
     // Поиск троек столбцов (начало, конец, доклад) — динамическое определение залов
+    // Используем ту же логику, что в оригинальном JS коде, но адаптируем для неполной таблицы
     for (let c = 0; c <= C - 3; ) {
       let hits = 0;
       
-      // Проверяем ВСЕ строки таблицы, а не только первые 40
+      // Проверяем, есть ли в этой тройке колонок доклады (время начала + конца + текст)
       for (let r = START_ROW; r < R; r++) {
         const s = normalizeTime(rows[r]?.[c] || '');
         const e = normalizeTime(rows[r]?.[c + 1] || '');
@@ -297,13 +298,12 @@ export async function fetchProgramData(): Promise<ProgramData> {
         if (s && e && t) hits++;
       }
 
-      // Если найдено хотя бы 2 доклада — это зал
-      if (hits >= 2) {
+      // Если найдено хотя бы 1 доклад (адаптация для неполной таблицы) — это зал
+      if (hits >= 1) {
         const name = headerName(c, c + 2);
         const bullets = hallBullets(c, c + 2);
         if (name) {
           halls.push({ id: String(c), name, bullets });
-          console.log(`Найден зал: ${name} (колонка ${c}, докладов: ${hits})`);
         }
         c += 3;
       } else {
@@ -311,7 +311,7 @@ export async function fetchProgramData(): Promise<ProgramData> {
       }
     }
 
-    console.log(`Всего залов найдено: ${halls.length}`);
+    console.log(`Всего залов найдено: ${halls.length}, залы:`, halls.map(h => h.name));
 
     // Парсинг докладов
     for (let h = 0; h < halls.length; h++) {
