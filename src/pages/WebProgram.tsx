@@ -338,14 +338,14 @@ export default function WebProgram() {
             size="sm"
             className={viewMode === 'cards' ? 'view-mode-button-active' : 'view-mode-button'}
           >
-            Карточки
+            По времени
           </Button>
           <Button
             onClick={() => setViewMode('table')}
             size="sm"
             className={viewMode === 'table' ? 'view-mode-button-active' : 'view-mode-button'}
           >
-            Таблица
+            По залам
           </Button>
         </div>
 
