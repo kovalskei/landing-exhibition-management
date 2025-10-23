@@ -188,6 +188,7 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
       .timeline-slot {
         flex-shrink: 0;
         width: 100vw;
+        min-height: 50vh;
         scroll-snap-align: start;
         padding: 0 14px;
       }
