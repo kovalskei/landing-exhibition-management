@@ -77,8 +77,8 @@ export default function WebProgram() {
           title: data.meta.title || '',
           subtitle: data.meta.subtitle || '',
           venue: data.meta.venue || '',
-          logoId: '',
-          coverId: ''
+          logoId: data.meta.logoId || '',
+          coverId: data.meta.coverId || ''
         },
         hallIntros
       };
@@ -149,8 +149,8 @@ export default function WebProgram() {
           subtitle: 'Мой план',
           date: data.meta.date || '',
           venue: data.meta.venue || '',
-          logoId: '',
-          coverId: ''
+          logoId: data.meta.logoId || '',
+          coverId: data.meta.coverId || ''
         },
         hallIntros: {}
       };

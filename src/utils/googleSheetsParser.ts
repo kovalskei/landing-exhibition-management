@@ -30,6 +30,8 @@ export interface ProgramData {
     subtitle: string;
     date: string;
     venue: string;
+    logoId?: string;
+    coverId?: string;
   };
 }
 
@@ -189,27 +191,45 @@ function normAll(s: string): string {
 export async function fetchProgramData(): Promise<ProgramData> {
   try {
     const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+    const metaUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1485890782`;
 
-    const response = await fetch(csvUrl, {
-      method: 'GET',
-      headers: {
-        Accept: 'text/csv'
-      }
-    });
+    const [mainResponse, metaResponse] = await Promise.all([
+      fetch(csvUrl, {
+        method: 'GET',
+        headers: { Accept: 'text/csv' }
+      }),
+      fetch(metaUrl, {
+        method: 'GET',
+        headers: { Accept: 'text/csv' }
+      }).catch(() => null)
+    ]);
 
-    if (!response.ok) {
-      if (response.status === 404) {
+    if (!mainResponse.ok) {
+      if (mainResponse.status === 404) {
         throw new Error('Таблица не найдена. Проверьте ID таблицы.');
       }
-      if (response.status === 403) {
+      if (mainResponse.status === 403) {
         throw new Error(
           'Доступ запрещён. Откройте доступ к таблице: Настройки доступа → "Все, у кого есть ссылка"'
         );
       }
-      throw new Error(`Ошибка загрузки: ${response.status}`);
+      throw new Error(`Ошибка загрузки: ${mainResponse.status}`);
     }
 
-    const csvText = await response.text();
+    const csvText = await mainResponse.text();
+    
+    const metaFromSheet: Record<string, string> = {};
+    if (metaResponse?.ok) {
+      const metaText = await metaResponse.text();
+      const metaLines = metaText.split('\n').filter(Boolean);
+      for (const line of metaLines) {
+        const [key, ...valueParts] = line.split(',');
+        const value = valueParts.join(',').replace(/^"|"$/g, '').trim();
+        if (key && value) {
+          metaFromSheet[key.trim()] = value;
+        }
+      }
+    }
 
     // Правильный CSV-парсинг: обрабатываем кавычки и переносы строк внутри ячеек
     const rows: string[][] = [];
@@ -442,11 +462,10 @@ export async function fetchProgramData(): Promise<ProgramData> {
     const now = new Date();
     const nowTime = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
 
-    // Мета из первых строк
-    const metaTitle = String(rows[0]?.[0] || 'Программа мероприятия').trim();
-    const metaSubtitle = String(rows[1]?.[0] || '').trim();
-    const metaDate = String(rows[2]?.[0] || '').trim();
-    const metaVenue = String(rows[3]?.[0] || '').trim();
+    const metaTitle = metaFromSheet['title'] || String(rows[0]?.[0] || 'Программа мероприятия').trim();
+    const metaSubtitle = metaFromSheet['subtitle'] || String(rows[1]?.[0] || '').trim();
+    const metaDate = metaFromSheet['date'] || String(rows[2]?.[0] || '').trim();
+    const metaVenue = metaFromSheet['venue'] || String(rows[3]?.[0] || '').trim();
     
     return {
       title: metaTitle,
@@ -457,7 +476,9 @@ export async function fetchProgramData(): Promise<ProgramData> {
         title: metaTitle,
         subtitle: metaSubtitle,
         date: metaDate,
-        venue: metaVenue
+        venue: metaVenue,
+        logoId: metaFromSheet['logoId'] || '',
+        coverId: metaFromSheet['coverId'] || ''
       }
     };
   } catch (error) {
