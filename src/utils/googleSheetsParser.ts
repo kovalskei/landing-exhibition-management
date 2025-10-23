@@ -226,13 +226,49 @@ export async function fetchProgramData(): Promise<ProgramData> {
         
         if (metaResponse.ok) {
           const metaText = await metaResponse.text();
-          const metaLines = metaText.split('\n').filter(Boolean);
           
-          for (const line of metaLines) {
-            const parts = line.split(',');
-            if (parts.length >= 2) {
-              const key = parts[0].trim().toLowerCase();
-              const value = parts.slice(1).join(',').replace(/^"|"$/g, '').trim();
+          const metaRows: string[][] = [];
+          let metaCurrentRow: string[] = [];
+          let metaCurrentCell = '';
+          let metaInQuotes = false;
+          
+          for (let i = 0; i < metaText.length; i++) {
+            const ch = metaText[i];
+            
+            if (ch === '"') {
+              if (metaInQuotes && metaText[i + 1] === '"') {
+                metaCurrentCell += '"';
+                i++;
+              } else {
+                metaInQuotes = !metaInQuotes;
+              }
+            } else if (ch === ',' && !metaInQuotes) {
+              metaCurrentRow.push(metaCurrentCell);
+              metaCurrentCell = '';
+            } else if ((ch === '\n' || ch === '\r') && !metaInQuotes) {
+              if (ch === '\r' && metaText[i + 1] === '\n') i++;
+              metaCurrentRow.push(metaCurrentCell);
+              if (metaCurrentRow.some(c => c.trim())) {
+                metaRows.push(metaCurrentRow);
+              }
+              metaCurrentRow = [];
+              metaCurrentCell = '';
+            } else {
+              metaCurrentCell += ch;
+            }
+          }
+          
+          if (metaCurrentCell || metaCurrentRow.length > 0) {
+            metaCurrentRow.push(metaCurrentCell);
+            if (metaCurrentRow.some(c => c.trim())) {
+              metaRows.push(metaCurrentRow);
+            }
+          }
+          
+          for (const row of metaRows) {
+            if (row.length >= 2) {
+              const key = row[0].trim().toLowerCase();
+              const value = row.slice(1).join(',').trim();
               if (key && value) {
                 metaFromSheet[key] = value;
               }
