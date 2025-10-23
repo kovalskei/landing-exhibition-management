@@ -59,6 +59,10 @@ def setup_fonts():
         ('DejaVuSans-Bold', 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans-Bold.ttf'),
         ('DejaVuSans-Oblique', 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans-Oblique.ttf'),
         ('DejaVuSans-BoldOblique', 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans-BoldOblique.ttf'),
+        ('DejaVuSansCondensed', 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSansCondensed.ttf'),
+        ('DejaVuSansCondensed-Bold', 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSansCondensed-Bold.ttf'),
+        ('DejaVuSansCondensed-Oblique', 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSansCondensed-Oblique.ttf'),
+        ('DejaVuSansCondensed-BoldOblique', 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSansCondensed-BoldOblique.ttf'),
     ]
     
     registered = []
@@ -82,8 +86,8 @@ def setup_fonts():
             print(f'❌ Ошибка регистрации {font_name}: {e}')
             raise Exception(f'Не удалось зарегистрировать шрифт {font_name}: {e}')
     
-    if len(registered) != 4:
-        raise Exception(f'Зарегистрировано только {len(registered)} из 4 шрифтов')
+    if len(registered) != 8:
+        raise Exception(f'Зарегистрировано только {len(registered)} из 8 шрифтов')
     
     try:
         registerFontFamily(
@@ -93,7 +97,14 @@ def setup_fonts():
             italic='DejaVuSans-Oblique',
             boldItalic='DejaVuSans-BoldOblique'
         )
-        print('Семейство DejaVuSans зарегистрировано')
+        registerFontFamily(
+            'DejaVuSansCondensed',
+            normal='DejaVuSansCondensed',
+            bold='DejaVuSansCondensed-Bold',
+            italic='DejaVuSansCondensed-Oblique',
+            boldItalic='DejaVuSansCondensed-BoldOblique'
+        )
+        print('Семейства DejaVuSans и DejaVuSansCondensed зарегистрированы')
     except Exception as e:
         print(f'❌ Ошибка регистрации семейства: {e}')
         raise Exception(f'Не удалось зарегистрировать семейство шрифтов: {e}')
@@ -179,9 +190,12 @@ class FooterCanvas:
         
         if meta_parts:
             try:
-                canvas.setFont('DejaVuSans', 10)
+                canvas.setFont('DejaVuSansCondensed', 10)
             except:
-                canvas.setFont('Helvetica', 10)
+                try:
+                    canvas.setFont('DejaVuSans', 10)
+                except:
+                    canvas.setFont('Helvetica', 10)
             canvas.setFillColor(colors.HexColor('#7A7A7A'))
             canvas.drawString(20 * mm, y, ' • '.join(meta_parts))
         
@@ -228,16 +242,25 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         title=meta.title
     )
     
-    # Проверка доступности DejaVuSans
+    # Используем DejaVuSansCondensed для компактности (как Calibri)
     try:
-        test_font = pdfmetrics.getFont('DejaVuSans')
-        font_name = 'DejaVuSans'
-        font_bold = 'DejaVuSans-Bold'
-        font_italic = 'DejaVuSans-Oblique'
-        print('✅ Шрифт DejaVuSans доступен')
+        test_font = pdfmetrics.getFont('DejaVuSansCondensed')
+        font_name = 'DejaVuSansCondensed'
+        font_bold = 'DejaVuSansCondensed-Bold'
+        font_italic = 'DejaVuSansCondensed-Oblique'
+        print('✅ Шрифт DejaVuSansCondensed доступен')
     except Exception as e:
-        print(f'❌ DejaVuSans недоступен: {e}')
-        raise Exception('Шрифт DejaVuSans не загружен. PDF не будет поддерживать кириллицу.')
+        print(f'⚠️ DejaVuSansCondensed недоступен: {e}')
+        # Fallback на обычный DejaVuSans
+        try:
+            test_font = pdfmetrics.getFont('DejaVuSans')
+            font_name = 'DejaVuSans'
+            font_bold = 'DejaVuSans-Bold'
+            font_italic = 'DejaVuSans-Oblique'
+            print('✅ Используем DejaVuSans')
+        except Exception as e2:
+            print(f'❌ DejaVuSans недоступен: {e2}')
+            raise Exception('Шрифт DejaVuSans не загружен. PDF не будет поддерживать кириллицу.')
     
     title_style = ParagraphStyle(
         'Title',
