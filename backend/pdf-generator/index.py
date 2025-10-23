@@ -387,7 +387,6 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
             aspect = img.imageHeight / img.imageWidth
             img.drawWidth = img_width
             img.drawHeight = img_width * aspect
-            story.append(Spacer(1, 20*mm))
             story.append(img)
             story.append(PageBreak())
             print('✅ Обложка добавлена в PDF')
