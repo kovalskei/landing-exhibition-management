@@ -26,17 +26,20 @@ export default function MobileHeader({
           <Icon name="Menu" size={20} />
         </button>
       </div>
-      <div 
-        className="text-sm text-[var(--muted)] transition-all duration-300 overflow-hidden"
-        style={{ 
-          maxHeight: compact ? '0' : '30px',
-          opacity: compact ? 0 : 1 
-        }}
-      >
-        {date && <span>{date}</span>}
-        {date && venue && <span> • </span>}
-        {venue && <span>{venue}</span>}
-      </div>
+      {(date || venue) && (
+        <div 
+          className="text-sm text-[var(--muted)] transition-all duration-300 overflow-hidden"
+          style={{ 
+            maxHeight: compact ? '0' : '50px',
+            opacity: compact ? 0 : 1,
+            marginBottom: compact ? 0 : '8px'
+          }}
+        >
+          {date && <span>{date}</span>}
+          {date && venue && <span> • </span>}
+          {venue && <span>{venue}</span>}
+        </div>
+      )}
     </div>
   );
 }
