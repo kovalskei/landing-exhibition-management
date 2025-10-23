@@ -88,7 +88,6 @@ export default function MobileProgram() {
 
   const isScrollingProgrammatically = useRef(false);
   const lastSnapIndex = useRef(0);
-  const scrollEndTimer = useRef<number>();
 
   const scrollToTime = (time: string) => {
     if (!timelineRef.current || !data) return;
@@ -106,7 +105,7 @@ export default function MobileProgram() {
   };
 
   const handleTimelineScroll = () => {
-    if (!timelineRef.current || !data) return;
+    if (!timelineRef.current || !data || isScrollingProgrammatically.current) return;
     
     const times = [...new Set(data.sessions.map(s => s.start))].sort();
     const scrollLeft = timelineRef.current.scrollLeft;
@@ -118,40 +117,31 @@ export default function MobileProgram() {
       setSelectedTime(times[currentIdx]);
     }
     
-    // Snap-логика после окончания скролла
-    if (scrollEndTimer.current) {
-      clearTimeout(scrollEndTimer.current);
-    }
+    // Мгновенная snap-коррекция
+    const diff = currentIdx - lastSnapIndex.current;
     
-    scrollEndTimer.current = window.setTimeout(() => {
-      if (!timelineRef.current || isScrollingProgrammatically.current) return;
+    if (Math.abs(diff) > 1) {
+      // Перепрыгнули больше чем на 1 слот - сразу корректируем
+      const targetIdx = diff > 0 
+        ? lastSnapIndex.current + 1
+        : lastSnapIndex.current - 1;
       
-      const finalScrollLeft = timelineRef.current.scrollLeft;
-      const finalIdx = Math.round(finalScrollLeft / width);
-      const diff = finalIdx - lastSnapIndex.current;
-      
-      // Ограничение: прыгать только на ±1 слот
-      if (Math.abs(diff) > 1) {
-        const targetIdx = diff > 0 
-          ? lastSnapIndex.current + 1
-          : lastSnapIndex.current - 1;
-        
-        isScrollingProgrammatically.current = true;
-        timelineRef.current.scrollTo({ 
-          left: targetIdx * width, 
-          behavior: 'smooth' 
-        });
-        lastSnapIndex.current = targetIdx;
-        if (times[targetIdx]) {
-          setSelectedTime(times[targetIdx]);
-        }
-        setTimeout(() => {
-          isScrollingProgrammatically.current = false;
-        }, 600);
-      } else {
-        lastSnapIndex.current = finalIdx;
+      isScrollingProgrammatically.current = true;
+      timelineRef.current.scrollTo({ 
+        left: targetIdx * width, 
+        behavior: 'smooth' 
+      });
+      lastSnapIndex.current = targetIdx;
+      if (times[targetIdx]) {
+        setSelectedTime(times[targetIdx]);
       }
-    }, 100);
+      setTimeout(() => {
+        isScrollingProgrammatically.current = false;
+      }, 600);
+    } else if (Math.abs(diff) === 1) {
+      // Нормальный переход на ±1 - обновляем позицию
+      lastSnapIndex.current = currentIdx;
+    }
   };
 
   const handleTimeChipClick = (time: string) => {
