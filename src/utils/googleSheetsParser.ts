@@ -79,6 +79,9 @@ export async function fetchProgramData(): Promise<ProgramData> {
   try {
     // Используем публичный CSV экспорт
     const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+    
+    console.log('Загрузка данных из Google Sheets...');
+    
     const response = await fetch(csvUrl, {
       method: 'GET',
       headers: {
@@ -86,11 +89,20 @@ export async function fetchProgramData(): Promise<ProgramData> {
       }
     });
     
+    console.log('Response status:', response.status);
+    
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      if (response.status === 404) {
+        throw new Error('Таблица не найдена. Проверьте ID таблицы.');
+      }
+      if (response.status === 403) {
+        throw new Error('Доступ запрещён. Откройте доступ к таблице: Настройки доступа → "Все, у кого есть ссылка"');
+      }
+      throw new Error(`Ошибка загрузки: ${response.status}`);
     }
     
     const csvText = await response.text();
+    console.log('CSV загружен, длина:', csvText.length);
     
     const rows = csvText.split('\n').map(row => {
       const cols: string[] = [];

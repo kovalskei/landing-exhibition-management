@@ -17,24 +17,42 @@ export default function MobileProgram() {
   const chipsRef = useRef<HTMLDivElement>(null);
   const [showMenu, setShowMenu] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const programData = await fetchProgramData();
+      setData(programData);
+      const times = [...new Set(programData.sessions.map(s => s.start))].sort();
+      setSelectedTime(nearestSlot(times, programData.now));
+    } catch (err) {
+      setError('Не удалось загрузить данные. Проверьте доступ к таблице.');
+      console.error('Ошибка загрузки данных:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await loadData();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const programData = await fetchProgramData();
-        setData(programData);
-        const times = [...new Set(programData.sessions.map(s => s.start))].sort();
-        setSelectedTime(nearestSlot(times, programData.now));
-        setError(null);
-      } catch (err) {
-        setError('Не удалось загрузить данные. Проверьте доступ к таблице.');
-        console.error('Ошибка загрузки данных:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     loadData();
+    
+    // Автообновление каждые 30 секунд
+    const interval = setInterval(() => {
+      loadData();
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -459,16 +477,25 @@ export default function MobileProgram() {
       <div className="m-top">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <h1 className="m-title" style={{ margin: 0 }}>{data.title}</h1>
-          <Button 
-            onClick={handleExportPdf} 
-            disabled={exportingPdf}
-            variant="outline"
-            size="sm"
-            style={{ flexShrink: 0 }}
-          >
-            <Icon name={exportingPdf ? "Loader2" : "Download"} size={16} className={exportingPdf ? "animate-spin mr-2" : "mr-2"} />
-            PDF
-          </Button>
+          <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+            <Button 
+              onClick={handleRefresh} 
+              disabled={refreshing}
+              variant="outline"
+              size="sm"
+            >
+              <Icon name={refreshing ? "Loader2" : "RefreshCw"} size={16} className={refreshing ? "animate-spin" : ""} />
+            </Button>
+            <Button 
+              onClick={handleExportPdf} 
+              disabled={exportingPdf}
+              variant="outline"
+              size="sm"
+            >
+              <Icon name={exportingPdf ? "Loader2" : "Download"} size={16} className={exportingPdf ? "animate-spin mr-2" : "mr-2"} />
+              PDF
+            </Button>
+          </div>
         </div>
         <div className="m-row">
           <div className="m-search">
