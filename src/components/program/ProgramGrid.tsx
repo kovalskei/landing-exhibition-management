@@ -41,8 +41,8 @@ export default function ProgramGrid({ data, filteredSessions, theme, onAddToPlan
     <div className="relative">
       <table className="w-full border-separate border-spacing-0">
         <colgroup>
-          <col style={{ width: '96px' }} />
-          {data.halls.map((_, i) => <col key={i} />)}
+          <col style={{ width: '80px', minWidth: '80px' }} />
+          {data.halls.map((_, i) => <col key={i} style={{ minWidth: '320px', width: `${100 / data.halls.length}%` }} />)}
         </colgroup>
         <thead className="sticky top-0 z-40">
           <tr>
