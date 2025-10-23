@@ -246,7 +246,6 @@ export async function fetchProgramData(): Promise<ProgramData> {
     const R = rows.length;
     const C = rows[0].length;
     const START_ROW = 7;
-    const LOOK = Math.min(R - START_ROW, 40);
 
     const halls: Hall[] = [];
     const sessions: Session[] = [];
@@ -284,25 +283,33 @@ export async function fetchProgramData(): Promise<ProgramData> {
       return parts.length ? parts : [s];
     }
 
-    // Поиск троек столбцов
+    // Поиск троек столбцов (начало, конец, доклад) — динамическое определение залов
     for (let c = 0; c <= C - 3; ) {
       let hits = 0;
-      for (let r = START_ROW; r < START_ROW + LOOK; r++) {
+      
+      // Проверяем ВСЕ строки таблицы, а не только первые 40
+      for (let r = START_ROW; r < R; r++) {
         const s = normalizeTime(rows[r]?.[c] || '');
         const e = normalizeTime(rows[r]?.[c + 1] || '');
         const t = String(rows[r]?.[c + 2] || '').trim();
         if (s && e && t) hits++;
       }
 
+      // Если найдено хотя бы 2 доклада — это зал
       if (hits >= 2) {
         const name = headerName(c, c + 2);
         const bullets = hallBullets(c, c + 2);
-        if (name) halls.push({ id: String(c), name, bullets });
+        if (name) {
+          halls.push({ id: String(c), name, bullets });
+          console.log(`Найден зал: ${name} (колонка ${c}, докладов: ${hits})`);
+        }
         c += 3;
       } else {
         c += 1;
       }
     }
+
+    console.log(`Всего залов найдено: ${halls.length}`);
 
     // Парсинг докладов
     for (let h = 0; h < halls.length; h++) {
