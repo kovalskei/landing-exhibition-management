@@ -141,17 +141,6 @@ export default function ProgramHeader({
             {generatingPdf ? 'Готовлю PDF...' : 'Скачать PDF'}
           </Button>
 
-          <Button variant="outline" size="sm" className="program-button">
-            <a
-              href={`https://docs.google.com/spreadsheets/d/1-W6lgnoQKfKhbeUgRBjnUVv7yf5hahdimJc1psEMpo0/export?format=xlsx`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2"
-            >
-              Скачать XLSX
-            </a>
-          </Button>
-
           <Button onClick={onTogglePlan} variant="outline" size="sm" className="program-button">
             План
           </Button>
