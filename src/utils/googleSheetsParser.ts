@@ -1,10 +1,9 @@
 const SHEET_ID = '1HgPCnMmB0KuP080xWYjBlCPdvBy5AzQMeRVX_PUxca4';
-const SHEET_NAME = 'Лист1';
 
 export interface Hall {
   id: string;
   name: string;
-  bullets?: string[];
+  bullets: string[];
 }
 
 export interface Session {
@@ -14,11 +13,11 @@ export interface Session {
   start: string;
   end: string;
   title: string;
-  speaker?: string;
-  role?: string;
-  desc?: string;
-  tags?: string[];
-  tagsCanon?: string[];
+  speaker: string;
+  role: string;
+  desc: string;
+  tags: string[];
+  tagsCanon: string[];
 }
 
 export interface ProgramData {
@@ -26,14 +25,17 @@ export interface ProgramData {
   halls: Hall[];
   sessions: Session[];
   now: string;
-  meta?: {
-    title?: string;
-    date?: string;
-    venue?: string;
+  meta: {
+    title: string;
+    date: string;
+    venue: string;
   };
 }
 
 const MIN_START_MIN = 9 * 60;
+const EXCLUDED_HEADER_COLS: Record<number, boolean> = { 6: true, 7: true };
+
+const TAG_CANON_MAP: Record<string, string> = {};
 
 function normalizeTime(v: string): string {
   const s = String(v || '').trim();
@@ -51,64 +53,172 @@ function toMin(hhmm: string): number {
   return m ? (+m[1] * 60 + +m[2]) : NaN;
 }
 
-function parseCell(raw: string): { title: string; speaker: string; role: string; desc: string; tags: string[] } {
-  const lines = String(raw).split(/\n+/).map(x => x.trim()).filter(Boolean);
-  const title = lines.shift() || '';
-  let speaker = '', role = '';
+function canonicalTag(s: string): string {
+  return String(s || '')
+    .replace(/[{}\[\]()]/g, ' ')
+    .replace(/[.,;:!?/\\|'"""''`~^]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+    .replace(/\./g, '')
+    .trim();
+}
 
-  if (lines.length) {
-    const t = lines[0];
-    const m = t.match(/^(.+?)\s*[—-]\s*(.+)$/);
+function prettyTagFromCanon(c: string): string {
+  return c.split(' ').map(w => w ? w[0].toUpperCase() + w.slice(1) : w).join(' ');
+}
+
+function parseTalk(text: string): {
+  speaker: string;
+  role: string;
+  title: string;
+  abstract: string;
+  tagsCanon: string[];
+} {
+  const raw = String(text || '').replace(/\r/g, '').trim();
+  const lines = raw.split(/\n+/).map(s => s.trim()).filter(Boolean);
+  const head = lines.shift() || '';
+
+  const tagsRaw: string[] = [];
+  const pullTags = (s: string) =>
+    s.replace(/\{([^}]+)\}/g, (m, g) => {
+      const t = String(g || '').trim();
+      if (t) tagsRaw.push(t);
+      return '';
+    });
+
+  const cleanHead = pullTags(head).trim();
+
+  let title = '';
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^\s*Тема\s*:\s*(.+)$/i);
     if (m) {
-      speaker = m[1].trim();
-      role = m[2].trim();
-      lines.shift();
-    } else if (/^[A-ZА-ЯЁ][^,]+$/.test(t)) {
-      speaker = t;
-      lines.shift();
+      title = m[1].trim();
+      lines.splice(i, 1);
+      break;
     }
   }
 
-  const desc = lines.join('\n');
-  const tags: string[] = [];
-  
-  return { title, speaker, role, desc, tags };
+  const out = { speaker: '', role: '', title, abstract: '' };
+
+  const q = cleanHead.match(/[«"](.*?)[»"]/);
+  if (q && !out.title) out.title = q[1].trim();
+
+  const dashParts = cleanHead.split(/\s[—–-]\s/).map(x => x.trim()).filter(Boolean);
+  if (dashParts.length >= 2) {
+    const left = dashParts.shift()!;
+    if (!out.title) out.title = dashParts.join(' — ');
+    const p2 = left.split(/\s*,\s*/);
+    out.speaker = p2.shift() || '';
+    out.role = p2.join(', ');
+  } else {
+    const p = cleanHead.split(/\s*,\s*/);
+    if (
+      p.length >= 2 &&
+      /директор|руковод|менеджер|основател|эксперт|инженер|профессор|доцент|автор/i.test(
+        p.slice(1).join(', ')
+      )
+    ) {
+      out.speaker = p.shift()!;
+      out.role = p.join(', ');
+    } else {
+      const d = cleanHead.split(/\s[—–-]\s/);
+      if (d.length === 2) {
+        out.speaker = d[0];
+        out.title = out.title || d[1];
+      } else if (!out.title) {
+        out.title = cleanHead;
+      }
+    }
+  }
+
+  const cleanBody = pullTags(lines.join('\n')).trim();
+  out.abstract = cleanBody;
+
+  return {
+    ...out,
+    tagsCanon: (tagsRaw || []).map(canonicalTag).filter(Boolean)
+  };
+}
+
+function smartMergeText(a: string, b: string): string {
+  a = (a || '').trim();
+  b = (b || '').trim();
+  if (!a) return b;
+  if (!b) return a;
+
+  const na = normAll(a);
+  const nb = normAll(b);
+  if (nb.indexOf(na) === 0) return b;
+  if (na.indexOf(nb) === 0) return a;
+
+  const lines = [...splitLines(a), ...splitLines(b)];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const ln of lines) {
+    const n = normLine(ln);
+    if (!n || seen.has(n)) continue;
+    seen.add(n);
+    out.push(ln);
+  }
+  return out.join('\n');
+}
+
+function splitLines(s: string): string[] {
+  return String(s || '')
+    .split(/\n+/)
+    .map(x => x.replace(/^\s*[–—-]\s*/, '').trim())
+    .filter(Boolean);
+}
+
+function normLine(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function normAll(s: string): string {
+  return splitLines(s).map(normLine).join(' ');
 }
 
 export async function fetchProgramData(): Promise<ProgramData> {
   try {
-    // Используем публичный CSV экспорт
     const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
-    
+
     console.log('Загрузка данных из Google Sheets...');
-    
+
     const response = await fetch(csvUrl, {
       method: 'GET',
       headers: {
-        'Accept': 'text/csv'
+        Accept: 'text/csv'
       }
     });
-    
+
     console.log('Response status:', response.status);
-    
+
     if (!response.ok) {
       if (response.status === 404) {
         throw new Error('Таблица не найдена. Проверьте ID таблицы.');
       }
       if (response.status === 403) {
-        throw new Error('Доступ запрещён. Откройте доступ к таблице: Настройки доступа → "Все, у кого есть ссылка"');
+        throw new Error(
+          'Доступ запрещён. Откройте доступ к таблице: Настройки доступа → "Все, у кого есть ссылка"'
+        );
       }
       throw new Error(`Ошибка загрузки: ${response.status}`);
     }
-    
+
     const csvText = await response.text();
     console.log('CSV загружен, длина:', csvText.length);
-    
+
     const rows = csvText.split('\n').map(row => {
       const cols: string[] = [];
       let current = '';
       let inQuotes = false;
-      
+
       for (let i = 0; i < row.length; i++) {
         const char = row[i];
         if (char === '"') {
@@ -133,18 +243,49 @@ export async function fetchProgramData(): Promise<ProgramData> {
       throw new Error('Недостаточно данных в таблице');
     }
 
-    const title = rows[0]?.[0] || 'Программа мероприятия';
-    const date = rows[1]?.[0] || '';
-    const venue = rows[2]?.[0] || '';
+    const R = rows.length;
+    const C = rows[0].length;
+    const START_ROW = 7;
+    const LOOK = Math.min(R - START_ROW, 40);
 
     const halls: Hall[] = [];
     const sessions: Session[] = [];
-    const START_ROW = 5;
-    const LOOK = Math.min(rows.length - START_ROW, 40);
 
-    // Поиск троек столбцов (время начало, время конец, доклад)
-    const C = rows[0].length;
-    for (let c = 0; c <= C - 3;) {
+    function headerName(c1: number, c2: number): string {
+      let s = '';
+      for (let c = c1; c <= c2 && c < C; c++) {
+        if (EXCLUDED_HEADER_COLS[c]) continue;
+        const v = String(rows[0][c] || '').trim();
+        if (v) s += (s ? ' ' : '') + v;
+      }
+      return s.trim();
+    }
+
+    function hallBullets(c1: number, c2: number): string[] {
+      let txt = '';
+      for (let c = c1; c <= c2 && c < C; c++) {
+        const v = String(rows[1][c] || '').trim();
+        if (v) txt += (txt ? ' ' : '') + v;
+      }
+      return splitBullets(txt);
+    }
+
+    function splitBullets(s: string): string[] {
+      s = String(s || '')
+        .replace(/\r/g, '')
+        .trim();
+      if (!s) return [];
+      if (s.includes('•')) return s.split('•').map(x => x.trim()).filter(Boolean);
+      if (/\n/.test(s)) return s.split(/\n+/).map(x => x.trim()).filter(Boolean);
+      const parts = s
+        .split(/\s*[;|·]\s*|\s+[–—-]\s+/)
+        .map(x => x.trim())
+        .filter(Boolean);
+      return parts.length ? parts : [s];
+    }
+
+    // Поиск троек столбцов
+    for (let c = 0; c <= C - 3; ) {
       let hits = 0;
       for (let r = START_ROW; r < START_ROW + LOOK; r++) {
         const s = normalizeTime(rows[r]?.[c] || '');
@@ -154,9 +295,9 @@ export async function fetchProgramData(): Promise<ProgramData> {
       }
 
       if (hits >= 2) {
-        const hallName = String(rows[0]?.[c + 2] || `Зал ${halls.length + 1}`).trim();
-        const bullets = String(rows[1]?.[c + 2] || '').split('•').map(x => x.trim()).filter(Boolean);
-        halls.push({ id: String(c), name: hallName, bullets });
+        const name = headerName(c, c + 2);
+        const bullets = hallBullets(c, c + 2);
+        if (name) halls.push({ id: String(c), name, bullets });
         c += 3;
       } else {
         c += 1;
@@ -169,30 +310,61 @@ export async function fetchProgramData(): Promise<ProgramData> {
       const ce = cs + 1;
       const ct = cs + 2;
 
-      for (let r2 = START_ROW; r2 < rows.length; r2++) {
+      for (let r2 = START_ROW; r2 < R; r2++) {
         const s0 = normalizeTime(rows[r2]?.[cs] || '');
         const e0 = normalizeTime(rows[r2]?.[ce] || '');
         const raw0 = String(rows[r2]?.[ct] || '').trim();
 
+        if (!s0 && !e0 && !raw0) continue;
         if (!s0 || !e0 || !raw0) continue;
 
-        const parsed = parseCell(raw0);
+        const parts = raw0.replace(/\r/g, '').split(/\n{2,}/);
+        const header = (parts.shift() || '').trim();
+        const rest = parts.join('\n\n').trim();
+
+        const tagsRaw: string[] = [];
+        const cleanHeader = header.replace(/\{([^}]+)\}/g, (m, g1) => {
+          const t = String(g1 || '').trim();
+          if (t) tagsRaw.push(t);
+          return '';
+        }).trim();
+        const cleanRest = rest.replace(/\{([^}]+)\}/g, (m, g1) => {
+          const t = String(g1 || '').trim();
+          if (t) tagsRaw.push(t);
+          return '';
+        }).trim();
+
+        const talk = parseTalk(cleanHeader);
+        const desc = smartMergeText(talk.abstract, cleanRest);
+
+        const tagsCanon: string[] = [];
+        const tagsDisp: string[] = [];
+        for (const tr of [...tagsRaw, ...talk.tagsCanon]) {
+          const canon = canonicalTag(tr);
+          if (!canon) continue;
+          if (!TAG_CANON_MAP[canon]) TAG_CANON_MAP[canon] = prettyTagFromCanon(canon);
+          if (!tagsCanon.includes(canon)) {
+            tagsCanon.push(canon);
+            tagsDisp.push(TAG_CANON_MAP[canon]);
+          }
+        }
+
         const sm = toMin(s0);
         const em = toMin(e0);
         if (!isFinite(sm) || !isFinite(em) || em <= sm) continue;
 
         sessions.push({
-          id: halls[h].name + '|' + s0 + '|' + e0 + '|' + (parsed.title || raw0),
+          id: halls[h].name + '|' + s0 + '|' + e0 + '|' + (talk.title || cleanHeader || raw0),
           hallId: halls[h].id,
           hall: halls[h].name,
           start: s0,
           end: e0,
-          title: parsed.title || '',
-          speaker: parsed.speaker || '',
-          role: parsed.role || '',
-          desc: parsed.desc || '',
-          tags: parsed.tags,
-          tagsCanon: []
+          title: talk.title || '',
+          speaker: talk.speaker || '',
+          role: talk.role || '',
+          desc,
+          tags: tagsDisp,
+          tagsCanon
         });
       }
     }
@@ -202,15 +374,27 @@ export async function fetchProgramData(): Promise<ProgramData> {
     const now = new Date();
     const nowTime = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
 
+    // Мета из первой строки
+    const metaTitle = String(rows[0]?.[0] || 'Программа мероприятия').trim();
+    const metaDate = String(rows[2]?.[0] || '').trim();
+    
     return {
-      title,
+      title: metaTitle,
       halls,
       sessions,
       now: nowTime,
-      meta: { title, date, venue }
+      meta: {
+        title: metaTitle,
+        date: metaDate,
+        venue: ''
+      }
     };
   } catch (error) {
     console.error('Ошибка загрузки данных:', error);
     throw error;
   }
+}
+
+export function getTagCanonMap(): Record<string, string> {
+  return TAG_CANON_MAP;
 }
