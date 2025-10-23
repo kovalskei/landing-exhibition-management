@@ -46,11 +46,11 @@ export default function ProgramGrid({ data, filteredSessions, theme, onAddToPlan
         </colgroup>
         <thead>
           <tr>
-            <th className="sticky top-0 bg-[var(--panel)] border-b border-r border-[var(--line)] p-3 text-left font-bold z-10">
+            <th className="sticky top-[72px] bg-[var(--panel)] border-b border-r border-[var(--line)] p-3 text-left font-bold z-20">
               Время
             </th>
             {data.halls.map(h => (
-              <th key={h.id} className="sticky top-0 bg-[var(--panel)] border-b border-r border-[var(--line)] p-3 text-left font-bold z-10">
+              <th key={h.id} className="sticky top-[72px] bg-[var(--panel)] border-b border-r border-[var(--line)] p-3 text-left font-bold z-20">
                 {h.name}
               </th>
             ))}
