@@ -260,14 +260,14 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
     hall_style = ParagraphStyle(
         'Hall',
         fontName=font_bold,
-        fontSize=20,
+        fontSize=18,
         spaceAfter=10
     )
     
     time_style = ParagraphStyle(
         'Time',
         fontName=font_bold,
-        fontSize=14,
+        fontSize=13,
         textColor=colors.black,
         spaceAfter=4
     )
@@ -283,7 +283,7 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
     role_style = ParagraphStyle(
         'Role',
         fontName=font_name,
-        fontSize=11,
+        fontSize=10,
         textColor=colors.HexColor('#1a1a1a'),
         spaceAfter=6
     )
@@ -300,7 +300,7 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         'Desc',
         fontName=font_name,
         fontSize=11,
-        leading=14,
+        leading=12.65,
         textColor=colors.black,
         spaceAfter=2
     )
@@ -309,7 +309,7 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         'Bullet',
         fontName=font_name,
         fontSize=11,
-        leading=14,
+        leading=12.65,
         leftIndent=12,
         textColor=colors.black,
         spaceAfter=2
@@ -318,7 +318,7 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
     tags_style = ParagraphStyle(
         'Tags',
         fontName=font_italic,
-        fontSize=10,
+        fontSize=9,
         textColor=colors.HexColor('#6B6B6B'),
         spaceAfter=6
     )
