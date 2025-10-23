@@ -132,22 +132,18 @@ export default function MobileProgram() {
 
   const handleContentScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const currentScrollY = e.currentTarget.scrollTop;
-    const compactThreshold = 180;
-    const expandThreshold = 100;
     
-    if (headerScrollTimeout.current) {
-      clearTimeout(headerScrollTimeout.current);
-    }
-    
-    headerScrollTimeout.current = window.setTimeout(() => {
-      if (currentScrollY > compactThreshold && !isHeaderCompact) {
+    if (currentScrollY > lastScrollY.current && currentScrollY > 10) {
+      if (!isHeaderCompact) {
         setIsHeaderCompact(true);
-      } else if (currentScrollY < expandThreshold && isHeaderCompact) {
+      }
+    } else if (currentScrollY <= 5) {
+      if (isHeaderCompact) {
         setIsHeaderCompact(false);
       }
-      
-      lastScrollY.current = currentScrollY;
-    }, 50);
+    }
+    
+    lastScrollY.current = currentScrollY;
   };
 
   const addToPlan = (id: string) => {
