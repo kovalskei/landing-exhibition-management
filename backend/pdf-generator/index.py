@@ -196,7 +196,7 @@ class FooterCanvas:
                     canvas.setFont('DejaVuSans', 9)
                 except:
                     canvas.setFont('Helvetica', 9)
-            canvas.setFillColor(colors.HexColor('#333333'))
+            canvas.setFillColor(colors.HexColor('#94a3b8'))
             canvas.drawString(20 * mm, y, ' • '.join(meta_parts))
         
         # Логотип справа
@@ -283,71 +283,73 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
     hall_style = ParagraphStyle(
         'Hall',
         fontName=font_bold,
-        fontSize=18,
-        spaceAfter=10
+        fontSize=20,
+        leading=24,
+        textColor=colors.HexColor('#1a1a1a'),
+        spaceAfter=14
     )
     
     time_style = ParagraphStyle(
         'Time',
         fontName=font_bold,
-        fontSize=11,
-        leading=12.65,
-        textColor=colors.HexColor('#111111'),
+        fontSize=12,
+        leading=16,
+        textColor=colors.HexColor('#2563eb'),
         spaceAfter=6
     )
     
     speaker_style = ParagraphStyle(
         'Speaker',
         fontName=font_bold,
-        fontSize=12,
-        leading=12.65,
-        textColor=colors.HexColor('#111111'),
-        spaceAfter=2
+        fontSize=13,
+        leading=18,
+        textColor=colors.HexColor('#1a1a1a'),
+        spaceAfter=3
     )
     
     role_style = ParagraphStyle(
         'Role',
         fontName=font_name,
         fontSize=11,
-        leading=12.65,
-        textColor=colors.HexColor('#555555'),
-        spaceAfter=4
+        leading=16,
+        textColor=colors.HexColor('#64748b'),
+        spaceAfter=6
     )
     
     session_title_style = ParagraphStyle(
         'SessionTitle',
         fontName=font_bold,
-        fontSize=13,
-        leading=12.65,
-        textColor=colors.HexColor('#111111'),
-        spaceAfter=4
+        fontSize=14,
+        leading=20,
+        textColor=colors.HexColor('#0f172a'),
+        spaceAfter=6
     )
     
     desc_style = ParagraphStyle(
         'Desc',
         fontName=font_name,
         fontSize=11,
-        leading=12.65,
-        textColor=colors.HexColor('#111111'),
-        spaceAfter=8
+        leading=18,
+        textColor=colors.HexColor('#334155'),
+        spaceAfter=4
     )
     
     bullet_style = ParagraphStyle(
         'Bullet',
         fontName=font_name,
         fontSize=11,
-        leading=12.65,
-        leftIndent=12,
-        textColor=colors.HexColor('#111111'),
-        spaceAfter=8
+        leading=18,
+        leftIndent=16,
+        textColor=colors.HexColor('#334155'),
+        spaceAfter=4
     )
     
     tags_style = ParagraphStyle(
         'Tags',
         fontName=font_italic,
-        fontSize=11,
-        leading=12.65,
-        textColor=colors.HexColor('#555555'),
+        fontSize=10,
+        leading=14,
+        textColor=colors.HexColor('#94a3b8'),
         spaceAfter=4
     )
     
@@ -462,9 +464,9 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
                         story.append(Paragraph(line, desc_style))
             
             if i < len(sessions) - 1:
-                story.append(Spacer(1, 4))
-                story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#CCCCCC')))
                 story.append(Spacer(1, 8))
+                story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor('#e2e8f0')))
+                story.append(Spacer(1, 12))
     
     # Сборка
     footer = FooterCanvas(logo_img, meta)
