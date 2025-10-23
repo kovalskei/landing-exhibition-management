@@ -331,7 +331,7 @@ export default function WebProgram() {
         </div>
 
         <div className={`grid gap-6 ${showPlan ? 'grid-cols-[1fr_380px]' : 'grid-cols-1'}`}>
-          <div className={viewMode === 'table' ? 'border border-[var(--line)] rounded-lg bg-[var(--panel)]' : ''}>
+          <div className={viewMode === 'table' ? 'border border-[var(--line)] rounded-lg bg-[var(--panel)] overflow-auto max-h-[calc(100vh-200px)]' : ''}>
             {data && (
               viewMode === 'cards' ? (
                 <ProgramGridV2
