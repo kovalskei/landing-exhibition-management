@@ -214,6 +214,7 @@ export async function fetchProgramData(): Promise<ProgramData> {
 
     const csvText = await response.text();
     console.log('CSV загружен, длина:', csvText.length);
+    console.log('Первые 3000 символов CSV:\n', csvText.substring(0, 3000));
 
     const rows = csvText.split('\n').map(row => {
       const cols: string[] = [];
@@ -246,6 +247,12 @@ export async function fetchProgramData(): Promise<ProgramData> {
 
     const R = rows.length;
     const C = rows[0].length;
+    
+    // DEBUG: выводим первые 30 строк для анализа
+    console.log('=== Первые 30 строк CSV ===');
+    for (let i = 0; i < Math.min(30, R); i++) {
+      console.log(`Row ${i}:`, rows[i].map((cell, idx) => `[${idx}]="${String(cell || '').substring(0, 20)}"`).join(' '));
+    }
     // START_ROW = 5 соответствует строке 6 в Excel (строки 1-4 это meta, row 5 это заголовки времени)
     const START_ROW = 5;
 
@@ -312,18 +319,54 @@ export async function fetchProgramData(): Promise<ProgramData> {
     }
 
     // Парсинг докладов
+    let totalParsed = 0;
+    let skipped = 0;
     for (let h = 0; h < halls.length; h++) {
       const cs = parseInt(halls[h].id);
       const ce = cs + 1;
       const ct = cs + 2;
+      let hallCount = 0;
 
       for (let r2 = START_ROW; r2 < R; r2++) {
         const s0 = normalizeTime(rows[r2]?.[cs] || '');
         const e0 = normalizeTime(rows[r2]?.[ce] || '');
-        const raw0 = String(rows[r2]?.[ct] || '').trim();
+        let raw0 = String(rows[r2]?.[ct] || '').trim();
 
+        // Пропускаем полностью пустые строки
         if (!s0 && !e0 && !raw0) continue;
-        if (!s0 || !e0 || !raw0) continue;
+        
+        // Если нет времени начала/конца — строка не начинает новый доклад, пропускаем
+        if (!s0 || !e0) {
+          skipped++;
+          continue;
+        }
+        
+        // Есть время — это начало доклада. Проверяем, есть ли текст
+        if (!raw0) {
+          skipped++;
+          continue;
+        }
+
+        // Собираем продолжения доклада из следующих строк (без времени, но с текстом)
+        let nextRow = r2 + 1;
+        let merged = 0;
+        while (nextRow < R) {
+          const nextStart = normalizeTime(rows[nextRow]?.[cs] || '');
+          const nextEnd = normalizeTime(rows[nextRow]?.[ce] || '');
+          const nextText = String(rows[nextRow]?.[ct] || '').trim();
+          
+          // Если следующая строка без времени, но с текстом — это продолжение текущего доклада
+          if (!nextStart && !nextEnd && nextText) {
+            raw0 += '\n' + nextText;
+            merged++;
+            nextRow++;
+          } else {
+            break;
+          }
+        }
+        
+        // Пропускаем обработанные строки-продолжения
+        r2 = nextRow - 1;
 
         const parts = raw0.replace(/\r/g, '').split(/\n{2,}/);
         const header = (parts.shift() || '').trim();
@@ -358,7 +401,17 @@ export async function fetchProgramData(): Promise<ProgramData> {
 
         const sm = toMin(s0);
         const em = toMin(e0);
-        if (!isFinite(sm) || !isFinite(em) || em <= sm) continue;
+        if (!isFinite(sm) || !isFinite(em) || em <= sm) {
+          if (!isFinite(sm) || !isFinite(em)) {
+            console.log(`Пропуск (невалидное время) row ${r2} в ${halls[h].name}: "${s0}" → "${e0}"`);
+          } else if (em <= sm) {
+            console.log(`Пропуск (конец <= начала) row ${r2} в ${halls[h].name}: "${s0}" (${sm}мин) → "${e0}" (${em}мин)`);
+          }
+          continue;
+        }
+        
+        hallCount++;
+        totalParsed++;
 
         sessions.push({
           id: halls[h].name + '|' + s0 + '|' + e0 + '|' + (talk.title || cleanHeader || raw0),
@@ -374,8 +427,10 @@ export async function fetchProgramData(): Promise<ProgramData> {
           tagsCanon
         });
       }
+      console.log(`Зал "${halls[h].name}": найдено ${hallCount} докладов`);
     }
 
+    console.log(`ИТОГО: ${totalParsed} докладов, пропущено ${skipped} строк с неполными данными`);
     sessions.sort((a, b) => toMin(a.start) - toMin(b.start) || a.hall.localeCompare(b.hall));
 
     const now = new Date();
