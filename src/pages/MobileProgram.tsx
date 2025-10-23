@@ -91,6 +91,7 @@ export default function MobileProgram() {
   const isScrollingProgrammatically = useRef(false);
   const scrollTimeoutRef = useRef<number>();
   const headerScrollTimeout = useRef<number>();
+  const expandMenuTimeout = useRef<number>();
 
   const scrollToTime = (time: string) => {
     if (!timelineRef.current || !data) return;
@@ -122,7 +123,7 @@ export default function MobileProgram() {
       if (times[idx] && times[idx] !== selectedTime) {
         setSelectedTime(times[idx]);
       }
-    }, 100);
+    }, 50);
   };
 
   const handleTimeChipClick = (time: string) => {
@@ -133,14 +134,20 @@ export default function MobileProgram() {
   const handleContentScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const currentScrollY = e.currentTarget.scrollTop;
     
+    if (expandMenuTimeout.current) {
+      clearTimeout(expandMenuTimeout.current);
+    }
+    
     if (currentScrollY > lastScrollY.current && currentScrollY > 10) {
       if (!isHeaderCompact) {
         setIsHeaderCompact(true);
       }
-    } else if (currentScrollY <= 5) {
-      if (isHeaderCompact) {
-        setIsHeaderCompact(false);
-      }
+    } else if (currentScrollY === 0) {
+      expandMenuTimeout.current = window.setTimeout(() => {
+        if (isHeaderCompact) {
+          setIsHeaderCompact(false);
+        }
+      }, 300);
     }
     
     lastScrollY.current = currentScrollY;
