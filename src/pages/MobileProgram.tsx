@@ -87,7 +87,7 @@ export default function MobileProgram() {
   };
 
   const isScrollingProgrammatically = useRef(false);
-  const scrollTimeoutRef = useRef<number>();
+  const lastSnapIndex = useRef(0);
 
   const scrollToTime = (time: string) => {
     if (!timelineRef.current || !data) return;
@@ -96,6 +96,7 @@ export default function MobileProgram() {
     if (idx === -1) return;
     
     isScrollingProgrammatically.current = true;
+    lastSnapIndex.current = idx;
     timelineRef.current.scrollTo({ left: idx * timelineRef.current.clientWidth, behavior: 'smooth' });
     
     setTimeout(() => {
@@ -104,22 +105,34 @@ export default function MobileProgram() {
   };
 
   const handleTimelineScroll = () => {
-    if (isScrollingProgrammatically.current || !timelineRef.current || !data) return;
+    if (!timelineRef.current || !data) return;
     
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
+    const times = [...new Set(data.sessions.map(s => s.start))].sort();
+    const scrollLeft = timelineRef.current.scrollLeft;
+    const width = timelineRef.current.clientWidth;
+    const currentIdx = Math.round(scrollLeft / width);
+    
+    if (!isScrollingProgrammatically.current) {
+      const diff = currentIdx - lastSnapIndex.current;
+      const clampedIdx = diff > 0 
+        ? Math.min(lastSnapIndex.current + 1, times.length - 1)
+        : diff < 0 
+        ? Math.max(lastSnapIndex.current - 1, 0)
+        : lastSnapIndex.current;
+      
+      if (clampedIdx !== currentIdx) {
+        timelineRef.current.scrollTo({ 
+          left: clampedIdx * width, 
+          behavior: 'smooth' 
+        });
+      }
+      
+      lastSnapIndex.current = clampedIdx;
     }
     
-    scrollTimeoutRef.current = window.setTimeout(() => {
-      if (!timelineRef.current || !data) return;
-      const times = [...new Set(data.sessions.map(s => s.start))].sort();
-      const scrollLeft = timelineRef.current.scrollLeft;
-      const width = timelineRef.current.clientWidth;
-      const idx = Math.round(scrollLeft / width);
-      if (times[idx] && times[idx] !== selectedTime) {
-        setSelectedTime(times[idx]);
-      }
-    }, 50);
+    if (times[currentIdx] && times[currentIdx] !== selectedTime) {
+      setSelectedTime(times[currentIdx]);
+    }
   };
 
   const handleTimeChipClick = (time: string) => {
