@@ -218,9 +218,11 @@ class FooterCanvas:
         # Логотип справа
         if self.logo_buffer:
             try:
+                from reportlab.lib.utils import ImageReader
                 self.logo_buffer.seek(0)
+                img_reader = ImageReader(self.logo_buffer)
                 x = A4[0] - 20 * mm - 30 * mm
-                canvas.drawImage(self.logo_buffer, x, y - 3*mm, 
+                canvas.drawImage(img_reader, x, y - 3*mm, 
                                width=30*mm, height=10*mm, 
                                preserveAspectRatio=True, mask='auto')
             except Exception as e:
@@ -379,8 +381,10 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
     # Обложка
     if cover_img:
         try:
+            from reportlab.lib.utils import ImageReader
             cover_img.seek(0)
-            img = Image(cover_img)
+            img_reader = ImageReader(cover_img)
+            img = Image(img_reader)
             img_width = A4[0] - 40*mm
             aspect = img.imageHeight / img.imageWidth
             img.drawWidth = img_width

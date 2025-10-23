@@ -518,6 +518,8 @@ export async function fetchProgramData(): Promise<ProgramData> {
     const metaSubtitle = metaFromSheet['subtitle'] || String(rows[1]?.[0] || '').trim();
     const metaDate = metaFromSheet['date'] || String(rows[2]?.[0] || '').trim();
     const metaVenue = metaFromSheet['venue'] || String(rows[3]?.[0] || '').trim();
+    const metaLogoId = metaFromSheet['logoid'] || '';
+    const metaCoverId = metaFromSheet['coverid'] || '';
     
     return {
       title: metaTitle,
@@ -529,8 +531,8 @@ export async function fetchProgramData(): Promise<ProgramData> {
         subtitle: metaSubtitle,
         date: metaDate,
         venue: metaVenue,
-        logoId: metaFromSheet['logoId'] || '',
-        coverId: metaFromSheet['coverId'] || ''
+        logoId: metaLogoId,
+        coverId: metaCoverId
       }
     };
   } catch (error) {
