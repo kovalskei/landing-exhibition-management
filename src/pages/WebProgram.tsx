@@ -19,18 +19,28 @@ export default function WebProgram() {
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [generatingPlanPdf, setGeneratingPlanPdf] = useState(false);
 
-  const loadData = async () => {
+  const loadData = async (silent = false) => {
     try {
-      setLoading(true);
-      setError(null);
+      if (!silent) {
+        setLoading(true);
+        setError(null);
+      }
       const programData = await fetchProgramData();
       setData(programData);
-      setFilteredSessions(programData.sessions);
+      
+      // При фоновой загрузке сохраняем фильтры
+      if (!silent || selectedTags.size === 0) {
+        setFilteredSessions(programData.sessions);
+      }
     } catch (err) {
-      setError('Не удалось загрузить данные. Проверьте доступ к таблице.');
+      if (!silent) {
+        setError('Не удалось загрузить данные. Проверьте доступ к таблице.');
+      }
       console.error('Ошибка загрузки данных:', err);
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   };
 
@@ -192,7 +202,7 @@ export default function WebProgram() {
     loadData();
     
     const interval = setInterval(() => {
-      loadData();
+      loadData(true); // Тихое обновление фоном
     }, 30000);
     
     return () => clearInterval(interval);

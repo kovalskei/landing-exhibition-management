@@ -24,19 +24,29 @@ export default function MobileProgram() {
   const [exportingPdf, setExportingPdf] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const loadData = async () => {
+  const loadData = async (silent = false) => {
     try {
-      setLoading(true);
-      setError(null);
+      if (!silent) {
+        setLoading(true);
+        setError(null);
+      }
       const programData = await fetchProgramData();
       setData(programData);
-      const times = [...new Set(programData.sessions.map(s => s.start))].sort();
-      setSelectedTime(nearestSlot(times, programData.now));
+      
+      // При первой загрузке устанавливаем время
+      if (!silent) {
+        const times = [...new Set(programData.sessions.map(s => s.start))].sort();
+        setSelectedTime(nearestSlot(times, programData.now));
+      }
     } catch (err) {
-      setError('Не удалось загрузить данные. Проверьте доступ к таблице.');
+      if (!silent) {
+        setError('Не удалось загрузить данные. Проверьте доступ к таблице.');
+      }
       console.error('Ошибка загрузки данных:', err);
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   };
 
@@ -52,7 +62,7 @@ export default function MobileProgram() {
   useEffect(() => {
     loadData();
     const interval = setInterval(() => {
-      loadData();
+      loadData(true); // Тихое обновление фоном
     }, 30000);
     return () => clearInterval(interval);
   }, []);
