@@ -53,20 +53,21 @@ export default function ProgramHeader({
         }
       `}</style>
       
-      <div className="flex items-center justify-between gap-4 mb-2">
-        <div>
-          <h1 className="text-2xl font-bold mb-1">{title}</h1>
-          <div className="text-sm text-[var(--muted)]">
-            {date && <span>Дата проведения: {date}</span>}
-            {date && venue && <span> • </span>}
-            {venue && <span>{venue}</span>}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-2">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl lg:text-2xl font-bold mb-1 truncate">{title}</h1>
+          <div className="text-xs lg:text-sm text-[var(--muted)]">
+            {date && <span className="hidden sm:inline">Дата проведения: </span>}
+            {date && <span>{date}</span>}
+            {date && venue && <span className="hidden sm:inline"> • </span>}
+            {venue && <span className="hidden sm:inline">{venue}</span>}
           </div>
-          <div className="text-xs text-[var(--muted)] mt-1">
+          <div className="text-xs text-[var(--muted)] mt-1 hidden lg:block">
             Обновлено: {new Date().toLocaleString()}
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 lg:gap-2 flex-wrap">
           <Button
             onClick={onRefresh}
             disabled={refreshing}
@@ -137,12 +138,13 @@ export default function ProgramHeader({
             size="sm"
             className="program-button"
           >
-            <Icon name={generatingPdf ? 'Loader2' : 'FileDown'} size={16} className={generatingPdf ? 'animate-spin mr-2' : 'mr-2'} />
-            {generatingPdf ? 'Готовлю PDF...' : 'Скачать PDF'}
+            <Icon name={generatingPdf ? 'Loader2' : 'FileDown'} size={16} className={generatingPdf ? 'animate-spin' : ''} />
+            <span className="hidden sm:inline ml-2">{generatingPdf ? 'Готовлю PDF...' : 'Скачать PDF'}</span>
           </Button>
 
           <Button onClick={onTogglePlan} variant="outline" size="sm" className="program-button">
-            План
+            <span className="hidden sm:inline">План</span>
+            <span className="sm:hidden">📋</span>
           </Button>
 
           <Button onClick={onToggleTheme} variant="outline" size="sm" className="program-button">

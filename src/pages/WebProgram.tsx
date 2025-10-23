@@ -298,7 +298,7 @@ export default function WebProgram() {
         '--button-hover': theme === 'dark' ? '#242d3d' : '#f3f4f6'
       } as React.CSSProperties}
     >
-      <div className="max-w-[1840px] mx-auto p-5">
+      <div className="max-w-[1840px] mx-auto px-3 md:px-5 py-3 md:py-5">
         <ProgramHeader
           title={data?.meta.title || 'Программа мероприятия'}
           date={data?.meta.date}
@@ -353,7 +353,7 @@ export default function WebProgram() {
           </Button>
         </div>
 
-        <div className={`grid gap-6 ${showPlan ? 'grid-cols-[1fr_380px]' : 'grid-cols-1'}`}>
+        <div className={`grid gap-6 ${showPlan ? 'xl:grid-cols-[1fr_380px] lg:grid-cols-[1fr_320px] grid-cols-1' : 'grid-cols-1'}`}>
           <div className={viewMode === 'table' ? 'border border-[var(--line)] rounded-lg bg-[var(--panel)] overflow-auto max-h-[calc(100vh-200px)]' : ''}>
             {data && (
               viewMode === 'cards' ? (

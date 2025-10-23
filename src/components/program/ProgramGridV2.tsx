@@ -88,10 +88,10 @@ export default function ProgramGridV2({ data, filteredSessions, theme, onAddToPl
       {timeSlots.map(time => (
         <div key={time} className="relative">
           {/* Временная метка */}
-          <div className="sticky top-[120px] z-30 -mx-4 px-4 py-3 mb-6 bg-[var(--bg)]/95 backdrop-blur-sm border-b border-[var(--line)]">
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-8 bg-[var(--accent)] rounded-full" />
-              <h2 className="text-2xl font-bold text-[var(--text)]">{time}</h2>
+          <div className="sticky top-[80px] lg:top-[120px] z-30 -mx-3 md:-mx-4 px-3 md:px-4 py-2 md:py-3 mb-4 md:mb-6 bg-[var(--bg)]/95 backdrop-blur-sm border-b border-[var(--line)]">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="w-1 h-6 md:h-8 bg-[var(--accent)] rounded-full" />
+              <h2 className="text-xl md:text-2xl font-bold text-[var(--text)]">{time}</h2>
             </div>
           </div>
 
