@@ -216,6 +216,7 @@ function DesktopLanding({ exponentData }: { exponentData: { price_early: string;
             <a href="#conference" className="text-sm hover:text-primary transition-colors">Конференция</a>
             <a href="#participants" className="text-sm hover:text-primary transition-colors">Участники</a>
             <a href="#contact" className="text-sm hover:text-primary transition-colors">Контакты</a>
+            <a href="/program" className="text-sm hover:text-primary transition-colors font-bold">Программа</a>
             <Button onClick={exportSiteToPdf} variant="outline" size="sm" className="ml-4">
               <Icon name="Download" size={16} className="mr-2" />
               Скачать PDF
