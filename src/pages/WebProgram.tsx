@@ -298,7 +298,7 @@ export default function WebProgram() {
         />
 
         <div className={`grid gap-6 ${showPlan ? 'grid-cols-[1fr_380px]' : 'grid-cols-1'}`}>
-          <div className="border border-[var(--line)] rounded-lg bg-[var(--panel)] overflow-hidden">
+          <div className="border border-[var(--line)] rounded-lg bg-[var(--panel)]">
             {data && (
               <ProgramGrid
                 data={data}

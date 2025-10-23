@@ -38,19 +38,19 @@ export default function ProgramGrid({ data, filteredSessions, theme, onAddToPlan
   const key = (r: number, c: number) => `${r}|${c}`;
 
   return (
-    <div className="overflow-auto">
+    <div className="overflow-x-auto relative">
       <table className="w-full border-separate border-spacing-0">
         <colgroup>
           <col style={{ width: '96px' }} />
           {data.halls.map((_, i) => <col key={i} />)}
         </colgroup>
-        <thead>
+        <thead className="sticky top-[120px] z-40">
           <tr>
-            <th className="sticky top-[72px] bg-[var(--panel)] border-b border-r border-[var(--line)] p-3 text-left font-bold z-20">
+            <th className="bg-[var(--panel)] border-b border-r border-[var(--line)] p-3 text-left font-bold shadow-sm">
               Время
             </th>
             {data.halls.map(h => (
-              <th key={h.id} className="sticky top-[72px] bg-[var(--panel)] border-b border-r border-[var(--line)] p-3 text-left font-bold z-20">
+              <th key={h.id} className="bg-[var(--panel)] border-b border-r border-[var(--line)] p-3 text-left font-bold shadow-sm">
                 {h.name}
               </th>
             ))}
