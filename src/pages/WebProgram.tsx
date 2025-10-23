@@ -284,7 +284,7 @@ export default function WebProgram() {
         '--bg': theme === 'dark' ? '#0f1115' : '#f3f6fb',
         '--panel': theme === 'dark' ? '#151922' : '#ffffff',
         '--text': theme === 'dark' ? '#e9edf3' : '#1a2433',
-        '--muted': theme === 'dark' ? '#9aa3ad' : '#5b6572',
+        '--muted': theme === 'dark' ? '#9aa3ad' : '#475569',
         '--line': theme === 'dark' ? '#242a36' : '#e6e8ee',
         '--chip': theme === 'dark' ? '#1b2130' : '#f0f3f9',
         '--accent': theme === 'dark' ? '#3b82f6' : '#2563eb',
