@@ -31,30 +31,12 @@ export default function SessionCard({ session, theme, onAddToPlan }: SessionCard
         }
       `}</style>
 
-      <div className="text-xs font-semibold text-[var(--muted)]">
+      <div className="text-xs font-semibold text-[var(--muted)] mb-2">
         {session.start} — {session.end}
       </div>
 
-      {session.speaker && (
-        <div className="font-bold text-base mt-2">{session.speaker}</div>
-      )}
-
-      {session.role && (
-        <div className="text-sm text-[var(--muted)] mb-2">{session.role}</div>
-      )}
-
-      {session.title && (
-        <div className="font-semibold mb-2">{session.title}</div>
-      )}
-
-      {session.desc && (
-        <div className="text-sm text-[var(--muted)] whitespace-pre-line mb-2">
-          {session.desc}
-        </div>
-      )}
-
       {session.tagsCanon && session.tagsCanon.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 mb-2">
           {session.tagsCanon.map(c => {
             const h = hashStr(c) % 360;
             const isLight = theme === 'light';
@@ -71,6 +53,24 @@ export default function SessionCard({ session, theme, onAddToPlan }: SessionCard
               </span>
             );
           })}
+        </div>
+      )}
+
+      {session.speaker && (
+        <div className="font-bold text-base">{session.speaker}</div>
+      )}
+
+      {session.role && (
+        <div className="text-sm text-[var(--muted)]">{session.role}</div>
+      )}
+
+      {session.title && (
+        <div className="font-bold mt-2 mb-2">{session.title}</div>
+      )}
+
+      {session.desc && (
+        <div className="text-sm whitespace-pre-line" style={{ lineHeight: '1.6' }}>
+          {session.desc}
         </div>
       )}
 
