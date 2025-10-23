@@ -1,58 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-
-interface Hall {
-  id: string;
-  name: string;
-}
-
-interface Session {
-  id: string;
-  hallId: string;
-  hall: string;
-  start: string;
-  end: string;
-  title: string;
-  speaker?: string;
-  role?: string;
-  desc?: string;
-  tags?: string[];
-  tagsCanon?: string[];
-}
-
-interface ProgramData {
-  title: string;
-  halls: Hall[];
-  sessions: Session[];
-  now: string;
-}
-
-const mockData = (): ProgramData => ({
-  title: 'HUMAN — Обучение',
-  now: '10:00',
-  halls: [
-    { id: 'A', name: 'ПАЛЬМИРА I' },
-    { id: 'B', name: 'ПАЛЬМИРА II' },
-    { id: 'C', name: 'ПАЛЬМИРА III' },
-    { id: 'D', name: 'МАСТЕРМАЙНДЫ' },
-    { id: 'E', name: 'GPT-КОМНАТА' }
-  ],
-  sessions: [
-    { id: 'A-1', hallId: 'A', hall: 'ПАЛЬМИРА I', start: '10:00', end: '10:45', title: 'Введение в AI и машинное обучение', speaker: 'Иван Иванов', role: 'CEO', desc: 'Подробное описание доклада о введении в искусственный интеллект' },
-    { id: 'B-1', hallId: 'B', hall: 'ПАЛЬМИРА II', start: '10:00', end: '10:40', title: 'Практика применения нейросетей', speaker: 'Мария Петрова', role: 'CTO', desc: 'Реальные кейсы внедрения' },
-    { id: 'C-1', hallId: 'C', hall: 'ПАЛЬМИРА III', start: '10:00', end: '10:30', title: 'Метрики эффективности команд', speaker: 'Алексей Смирнов', role: 'Head of HR', desc: 'Обсуждение ключевых метрик' },
-    { id: 'D-1', hallId: 'D', hall: 'МАСТЕРМАЙНДЫ', start: '10:00', end: '10:30', title: 'AI в бизнесе', speaker: 'Ольга Коваленко', role: 'Product Manager', desc: 'Как AI меняет бизнес' },
-    { id: 'E-1', hallId: 'E', hall: 'GPT-КОМНАТА', start: '10:00', end: '10:45', title: 'ChatGPT для разработчиков', speaker: 'Дмитрий Сидоров', role: 'Senior Developer', desc: 'Практические советы' },
-    { id: 'A-2', hallId: 'A', hall: 'ПАЛЬМИРА I', start: '11:00', end: '11:45', title: 'UX/UI дизайн будущего', speaker: 'Алексей Смирнов', role: 'Lead Designer', desc: 'Тренды и прогнозы' },
-    { id: 'B-2', hallId: 'B', hall: 'ПАЛЬМИРА II', start: '11:00', end: '11:30', title: 'Agile трансформация', speaker: 'Екатерина Волкова', role: 'Agile Coach', desc: '' },
-    { id: 'C-2', hallId: 'C', hall: 'ПАЛЬМИРА III', start: '11:00', end: '11:45', title: 'Тестирование и QA', speaker: 'Николай Морозов', role: 'QA Lead', desc: 'Подходы к тестированию' },
-    { id: 'D-2', hallId: 'D', hall: 'МАСТЕРМАЙНДЫ', start: '11:00', end: '11:30', title: 'Networking секреты', speaker: '', role: '', desc: 'Как правильно знакомиться' },
-    { id: 'A-3', hallId: 'A', hall: 'ПАЛЬМИРА I', start: '12:00', end: '12:45', title: 'Blockchain и Web3', speaker: 'Игорь Петренко', role: 'Blockchain Expert', desc: '' },
-    { id: 'C-3', hallId: 'C', hall: 'ПАЛЬМИРА III', start: '12:00', end: '12:30', title: 'Кибербезопасность', speaker: 'Андрей Соколов', role: 'Security Officer', desc: 'Защита данных компании' },
-  ]
-});
+import { fetchProgramData, ProgramData, Session } from '@/utils/googleSheetsParser';
+import { exportProgramToPdf } from '@/utils/exportProgramToPdf';
+import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
 
 export default function MobileProgram() {
   const [data, setData] = useState<ProgramData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState<Set<string>>(new Set());
   const [tab, setTab] = useState<'now' | 'all' | 'plan'>('now');
   const [selectedTime, setSelectedTime] = useState('');
@@ -61,12 +16,25 @@ export default function MobileProgram() {
   const timelineRef = useRef<HTMLDivElement>(null);
   const chipsRef = useRef<HTMLDivElement>(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
 
   useEffect(() => {
-    const loadedData = mockData();
-    setData(loadedData);
-    const times = [...new Set(loadedData.sessions.map(s => s.start))].sort();
-    setSelectedTime(nearestSlot(times, loadedData.now));
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const programData = await fetchProgramData();
+        setData(programData);
+        const times = [...new Set(programData.sessions.map(s => s.start))].sort();
+        setSelectedTime(nearestSlot(times, programData.now));
+        setError(null);
+      } catch (err) {
+        setError('Не удалось загрузить данные. Проверьте доступ к таблице.');
+        console.error('Ошибка загрузки данных:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -149,7 +117,38 @@ export default function MobileProgram() {
     setSelectedTime(nearestSlot(times, data.now));
   };
 
-  if (!data) return <div className="flex items-center justify-center min-h-screen">Загрузка...</div>;
+  const handleExportPdf = async () => {
+    if (!data) return;
+    try {
+      setExportingPdf(true);
+      await exportProgramToPdf(data);
+    } catch (err) {
+      console.error('Ошибка экспорта PDF:', err);
+      alert('Не удалось создать PDF');
+    } finally {
+      setExportingPdf(false);
+    }
+  };
+
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p>Загрузка программы...</p>
+      </div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="flex items-center justify-center min-h-screen p-6">
+      <div className="text-center max-w-md">
+        <p className="text-red-500 mb-4">{error}</p>
+        <Button onClick={() => window.location.reload()}>Попробовать снова</Button>
+      </div>
+    </div>
+  );
+
+  if (!data) return null;
 
   const times = [...new Set(data.sessions.map(s => s.start))].sort();
   const filtered = matchQuery(data.sessions);
@@ -458,7 +457,19 @@ export default function MobileProgram() {
       `}</style>
 
       <div className="m-top">
-        <h1 className="m-title">{data.title}</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <h1 className="m-title" style={{ margin: 0 }}>{data.title}</h1>
+          <Button 
+            onClick={handleExportPdf} 
+            disabled={exportingPdf}
+            variant="outline"
+            size="sm"
+            style={{ flexShrink: 0 }}
+          >
+            <Icon name={exportingPdf ? "Loader2" : "Download"} size={16} className={exportingPdf ? "animate-spin mr-2" : "mr-2"} />
+            PDF
+          </Button>
+        </div>
         <div className="m-row">
           <div className="m-search">
             <input 
