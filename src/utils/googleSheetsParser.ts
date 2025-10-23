@@ -33,6 +33,7 @@ export interface ProgramData {
 }
 
 const MIN_START_MIN = 9 * 60;
+// Колонки G (6) и H (7) игнорируются при формировании имени зала (0-based индексы)
 const EXCLUDED_HEADER_COLS: Record<number, boolean> = { 6: true, 7: true };
 
 const TAG_CANON_MAP: Record<string, string> = {};
@@ -245,7 +246,8 @@ export async function fetchProgramData(): Promise<ProgramData> {
 
     const R = rows.length;
     const C = rows[0].length;
-    const START_ROW = 7;
+    // START_ROW = 5 соответствует строке 6 в Excel (строки 1-4 это meta, row 5 это заголовки времени)
+    const START_ROW = 5;
 
     const halls: Hall[] = [];
     const sessions: Session[] = [];
