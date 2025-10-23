@@ -267,44 +267,57 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
     time_style = ParagraphStyle(
         'Time',
         fontName=font_bold,
-        fontSize=14,
-        spaceAfter=4
+        fontSize=13,
+        textColor=colors.HexColor('#666666'),
+        spaceAfter=6
     )
     
     speaker_style = ParagraphStyle(
         'Speaker',
         fontName=font_bold,
-        fontSize=12,
+        fontSize=15,
+        leading=18,
         spaceAfter=2
     )
     
     role_style = ParagraphStyle(
         'Role',
         fontName=font_name,
-        fontSize=11,
-        textColor=colors.HexColor('#1a1a1a'),
+        fontSize=13,
+        textColor=colors.HexColor('#666666'),
         spaceAfter=6
     )
     
     session_title_style = ParagraphStyle(
         'SessionTitle',
         fontName=font_bold,
-        fontSize=12,
+        fontSize=14,
+        leading=17,
         spaceAfter=4
     )
     
     desc_style = ParagraphStyle(
         'Desc',
         fontName=font_name,
-        fontSize=11,
+        fontSize=13,
+        leading=20,
         spaceAfter=2
+    )
+    
+    bullet_style = ParagraphStyle(
+        'Bullet',
+        fontName=font_name,
+        fontSize=13,
+        leading=20,
+        leftIndent=15,
+        spaceAfter=3
     )
     
     tags_style = ParagraphStyle(
         'Tags',
-        fontName=font_italic,
-        fontSize=11,
-        textColor=colors.HexColor('#6B6B6B'),
+        fontName=font_name,
+        fontSize=12,
+        textColor=colors.HexColor('#888888'),
         spaceAfter=6
     )
     
@@ -413,8 +426,9 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
                 for line in session.desc.split('\n'):
                     line = line.strip()
                     if line.startswith('- '):
-                        line = '• ' + line[2:]
-                    if line:
+                        bullet_text = line[2:].strip()
+                        story.append(Paragraph(f'• {bullet_text}', bullet_style))
+                    elif line:
                         story.append(Paragraph(line, desc_style))
             
             if i < len(sessions) - 1:
