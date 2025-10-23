@@ -280,19 +280,20 @@ export default function MobileProgram() {
         )}
       </div>
 
-      <div className="sticky-time-chips">
-        <div style={{ padding: '0 14px' }}>
-          <MobileTimeChips
-            times={times}
-            selectedTime={selectedTime}
-            onTimeSelect={handleTimeChipClick}
-          />
+      {tab === 'now' && (
+        <div className="sticky-time-chips">
+          <div style={{ padding: '0 14px' }}>
+            <MobileTimeChips
+              times={times}
+              selectedTime={selectedTime}
+              onTimeSelect={handleTimeChipClick}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="content-scroll">
-        <div style={{ padding: '0 14px' }}>
-          {tab === 'now' && (
+      <div style={{ padding: '0 14px' }}>
+        {tab === 'now' && (
           <>
             <div 
               ref={timelineRef} 
@@ -388,7 +389,6 @@ export default function MobileProgram() {
             )}
           </>
         )}
-        </div>
       </div>
 
       {selectedSession && (
