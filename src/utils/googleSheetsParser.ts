@@ -1,4 +1,4 @@
-const SHEET_ID = '1HgPCnMmB0KuP080xWYjBlCPdvBy5AzQMeRVX_PUxca4';
+const SHEET_ID = '1-W6lgnoQKfKhbeUgRBjnUVv7yf5hahdimJc1psEMpo0';
 const META_SHEET_GID = '1494690392';
 
 export interface Hall {
