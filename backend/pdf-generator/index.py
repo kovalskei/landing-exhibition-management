@@ -1,5 +1,5 @@
 """
-Business: Генерация PDF программы мероприятия с форматированием
+Business: Генерация PDF программы мероприятия с современным форматированием
 Args: event - dict с httpMethod, body (JSON с halls, sessions, meta, hallIntros)
       context - object с request_id, function_name, memory_limit_in_mb
 Returns: HTTP response с base64-encoded PDF или ошибкой
@@ -292,19 +292,19 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
     time_style = ParagraphStyle(
         'Time',
         fontName=font_bold,
-        fontSize=12,
+        fontSize=11,
         leading=16,
-        textColor=colors.HexColor('#475569'),
-        spaceAfter=6
+        textColor=colors.HexColor('#64748b'),
+        spaceAfter=2
     )
     
     speaker_style = ParagraphStyle(
         'Speaker',
         fontName=font_bold,
-        fontSize=13,
-        leading=18,
-        textColor=colors.HexColor('#1a1a1a'),
-        spaceAfter=3
+        fontSize=15,
+        leading=20,
+        textColor=colors.HexColor('#0f172a'),
+        spaceAfter=2
     )
     
     role_style = ParagraphStyle(
@@ -312,16 +312,16 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         fontName=font_name,
         fontSize=11,
         leading=16,
-        textColor=colors.HexColor('#64748b'),
-        spaceAfter=6
+        textColor=colors.HexColor('#3b82f6'),
+        spaceAfter=8
     )
     
     session_title_style = ParagraphStyle(
         'SessionTitle',
         fontName=font_bold,
-        fontSize=14,
-        leading=20,
-        textColor=colors.HexColor('#0f172a'),
+        fontSize=13,
+        leading=18,
+        textColor=colors.HexColor('#1e293b'),
         spaceAfter=6
     )
     
@@ -346,11 +346,11 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
     
     tags_style = ParagraphStyle(
         'Tags',
-        fontName=font_italic,
+        fontName=font_name,
         fontSize=10,
         leading=14,
-        textColor=colors.HexColor('#64748b'),
-        spaceAfter=4
+        textColor=colors.HexColor('#8b5cf6'),
+        spaceAfter=6
     )
     
     story = []
@@ -437,22 +437,28 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
             story.append(Spacer(1, 8))
         
         for i, session in enumerate(sessions):
-            time_text = session.start
-            if session.end:
-                time_text += f" — {session.end}"
-            story.append(Paragraph(time_text, time_style))
-            
-            if session.tags_canon:
-                story.append(Paragraph(f"Теги: {', '.join(session.tags_canon)}", tags_style))
-            
+            # Спикер первым — главный акцент
             if session.speaker:
                 story.append(Paragraph(session.speaker, speaker_style))
             
             if session.role:
                 story.append(Paragraph(session.role, role_style))
             
+            # Тема доклада
             if session.title:
                 story.append(Paragraph(session.title, session_title_style))
+            
+            # Время и теги в конце блока
+            time_text = session.start
+            if session.end:
+                time_text += f" — {session.end}"
+            
+            if session.tags_canon:
+                tags_text = ' • '.join(session.tags_canon).upper()
+                time_with_tags = f"{time_text}  •  {tags_text}"
+                story.append(Paragraph(time_with_tags, time_style))
+            else:
+                story.append(Paragraph(time_text, time_style))
             
             if session.desc:
                 for line in session.desc.split('\n'):
