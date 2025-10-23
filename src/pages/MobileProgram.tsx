@@ -280,17 +280,15 @@ export default function MobileProgram() {
         )}
       </div>
 
-      {tab === 'now' && (
-        <div className="sticky-time-chips">
-          <div style={{ padding: '0 14px' }}>
-            <MobileTimeChips
-              times={times}
-              selectedTime={selectedTime}
-              onTimeSelect={handleTimeChipClick}
-            />
-          </div>
+      <div className="sticky-time-chips">
+        <div style={{ padding: '0 14px' }}>
+          <MobileTimeChips
+            times={times}
+            selectedTime={selectedTime}
+            onTimeSelect={handleTimeChipClick}
+          />
         </div>
-      )}
+      </div>
 
       <div style={{ padding: '0 14px' }}>
         {tab === 'now' && (
