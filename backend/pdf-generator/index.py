@@ -275,7 +275,7 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
     speaker_style = ParagraphStyle(
         'Speaker',
         fontName=font_bold,
-        fontSize=13,
+        fontSize=12,
         textColor=colors.black,
         spaceAfter=1
     )
