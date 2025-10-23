@@ -82,8 +82,8 @@ function parseTalk(text: string): {
   tagsCanon: string[];
 } {
   const raw = String(text || '').replace(/\r/g, '').trim();
-  const lines = raw.split(/\n+/).map(s => s.trim()).filter(Boolean);
-  const head = lines.shift() || '';
+  const allLines = raw.split('\n');
+  const head = allLines.shift() || '';
 
   const tagsRaw: string[] = [];
   const pullTags = (s: string) =>
@@ -96,14 +96,14 @@ function parseTalk(text: string): {
   const cleanHead = pullTags(head).trim();
 
   let title = '';
-  for (let i = 0; i < lines.length; i++) {
-    const m = lines[i].match(/^\s*Тема\s*:\s*(.+)$/i);
+  const bodyLines = allLines.filter(line => {
+    const m = line.match(/^\s*Тема\s*:\s*(.+)$/i);
     if (m) {
       title = m[1].trim();
-      lines.splice(i, 1);
-      break;
+      return false;
     }
-  }
+    return true;
+  });
 
   const out = { speaker: '', role: '', title, abstract: '' };
 
@@ -138,7 +138,7 @@ function parseTalk(text: string): {
     }
   }
 
-  const cleanBody = pullTags(lines.join('\n')).trim();
+  const cleanBody = pullTags(bodyLines.join('\n')).trim();
   out.abstract = cleanBody;
 
   return {
