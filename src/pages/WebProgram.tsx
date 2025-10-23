@@ -15,7 +15,7 @@ export default function WebProgram() {
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [tagDropdownOpen, setTagDropdownOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  const [showPlan, setShowPlan] = useState(true);
+  const [showPlan, setShowPlan] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [generatingPlanPdf, setGeneratingPlanPdf] = useState(false);
@@ -243,6 +243,10 @@ export default function WebProgram() {
       removeFromPlan(session.id);
     } else {
       setPlan(prev => [...prev, session]);
+      // Автооткрытие плана при первом добавлении
+      if (plan.length === 0) {
+        setShowPlan(true);
+      }
     }
   };
 
@@ -366,6 +370,7 @@ export default function WebProgram() {
                   filteredSessions={filteredSessions}
                   theme={theme}
                   onAddToPlan={addToPlan}
+                  planSessionIds={new Set(plan.map(s => s.id))}
                 />
               )
             )}

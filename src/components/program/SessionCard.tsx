@@ -7,6 +7,7 @@ interface SessionCardProps {
   session: Session;
   theme: 'light' | 'dark';
   onAddToPlan: (session: Session) => void;
+  isInPlan?: boolean;
 }
 
 function hashStr(s: string): number {
@@ -18,12 +19,12 @@ function hashStr(s: string): number {
   return Math.abs(h);
 }
 
-export default function SessionCard({ session, theme, onAddToPlan }: SessionCardProps) {
+export default function SessionCard({ session, theme, onAddToPlan, isInPlan = false }: SessionCardProps) {
   const tagMap = getTagCanonMap();
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="space-y-2 relative group">
+    <div className={`space-y-2 relative group ${isInPlan ? 'ring-2 ring-[var(--accent)] rounded-lg p-2' : ''}`}>
       <style>{`
         .session-add-plan {
           opacity: 0;
@@ -123,9 +124,9 @@ export default function SessionCard({ session, theme, onAddToPlan }: SessionCard
       <Button
         onClick={() => onAddToPlan(session)}
         size="sm"
-        className="w-full session-add-plan bg-blue-600 hover:bg-blue-700 text-white"
+        className={`w-full session-add-plan ${isInPlan ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
       >
-        + В план
+        {isInPlan ? '✓ В плане' : '+ В план'}
       </Button>
     </div>
   );

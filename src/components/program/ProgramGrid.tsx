@@ -6,6 +6,7 @@ interface ProgramGridProps {
   filteredSessions: Session[];
   theme: 'light' | 'dark';
   onAddToPlan: (session: Session) => void;
+  planSessionIds: Set<string>;
 }
 
 function toMin(hhmm: string): number {
@@ -13,7 +14,7 @@ function toMin(hhmm: string): number {
   return m ? (+m[1] * 60 + +m[2]) : NaN;
 }
 
-export default function ProgramGrid({ data, filteredSessions, theme, onAddToPlan }: ProgramGridProps) {
+export default function ProgramGrid({ data, filteredSessions, theme, onAddToPlan, planSessionIds }: ProgramGridProps) {
   if (!data || !filteredSessions.length) {
     return (
       <div className="p-12 text-center text-[var(--muted)]">
@@ -106,7 +107,12 @@ export default function ProgramGrid({ data, filteredSessions, theme, onAddToPlan
                     className="border-b border-r border-[var(--line)] p-3 align-top"
                   >
                     <div className="bg-[var(--chip)] rounded-lg p-3">
-                      <SessionCard session={session} theme={theme} onAddToPlan={onAddToPlan} />
+                      <SessionCard 
+                        session={session} 
+                        theme={theme} 
+                        onAddToPlan={onAddToPlan}
+                        isInPlan={planSessionIds.has(session.id)}
+                      />
                     </div>
                   </td>
                 );
