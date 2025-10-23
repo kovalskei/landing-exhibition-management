@@ -20,26 +20,16 @@ export default function SessionCard({ session, theme, onAddToPlan }: SessionCard
   const tagMap = getTagCanonMap();
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 relative group">
       <style>{`
-        .session-button {
-          background: var(--button-bg);
-          border: 1px solid var(--button-border);
-          color: var(--button-text);
+        .session-add-plan {
+          opacity: 0;
+          transition: opacity 0.2s ease;
         }
-        .session-button:hover:not(:disabled) {
-          background: var(--button-hover);
+        .group:hover .session-add-plan {
+          opacity: 1;
         }
       `}</style>
-      
-      <Button
-        onClick={() => onAddToPlan(session)}
-        variant="outline"
-        size="sm"
-        className="w-full session-button"
-      >
-        + В план
-      </Button>
 
       <div className="text-xs font-semibold text-[var(--muted)]">
         {session.start} — {session.end}
@@ -83,6 +73,14 @@ export default function SessionCard({ session, theme, onAddToPlan }: SessionCard
           {session.desc}
         </div>
       )}
+
+      <Button
+        onClick={() => onAddToPlan(session)}
+        size="sm"
+        className="w-full session-add-plan bg-blue-600 hover:bg-blue-700 text-white"
+      >
+        + В план
+      </Button>
     </div>
   );
 }
