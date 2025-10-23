@@ -55,10 +55,10 @@ def setup_fonts():
     os.makedirs(font_dir, exist_ok=True)
     
     fonts_to_download = [
-        ('DejaVuSans', 'https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans.ttf'),
-        ('DejaVuSans-Bold', 'https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans-Bold.ttf'),
-        ('DejaVuSans-Oblique', 'https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans-Oblique.ttf'),
-        ('DejaVuSans-BoldOblique', 'https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans-BoldOblique.ttf'),
+        ('DejaVuSans', 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans.ttf'),
+        ('DejaVuSans-Bold', 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans-Bold.ttf'),
+        ('DejaVuSans-Oblique', 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans-Oblique.ttf'),
+        ('DejaVuSans-BoldOblique', 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans-BoldOblique.ttf'),
     ]
     
     registered = []
@@ -66,30 +66,37 @@ def setup_fonts():
         font_path = os.path.join(font_dir, f'{font_name}.ttf')
         
         if not os.path.exists(font_path):
+            print(f'Загружаю шрифт {font_name}...')
             try:
                 urllib.request.urlretrieve(url, font_path)
+                print(f'Шрифт {font_name} загружен')
             except Exception as e:
-                print(f'Ошибка загрузки {font_name}: {e}')
-                continue
+                print(f'❌ Ошибка загрузки {font_name}: {e}')
+                raise Exception(f'Не удалось загрузить шрифт {font_name}: {e}')
         
         try:
             pdfmetrics.registerFont(TTFont(font_name, font_path))
             registered.append(font_name)
+            print(f'Шрифт {font_name} зарегистрирован')
         except Exception as e:
-            print(f'Ошибка регистрации {font_name}: {e}')
+            print(f'❌ Ошибка регистрации {font_name}: {e}')
+            raise Exception(f'Не удалось зарегистрировать шрифт {font_name}: {e}')
     
-    # Регистрация семейства
-    if len(registered) >= 4:
-        try:
-            registerFontFamily(
-                'DejaVuSans',
-                normal='DejaVuSans',
-                bold='DejaVuSans-Bold',
-                italic='DejaVuSans-Oblique',
-                boldItalic='DejaVuSans-BoldOblique'
-            )
-        except Exception as e:
-            print(f'Ошибка регистрации семейства: {e}')
+    if len(registered) != 4:
+        raise Exception(f'Зарегистрировано только {len(registered)} из 4 шрифтов')
+    
+    try:
+        registerFontFamily(
+            'DejaVuSans',
+            normal='DejaVuSans',
+            bold='DejaVuSans-Bold',
+            italic='DejaVuSans-Oblique',
+            boldItalic='DejaVuSans-BoldOblique'
+        )
+        print('Семейство DejaVuSans зарегистрировано')
+    except Exception as e:
+        print(f'❌ Ошибка регистрации семейства: {e}')
+        raise Exception(f'Не удалось зарегистрировать семейство шрифтов: {e}')
 
 
 def download_image(file_id: str) -> Optional[io.BytesIO]:
@@ -221,17 +228,16 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         title=meta.title
     )
     
-    # Стили - проверка доступности DejaVuSans
+    # Проверка доступности DejaVuSans
     try:
         test_font = pdfmetrics.getFont('DejaVuSans')
         font_name = 'DejaVuSans'
         font_bold = 'DejaVuSans-Bold'
         font_italic = 'DejaVuSans-Oblique'
-    except:
-        # Fallback на Helvetica
-        font_name = 'Helvetica'
-        font_bold = 'Helvetica-Bold'
-        font_italic = 'Helvetica-Oblique'
+        print('✅ Шрифт DejaVuSans доступен')
+    except Exception as e:
+        print(f'❌ DejaVuSans недоступен: {e}')
+        raise Exception('Шрифт DejaVuSans не загружен. PDF не будет поддерживать кириллицу.')
     
     title_style = ParagraphStyle(
         'Title',
