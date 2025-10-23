@@ -314,17 +314,36 @@ export default function WebProgram() {
         />
 
         <div className="mb-4 flex items-center gap-2">
+          <style>{`
+            .view-mode-button {
+              background: var(--button-bg);
+              border: 1px solid var(--button-border);
+              color: var(--button-text);
+            }
+            .view-mode-button:hover:not(:disabled) {
+              background: var(--button-hover);
+            }
+            .view-mode-button-active {
+              background: var(--accent);
+              color: #ffffff;
+              border-color: var(--accent);
+            }
+            .view-mode-button-active:hover {
+              background: var(--accent);
+              opacity: 0.9;
+            }
+          `}</style>
           <Button
             onClick={() => setViewMode('cards')}
-            variant={viewMode === 'cards' ? 'default' : 'outline'}
             size="sm"
+            className={viewMode === 'cards' ? 'view-mode-button-active' : 'view-mode-button'}
           >
             Карточки
           </Button>
           <Button
             onClick={() => setViewMode('table')}
-            variant={viewMode === 'table' ? 'default' : 'outline'}
             size="sm"
+            className={viewMode === 'table' ? 'view-mode-button-active' : 'view-mode-button'}
           >
             Таблица
           </Button>
