@@ -267,58 +267,60 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
     time_style = ParagraphStyle(
         'Time',
         fontName=font_bold,
-        fontSize=13,
-        textColor=colors.HexColor('#666666'),
-        spaceAfter=6
+        fontSize=14,
+        textColor=colors.black,
+        spaceAfter=4
     )
     
     speaker_style = ParagraphStyle(
         'Speaker',
         fontName=font_bold,
-        fontSize=15,
-        leading=18,
-        spaceAfter=2
+        fontSize=13,
+        textColor=colors.black,
+        spaceAfter=1
     )
     
     role_style = ParagraphStyle(
         'Role',
         fontName=font_name,
-        fontSize=13,
-        textColor=colors.HexColor('#666666'),
+        fontSize=11,
+        textColor=colors.black,
         spaceAfter=6
     )
     
     session_title_style = ParagraphStyle(
         'SessionTitle',
         fontName=font_bold,
-        fontSize=14,
-        leading=17,
+        fontSize=12,
+        textColor=colors.black,
         spaceAfter=4
     )
     
     desc_style = ParagraphStyle(
         'Desc',
         fontName=font_name,
-        fontSize=13,
-        leading=20,
+        fontSize=11,
+        leading=14,
+        textColor=colors.black,
         spaceAfter=2
     )
     
     bullet_style = ParagraphStyle(
         'Bullet',
         fontName=font_name,
-        fontSize=13,
-        leading=20,
-        leftIndent=15,
-        spaceAfter=3
+        fontSize=11,
+        leading=14,
+        leftIndent=12,
+        textColor=colors.black,
+        spaceAfter=2
     )
     
     tags_style = ParagraphStyle(
         'Tags',
-        fontName=font_name,
-        fontSize=12,
-        textColor=colors.HexColor('#888888'),
-        spaceAfter=6
+        fontName=font_italic,
+        fontSize=10,
+        textColor=colors.HexColor('#666666'),
+        spaceAfter=4
     )
     
     story = []
