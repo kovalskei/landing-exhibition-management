@@ -90,6 +90,7 @@ export default function MobileProgram() {
 
   const isScrollingProgrammatically = useRef(false);
   const scrollTimeoutRef = useRef<number>();
+  const headerScrollTimeout = useRef<number>();
 
   const scrollToTime = (time: string) => {
     if (!timelineRef.current || !data) return;
@@ -131,15 +132,22 @@ export default function MobileProgram() {
 
   const handleContentScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const currentScrollY = e.currentTarget.scrollTop;
-    const threshold = 150;
+    const compactThreshold = 180;
+    const expandThreshold = 100;
     
-    if (currentScrollY > threshold && currentScrollY > lastScrollY.current) {
-      setIsHeaderCompact(true);
-    } else if (currentScrollY < threshold) {
-      setIsHeaderCompact(false);
+    if (headerScrollTimeout.current) {
+      clearTimeout(headerScrollTimeout.current);
     }
     
-    lastScrollY.current = currentScrollY;
+    headerScrollTimeout.current = window.setTimeout(() => {
+      if (currentScrollY > compactThreshold && !isHeaderCompact) {
+        setIsHeaderCompact(true);
+      } else if (currentScrollY < expandThreshold && isHeaderCompact) {
+        setIsHeaderCompact(false);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    }, 50);
   };
 
   const addToPlan = (id: string) => {
