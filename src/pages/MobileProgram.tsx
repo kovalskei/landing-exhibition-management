@@ -347,9 +347,6 @@ export default function MobileProgram() {
           theme={theme}
           onClose={() => setShowMenu(false)}
           onExportPdf={handleExportPdf}
-          onDownloadXlsx={() => {
-            window.open(`https://docs.google.com/spreadsheets/d/1-W6lgnoQKfKhbeUgRBjnUVv7yf5hahdimJc1psEMpo0/export?format=xlsx`, '_blank');
-          }}
           onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
         />
       )}

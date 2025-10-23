@@ -6,7 +6,6 @@ interface MobileMenuProps {
   theme: 'light' | 'dark';
   onClose: () => void;
   onExportPdf: () => void;
-  onDownloadXlsx: () => void;
   onToggleTheme: () => void;
 }
 
@@ -15,7 +14,6 @@ export default function MobileMenu({
   theme,
   onClose,
   onExportPdf,
-  onDownloadXlsx,
   onToggleTheme
 }: MobileMenuProps) {
   return (
@@ -36,15 +34,6 @@ export default function MobileMenu({
           >
             <Icon name={exportingPdf ? 'Loader2' : 'FileDown'} size={18} className={exportingPdf ? 'animate-spin mr-2' : 'mr-2'} />
             {exportingPdf ? 'Генерация PDF...' : 'Скачать PDF'}
-          </Button>
-
-          <Button
-            onClick={onDownloadXlsx}
-            variant="outline"
-            className="w-full justify-start"
-          >
-            <Icon name="FileSpreadsheet" size={18} className="mr-2" />
-            Скачать XLSX
           </Button>
 
           <Button
