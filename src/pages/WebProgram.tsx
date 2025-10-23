@@ -171,6 +171,10 @@ export default function WebProgram() {
       byHall[h].sort((a, b) => toMin(a.start) - toMin(b.start));
     }
 
+    // Карта покрытых ячеек (из-за rowspan)
+    const covered: Record<string, boolean> = {};
+    const key = (r: number, c: number) => `${r}|${c}`;
+
     return (
       <div className="overflow-auto">
         <table className="w-full border-separate border-spacing-0">
@@ -191,17 +195,54 @@ export default function WebProgram() {
             </tr>
           </thead>
           <tbody>
-            {slots.map(slot => (
+            {slots.map((slot, rowIndex) => (
               <tr key={slot}>
                 <td className="border-b border-r border-[var(--line)] p-3 align-top">
                   <span className="text-sm font-medium">{slot}</span>
                 </td>
-                {data.halls.map(hall => {
-                  const session = byHall[hall.name]?.find(s => s.start === slot);
+                {data.halls.map((hall, colIndex) => {
+                  // Пропускаем покрытые ячейки
+                  if (covered[key(rowIndex, colIndex)]) return null;
+
+                  const list = byHall[hall.name] || [];
+                  const session = list.find(s => s.start === slot);
                   
+                  if (!session) {
+                    return (
+                      <td key={hall.id} className="border-b border-r border-[var(--line)] p-3 align-top"></td>
+                    );
+                  }
+
+                  // Рассчитываем rowspan: до следующего доклада или до конца
+                  const starts = list.map(s => s.start);
+                  const sessionIndex = starts.indexOf(session.start);
+                  let boundary = toMin(session.end);
+                  
+                  if (sessionIndex >= 0 && sessionIndex < starts.length - 1) {
+                    const nextStart = toMin(starts[sessionIndex + 1]);
+                    if (isFinite(nextStart) && nextStart < boundary) {
+                      boundary = nextStart;
+                    }
+                  }
+
+                  let span = 1;
+                  for (let t = rowIndex + 1; t < slots.length; t++) {
+                    if (toMin(slots[t]) >= boundary) break;
+                    span++;
+                  }
+
+                  // Отмечаем покрытые ячейки
+                  for (let t = 1; t < span; t++) {
+                    covered[key(rowIndex + t, colIndex)] = true;
+                  }
+
                   return (
-                    <td key={hall.id} className="border-b border-r border-[var(--line)] p-3 align-top">
-                      {session && renderSession(session)}
+                    <td 
+                      key={hall.id} 
+                      rowSpan={span}
+                      className="border-b border-r border-[var(--line)] p-3 align-top"
+                    >
+                      {renderSession(session)}
                     </td>
                   );
                 })}
