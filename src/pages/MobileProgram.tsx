@@ -92,6 +92,17 @@ export default function MobileProgram() {
     timelineRef.current.scrollTo({ left: idx * timelineRef.current.clientWidth, behavior: 'smooth' });
   };
 
+  const handleTimelineScroll = () => {
+    if (!timelineRef.current || !data) return;
+    const times = [...new Set(data.sessions.map(s => s.start))].sort();
+    const scrollLeft = timelineRef.current.scrollLeft;
+    const width = timelineRef.current.clientWidth;
+    const idx = Math.round(scrollLeft / width);
+    if (times[idx] && times[idx] !== selectedTime) {
+      setSelectedTime(times[idx]);
+    }
+  };
+
   useEffect(() => {
     scrollToActiveTimeline();
   }, [selectedTime]);
@@ -204,10 +215,6 @@ export default function MobileProgram() {
         title={data.meta.title}
         date={data.meta.date}
         venue={data.meta.venue}
-        searchQuery={searchQuery}
-        refreshing={refreshing}
-        onSearchChange={setSearchQuery}
-        onRefresh={handleRefresh}
         onMenuToggle={() => setShowMenu(true)}
       />
 
@@ -231,14 +238,13 @@ export default function MobileProgram() {
               onTimeSelect={setSelectedTime}
             />
 
-            <div ref={timelineRef} className="timeline">
+            <div ref={timelineRef} className="timeline" onScroll={handleTimelineScroll}>
               {times.map(slot => {
                 const atSlot = filtered.filter(s => s.start === slot);
                 const planList = data.sessions.filter(s => plan.has(s.id));
 
                 return (
                   <div key={slot} className="timeline-slot">
-                    <div className="timeline-slot-time">{slot}</div>
                     {atSlot.map(session => {
                       const inPlan = plan.has(session.id);
                       const hasConflict = inPlan ? false : planList.some(p => overlap(p, session));
@@ -345,9 +351,13 @@ export default function MobileProgram() {
         <MobileMenu
           exportingPdf={exportingPdf}
           theme={theme}
+          searchQuery={searchQuery}
+          refreshing={refreshing}
           onClose={() => setShowMenu(false)}
           onExportPdf={handleExportPdf}
           onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          onSearchChange={setSearchQuery}
+          onRefresh={handleRefresh}
         />
       )}
     </div>

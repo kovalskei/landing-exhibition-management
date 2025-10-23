@@ -186,11 +186,6 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         scroll-snap-align: start;
         padding: 0 14px;
       }
-      .timeline-slot-time {
-        font-weight: 700;
-        font-size: 17px;
-        margin-bottom: 14px;
-      }
       .session-card {
         background: var(--panel);
         border: 1px solid var(--line);
