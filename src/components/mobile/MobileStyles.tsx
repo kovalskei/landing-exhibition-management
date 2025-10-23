@@ -48,50 +48,14 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         color: var(--text);
         font-family: system-ui, -apple-system, sans-serif;
       }
-      .mobile-sticky-header {
+      .m-top {
         position: sticky;
         top: 0;
         z-index: 20;
         background: var(--bg);
         border-bottom: 1px solid var(--line);
-        backdrop-filter: blur(12px);
-        transition: all 0.3s ease;
-      }
-      .mobile-sticky-header.compact {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      }
-      .m-top {
         padding: 14px;
-      }
-      .compact-header {
-        padding: 8px 14px;
-      }
-      .compact-time-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .compact-time-row .chips {
-        flex: 1;
-        padding: 0;
-        margin: 0;
-      }
-      .compact-menu-btn {
-        flex-shrink: 0;
-        width: 44px;
-        height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        background: var(--panel);
-        cursor: pointer;
-        transition: all 0.15s;
-      }
-      .compact-menu-btn:active {
-        transform: scale(0.95);
-        background: var(--line);
+        backdrop-filter: blur(12px);
       }
       .m-title {
         margin: 0 0 12px;
@@ -155,10 +119,20 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         border-color: transparent;
         box-shadow: 0 4px 12px rgba(59,130,246,.25);
       }
+      .sticky-time-chips {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: var(--bg);
+        padding: 8px 14px;
+        margin: 0 -14px;
+        border-bottom: 1px solid var(--line);
+        backdrop-filter: blur(12px);
+      }
       .chips {
         display: flex;
         gap: 10px;
-        padding: 8px 0 12px;
+        padding: 0;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;

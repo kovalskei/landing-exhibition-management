@@ -25,9 +25,6 @@ export default function MobileProgram() {
   const [exportingPdf, setExportingPdf] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  const [isHeaderCompact, setIsHeaderCompact] = useState(false);
-  const [headerRevealProgress, setHeaderRevealProgress] = useState(0);
-  const lastScrollY = useRef(0);
   const contentScrollRef = useRef<HTMLDivElement>(null);
 
   const loadData = async (silent = false) => {
@@ -91,8 +88,6 @@ export default function MobileProgram() {
 
   const isScrollingProgrammatically = useRef(false);
   const scrollTimeoutRef = useRef<number>();
-  const headerScrollTimeout = useRef<number>();
-  const expandMenuTimeout = useRef<number>();
 
   const scrollToTime = (time: string) => {
     if (!timelineRef.current || !data) return;
@@ -132,27 +127,7 @@ export default function MobileProgram() {
     scrollToTime(time);
   };
 
-  const handleContentScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const currentScrollY = e.currentTarget.scrollTop;
-    const revealThreshold = 200;
-    
-    if (currentScrollY > lastScrollY.current && currentScrollY > 10) {
-      if (!isHeaderCompact) {
-        setIsHeaderCompact(true);
-      }
-      setHeaderRevealProgress(0);
-    } else if (currentScrollY < lastScrollY.current && isHeaderCompact) {
-      const progress = Math.min(1, (revealThreshold - currentScrollY) / revealThreshold);
-      setHeaderRevealProgress(progress);
-      
-      if (currentScrollY === 0) {
-        setIsHeaderCompact(false);
-        setHeaderRevealProgress(0);
-      }
-    }
-    
-    lastScrollY.current = currentScrollY;
-  };
+
 
   const addToPlan = (id: string) => {
     setPlan(prev => new Set([...prev, id]));
@@ -258,99 +233,40 @@ export default function MobileProgram() {
     <div 
       className="mobile-program-app" 
       style={cssVars as React.CSSProperties}
-      ref={contentScrollRef}
-      onScroll={handleContentScroll}
     >
       <MobileStyles theme={theme} />
 
-      <div className={`mobile-sticky-header ${isHeaderCompact ? 'compact' : ''}`}>
-        <div 
-          style={{ 
-            transform: `translateY(${isHeaderCompact ? -100 * (1 - headerRevealProgress) : 0}%)`,
-            transition: headerRevealProgress > 0 ? 'none' : 'transform 0.3s ease',
-            opacity: isHeaderCompact ? headerRevealProgress : 1
-          }}
-        >
-          {!isHeaderCompact && (
-            <>
-              <MobileHeader
-                title={data.meta.title}
-                date={data.meta.date}
-                venue={data.meta.venue}
-                onMenuToggle={() => setShowMenu(true)}
-                compact={false}
-              />
+      <MobileHeader
+        title={data.meta.title}
+        date={data.meta.date}
+        venue={data.meta.venue}
+        onMenuToggle={() => setShowMenu(true)}
+      />
 
-              <div style={{ padding: '0 14px' }}>
-                <MobileTabs
-                  activeTab={tab}
-                  planCount={plan.size}
-                  onTabChange={setTab}
-                />
+      <div style={{ padding: '0 14px' }}>
+        <MobileTabs
+          activeTab={tab}
+          planCount={plan.size}
+          onTabChange={setTab}
+        />
 
-                {tab === 'now' && (
-                  <div className="now-banner">
-                    <div className="now-text">⏰ Сейчас: {data.now}</div>
-                    <button onClick={jumpToNow} className="now-btn">Перейти</button>
-                  </div>
-                )}
-
-                {tab === 'now' && (
-                  <MobileTimeChips
-                    times={times}
-                    selectedTime={selectedTime}
-                    onTimeSelect={handleTimeChipClick}
-                  />
-                )}
-              </div>
-            </>
-          )}
-
-          {isHeaderCompact && headerRevealProgress > 0 && (
-            <>
-              <MobileHeader
-                title={data.meta.title}
-                date={data.meta.date}
-                venue={data.meta.venue}
-                onMenuToggle={() => setShowMenu(true)}
-                compact={false}
-              />
-
-              <div style={{ padding: '0 14px' }}>
-                <MobileTabs
-                  activeTab={tab}
-                  planCount={plan.size}
-                  onTabChange={setTab}
-                />
-
-                {tab === 'now' && (
-                  <div className="now-banner">
-                    <div className="now-text">⏰ Сейчас: {data.now}</div>
-                    <button onClick={jumpToNow} className="now-btn">Перейти</button>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-
-        {isHeaderCompact && (
-          <div className="compact-header" style={{ opacity: 1 - headerRevealProgress }}>
-            {tab === 'now' && (
-              <div className="compact-time-row">
-                <MobileTimeChips
-                  times={times}
-                  selectedTime={selectedTime}
-                  onTimeSelect={handleTimeChipClick}
-                />
-                <button onClick={() => setShowMenu(true)} className="compact-menu-btn">
-                  <Icon name="Menu" size={20} />
-                </button>
-              </div>
-            )}
+        {tab === 'now' && (
+          <div className="now-banner">
+            <div className="now-text">⏰ Сейчас: {data.now}</div>
+            <button onClick={jumpToNow} className="now-btn">Перейти</button>
           </div>
         )}
       </div>
+
+      {tab === 'now' && (
+        <div className="sticky-time-chips">
+          <MobileTimeChips
+            times={times}
+            selectedTime={selectedTime}
+            onTimeSelect={handleTimeChipClick}
+          />
+        </div>
+      )}
 
       <div style={{ padding: '0 14px' }}>
         {tab === 'now' && (
