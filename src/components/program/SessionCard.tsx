@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Session, getTagCanonMap } from '@/utils/googleSheetsParser';
 import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
 
 interface SessionCardProps {
   session: Session;
@@ -18,6 +20,7 @@ function hashStr(s: string): number {
 
 export default function SessionCard({ session, theme, onAddToPlan }: SessionCardProps) {
   const tagMap = getTagCanonMap();
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div className="space-y-2 relative group">
@@ -68,26 +71,54 @@ export default function SessionCard({ session, theme, onAddToPlan }: SessionCard
         <div className="font-bold text-[14px] mt-3 mb-2 leading-snug">{session.title}</div>
       )}
 
-      {session.desc && (
-        <div className="text-[13px] leading-relaxed">
-          {session.desc.split('\n').map((line, i) => {
-            const trimmed = line.trim();
-            const bulletMatch = trimmed.match(/^[-•–—\*]\s*(.+)$/);
-            if (bulletMatch) {
-              return (
-                <div key={i} className="flex gap-2 mb-1.5">
-                  <span className="flex-shrink-0 mt-0.5">•</span>
-                  <span className="flex-1">{bulletMatch[1]}</span>
-                </div>
-              );
-            }
-            if (trimmed) {
-              return <div key={i} className="mb-2">{trimmed}</div>;
-            }
-            return null;
-          })}
-        </div>
-      )}
+      {session.desc && (() => {
+        const lines = session.desc.split('\n').map(line => {
+          const trimmed = line.trim();
+          const bulletMatch = trimmed.match(/^[-•–—\*]\s*(.+)$/);
+          return { trimmed, bulletMatch, isBullet: !!bulletMatch };
+        }).filter(item => item.trimmed);
+
+        const bulletCount = lines.filter(item => item.isBullet).length;
+        const shouldShowButton = bulletCount > 2;
+
+        let bulletIndex = 0;
+
+        return (
+          <div className="text-[13px] leading-relaxed">
+            {lines.map((item, i) => {
+              if (item.isBullet) {
+                bulletIndex++;
+                if (!isExpanded && shouldShowButton && bulletIndex > 2) {
+                  return null;
+                }
+                return (
+                  <div key={i} className="flex gap-2 mb-1.5">
+                    <span className="flex-shrink-0 mt-0.5">•</span>
+                    <span className="flex-1">{item.bulletMatch![1]}</span>
+                  </div>
+                );
+              }
+              return <div key={i} className="mb-2">{item.trimmed}</div>;
+            })}
+            {shouldShowButton && (
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="mt-2 text-xs font-medium text-[var(--accent)] hover:underline flex items-center gap-1"
+              >
+                {isExpanded ? (
+                  <>
+                    Свернуть <Icon name="ChevronUp" size={12} />
+                  </>
+                ) : (
+                  <>
+                    Ещё {bulletCount - 2} <Icon name="ChevronDown" size={12} />
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        );
+      })()}
 
       <Button
         onClick={() => onAddToPlan(session)}

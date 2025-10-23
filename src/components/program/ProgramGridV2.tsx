@@ -173,49 +173,56 @@ export default function ProgramGridV2({ data, filteredSessions, theme, onAddToPl
                     </div>
 
                     {/* Описание */}
-                    {session.desc && (
-                      <div className="relative">
-                        <div 
-                          className={`
-                            text-sm text-[var(--muted)] leading-relaxed
-                            ${isExpanded ? '' : 'line-clamp-3'}
-                          `}
-                        >
-                          {session.desc.split('\n').map((line, i) => {
-                            const trimmed = line.trim();
-                            const bulletMatch = trimmed.match(/^[-•–—\*]\s*(.+)$/);
-                            if (bulletMatch) {
-                              return (
-                                <div key={i} className="flex gap-2 mb-1.5">
-                                  <span className="flex-shrink-0 mt-0.5">•</span>
-                                  <span className="flex-1">{bulletMatch[1]}</span>
-                                </div>
-                              );
-                            }
-                            if (trimmed) {
-                              return <div key={i} className="mb-2">{trimmed}</div>;
-                            }
-                            return null;
-                          })}
+                    {session.desc && (() => {
+                      const lines = session.desc.split('\n').map(line => {
+                        const trimmed = line.trim();
+                        const bulletMatch = trimmed.match(/^[-•–—\*]\s*(.+)$/);
+                        return { trimmed, bulletMatch, isBullet: !!bulletMatch };
+                      }).filter(item => item.trimmed);
+
+                      const bulletCount = lines.filter(item => item.isBullet).length;
+                      const shouldShowButton = bulletCount > 2;
+
+                      let bulletIndex = 0;
+
+                      return (
+                        <div className="relative">
+                          <div className="text-sm text-[var(--muted)] leading-relaxed">
+                            {lines.map((item, i) => {
+                              if (item.isBullet) {
+                                bulletIndex++;
+                                if (!isExpanded && shouldShowButton && bulletIndex > 2) {
+                                  return null;
+                                }
+                                return (
+                                  <div key={i} className="flex gap-2 mb-1.5">
+                                    <span className="flex-shrink-0 mt-0.5">•</span>
+                                    <span className="flex-1">{item.bulletMatch![1]}</span>
+                                  </div>
+                                );
+                              }
+                              return <div key={i} className="mb-2">{item.trimmed}</div>;
+                            })}
+                          </div>
+                          {shouldShowButton && (
+                            <button
+                              onClick={() => toggleExpanded(session.id)}
+                              className="mt-2 text-sm font-medium text-[var(--accent)] hover:underline flex items-center gap-1"
+                            >
+                              {isExpanded ? (
+                                <>
+                                  Свернуть <Icon name="ChevronUp" size={14} />
+                                </>
+                              ) : (
+                                <>
+                                  Ещё {bulletCount - 2} <Icon name="ChevronDown" size={14} />
+                                </>
+                              )}
+                            </button>
+                          )}
                         </div>
-                        {session.desc.length > 100 && (
-                          <button
-                            onClick={() => toggleExpanded(session.id)}
-                            className="mt-2 text-sm font-medium text-[var(--accent)] hover:underline flex items-center gap-1"
-                          >
-                            {isExpanded ? (
-                              <>
-                                Свернуть <Icon name="ChevronUp" size={14} />
-                              </>
-                            ) : (
-                              <>
-                                Подробнее <Icon name="ChevronDown" size={14} />
-                              </>
-                            )}
-                          </button>
-                        )}
-                      </div>
-                    )}
+                      );
+                    })()}
 
                     {/* Теги */}
                     {session.tags && session.tags.length > 0 && (
