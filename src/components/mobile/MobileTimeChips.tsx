@@ -21,13 +21,13 @@ export default function MobileTimeChips({ times, selectedTime, onTimeSelect }: M
   return (
     <div ref={chipsRef} className="chips">
       {times.map(t => (
-        <button
+        <div
           key={t}
           onClick={() => onTimeSelect(t)}
           className={`chip ${t === selectedTime ? 'chip-active' : ''}`}
         >
           {t}
-        </button>
+        </div>
       ))}
     </div>
   );
