@@ -19,6 +19,7 @@ export interface Session {
   desc: string;
   tags: string[];
   tagsCanon: string[];
+  photo?: string;
 }
 
 export interface ProgramData {
@@ -408,6 +409,7 @@ export async function fetchProgramData(): Promise<ProgramData> {
         const s0 = normalizeTime(rows[r2]?.[cs] || '');
         const e0 = normalizeTime(rows[r2]?.[ce] || '');
         let raw0 = String(rows[r2]?.[ct] || '').trim();
+        const photoUrl = String(rows[r2]?.[ct + 1] || '').trim();
 
         // Пропускаем полностью пустые строки
         if (!s0 && !e0 && !raw0) continue;
@@ -501,7 +503,8 @@ export async function fetchProgramData(): Promise<ProgramData> {
           role: talk.role || '',
           desc,
           tags: tagsDisp,
-          tagsCanon
+          tagsCanon,
+          photo: photoUrl || undefined
         });
       }
     }

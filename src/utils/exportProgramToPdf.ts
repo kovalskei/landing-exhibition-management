@@ -1,6 +1,32 @@
 import jsPDF from 'jspdf';
 import { ProgramData, Session } from './googleSheetsParser';
 
+async function loadImageAsBase64(url: string): Promise<string | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/jpeg', 0.8));
+        } else {
+          resolve(null);
+        }
+      } catch (e) {
+        console.warn('Failed to convert image:', url);
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
 const HALL_H1_SIZE = 20;
 const TIME_SIZE = 14;
 const SPEAKER_SIZE = 12;
@@ -111,7 +137,8 @@ export async function exportProgramToPdf(data: ProgramData): Promise<void> {
     }
 
     // Сессии
-    sessions.forEach((session, idx) => {
+    for (let idx = 0; idx < sessions.length; idx++) {
+      const session = sessions[idx];
       checkPageBreak(40);
 
       // Время
@@ -122,13 +149,25 @@ export async function exportProgramToPdf(data: ProgramData): Promise<void> {
       doc.text(timeText, margin, y);
       y += 8;
 
-      // Спикер
+      // Спикер + фото
       if (session.speaker) {
+        const hasPhoto = session.photo && session.photo.startsWith('http');
+        const photoSize = 20;
+        const textStartX = hasPhoto ? margin + photoSize + 5 : margin;
+        const availableWidth = hasPhoto ? contentWidth - photoSize - 5 : contentWidth;
+
+        if (hasPhoto) {
+          const photoBase64 = await loadImageAsBase64(session.photo!);
+          if (photoBase64) {
+            doc.addImage(photoBase64, 'JPEG', margin, y - 5, photoSize, photoSize);
+          }
+        }
+
         doc.setFontSize(SPEAKER_SIZE);
         doc.setFont('helvetica', 'bold');
-        const speakerLines = doc.splitTextToSize(session.speaker, contentWidth);
-        doc.text(speakerLines, margin, y);
-        y += speakerLines.length * 6;
+        const speakerLines = doc.splitTextToSize(session.speaker, availableWidth);
+        doc.text(speakerLines, textStartX, y);
+        y += Math.max(speakerLines.length * 6, hasPhoto ? photoSize : 0);
       }
 
       // Роль
@@ -176,7 +215,7 @@ export async function exportProgramToPdf(data: ProgramData): Promise<void> {
       } else {
         y += 8;
       }
-    });
+    }
   });
 
   // Сохраняем PDF
