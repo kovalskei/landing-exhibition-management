@@ -284,7 +284,7 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         'Role',
         fontName=font_name,
         fontSize=11,
-        textColor=colors.black,
+        textColor=colors.HexColor('#1a1a1a'),
         spaceAfter=6
     )
     
@@ -319,8 +319,8 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         'Tags',
         fontName=font_italic,
         fontSize=10,
-        textColor=colors.HexColor('#666666'),
-        spaceAfter=4
+        textColor=colors.HexColor('#6B6B6B'),
+        spaceAfter=6
     )
     
     story = []
@@ -432,9 +432,11 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
                         story.append(Paragraph(f'• {bullet_text}', bullet_style))
                     elif line:
                         story.append(Paragraph(line, desc_style))
+                story.append(Spacer(1, 8))
+            else:
+                story.append(Spacer(1, 6))
             
             if i < len(sessions) - 1:
-                story.append(Spacer(1, 8))
                 story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#CCCCCC')))
                 story.append(Spacer(1, 10))
     
