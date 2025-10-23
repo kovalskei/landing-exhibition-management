@@ -124,6 +124,9 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         border-bottom: 1px solid var(--line);
         backdrop-filter: blur(12px);
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        will-change: transform;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
       }
       .chips {
         display: flex;
