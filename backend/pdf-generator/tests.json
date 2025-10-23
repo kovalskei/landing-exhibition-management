@@ -1,0 +1,44 @@
+{
+  "tests": [
+    {
+      "name": "Generate PDF with minimal data",
+      "method": "POST",
+      "body": {
+        "halls": ["Основной зал"],
+        "sessions": [
+          {
+            "hall": "Основной зал",
+            "start": "10:00",
+            "end": "11:00",
+            "title": "Тестовый доклад",
+            "speaker": "Иван Иванов",
+            "role": "Директор",
+            "desc": "Описание доклада",
+            "tagsCanon": ["AI", "ML"]
+          }
+        ],
+        "meta": {
+          "title": "Тестовая программа",
+          "subtitle": "Конференция 2025",
+          "date": "23 октября 2025",
+          "venue": "Москва"
+        },
+        "hallIntros": {
+          "Основной зал": ["Вместимость 500 человек", "Есть проектор"]
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "ok": true,
+        "b64": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Handle OPTIONS request",
+      "method": "OPTIONS",
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

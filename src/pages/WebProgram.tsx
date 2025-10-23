@@ -15,6 +15,7 @@ export default function WebProgram() {
   const [showPlan, setShowPlan] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [generatingPlanPdf, setGeneratingPlanPdf] = useState(false);
 
   const loadData = async () => {
     try {
@@ -75,16 +76,109 @@ export default function WebProgram() {
         hallIntros
       };
 
-      // Здесь будет вызов бэкенд-функции для генерации PDF
-      // Пока заглушка
-      alert('Генерация PDF будет реализована через бэкенд-функцию');
-      console.log('PDF Data:', pdfData);
+      const response = await fetch('https://functions.poehali.dev/627176dc-e9bb-4240-b145-2a99dfd51f06', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(pdfData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка сервера при генерации PDF');
+      }
+
+      const result = await response.json();
+      
+      if (!result.ok || !result.b64) {
+        throw new Error(result.error || 'Неизвестная ошибка');
+      }
+
+      // Скачивание PDF
+      const link = document.createElement('a');
+      link.href = 'data:application/pdf;base64,' + result.b64;
+      link.download = 'program.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       
     } catch (err) {
       console.error('Ошибка генерации PDF:', err);
-      alert('Ошибка при генерации PDF');
+      alert('Ошибка при генерации PDF: ' + (err instanceof Error ? err.message : 'Неизвестная ошибка'));
     } finally {
       setGeneratingPdf(false);
+    }
+  };
+
+  const downloadPlanPdf = async () => {
+    if (!data || plan.length === 0) {
+      alert('План пуст — добавьте доклады кнопкой «+ В план»');
+      return;
+    }
+    
+    try {
+      setGeneratingPlanPdf(true);
+      
+      const sorted = [...plan].sort((a, b) => toMin(a.start) - toMin(b.start) || a.hall.localeCompare(b.hall));
+      
+      const halls: string[] = [];
+      sorted.forEach(s => {
+        if (!halls.includes(s.hall)) halls.push(s.hall);
+      });
+
+      const pdfData = {
+        halls,
+        sessions: sorted.map(s => ({
+          hall: s.hall,
+          start: s.start,
+          end: s.end,
+          title: s.title || '',
+          speaker: s.speaker || '',
+          role: s.role || '',
+          desc: s.desc || '',
+          tagsCanon: (s.tagsCanon || []).slice()
+        })),
+        meta: {
+          title: (data.meta.title || 'Программа мероприятия') + ' — Мой план',
+          subtitle: 'Мой план',
+          date: data.meta.date || '',
+          venue: data.meta.venue || '',
+          logoId: '',
+          coverId: ''
+        },
+        hallIntros: {}
+      };
+
+      const response = await fetch('https://functions.poehali.dev/627176dc-e9bb-4240-b145-2a99dfd51f06', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(pdfData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка сервера при генерации PDF');
+      }
+
+      const result = await response.json();
+      
+      if (!result.ok || !result.b64) {
+        throw new Error(result.error || 'Неизвестная ошибка');
+      }
+
+      const link = document.createElement('a');
+      link.href = 'data:application/pdf;base64,' + result.b64;
+      link.download = 'my-plan.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+    } catch (err) {
+      console.error('Ошибка генерации PDF плана:', err);
+      alert('Ошибка при генерации PDF: ' + (err instanceof Error ? err.message : 'Неизвестная ошибка'));
+    } finally {
+      setGeneratingPlanPdf(false);
     }
   };
 
@@ -515,13 +609,23 @@ export default function WebProgram() {
             <aside className="sticky top-24 h-[calc(100vh-120px)] overflow-auto border border-[var(--line)] rounded-lg bg-[var(--panel)] p-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="font-bold">Мой план</div>
-                <Button
-                  onClick={() => setPlan([])}
-                  variant="outline"
-                  size="sm"
-                >
-                  Очистить
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={downloadPlanPdf}
+                    disabled={generatingPlanPdf || plan.length === 0}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Icon name={generatingPlanPdf ? 'Loader2' : 'FileDown'} size={14} className={generatingPlanPdf ? 'animate-spin' : ''} />
+                  </Button>
+                  <Button
+                    onClick={() => setPlan([])}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Очистить
+                  </Button>
+                </div>
               </div>
               
               {renderPlan()}
