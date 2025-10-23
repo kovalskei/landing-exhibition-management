@@ -35,6 +35,24 @@ export default function SessionCard({ session, theme, onAddToPlan }: SessionCard
         {session.start} — {session.end}
       </div>
 
+      {session.speaker && (
+        <div className="font-bold text-base mt-2">{session.speaker}</div>
+      )}
+
+      {session.role && (
+        <div className="text-sm text-[var(--muted)] mb-2">{session.role}</div>
+      )}
+
+      {session.title && (
+        <div className="font-semibold mb-2">{session.title}</div>
+      )}
+
+      {session.desc && (
+        <div className="text-sm text-[var(--muted)] whitespace-pre-line mb-2">
+          {session.desc}
+        </div>
+      )}
+
       {session.tagsCanon && session.tagsCanon.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {session.tagsCanon.map(c => {
@@ -53,24 +71,6 @@ export default function SessionCard({ session, theme, onAddToPlan }: SessionCard
               </span>
             );
           })}
-        </div>
-      )}
-
-      {session.speaker && (
-        <div className="font-semibold">{session.speaker}</div>
-      )}
-
-      {session.role && (
-        <div className="text-sm text-[var(--muted)]">{session.role}</div>
-      )}
-
-      {session.title && (
-        <div className="font-medium">{session.title}</div>
-      )}
-
-      {session.desc && (
-        <div className="text-sm text-[var(--muted)] whitespace-pre-wrap">
-          {session.desc}
         </div>
       )}
 
