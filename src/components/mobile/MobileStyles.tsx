@@ -116,17 +116,16 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         box-shadow: 0 4px 12px rgba(59,130,246,.25);
       }
       .sticky-time-chips {
+        position: -webkit-sticky;
         position: sticky;
         top: 0;
-        z-index: 10;
+        z-index: 100;
         background: var(--bg);
         padding: 12px 0;
         border-bottom: 1px solid var(--line);
-        backdrop-filter: blur(12px);
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        will-change: transform;
-        -webkit-transform: translateZ(0);
         transform: translateZ(0);
+        -webkit-transform: translateZ(0);
       }
       .chips {
         display: flex;
@@ -186,6 +185,7 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         margin: 0 -14px;
+        min-height: 60vh;
       }
       .timeline::-webkit-scrollbar { display: none; }
       .timeline-slot {
@@ -193,8 +193,6 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         width: 100vw;
         scroll-snap-align: start;
         padding: 0 14px;
-        display: flex;
-        flex-direction: column;
       }
       .session-card {
         background: var(--panel);
