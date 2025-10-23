@@ -290,8 +290,9 @@ export default function MobileProgram() {
         </div>
       </div>
 
-      <div style={{ padding: '0 14px' }}>
-        {tab === 'now' && (
+      <div className="content-scroll">
+        <div style={{ padding: '0 14px' }}>
+          {tab === 'now' && (
           <>
             <div 
               ref={timelineRef} 
@@ -387,6 +388,7 @@ export default function MobileProgram() {
             )}
           </>
         )}
+        </div>
       </div>
 
       {selectedSession && (

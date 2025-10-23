@@ -42,8 +42,8 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         --tap: 48px;
         --radius: 16px;
         height: 100vh;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+        display: flex;
+        flex-direction: column;
         background: var(--bg);
         color: var(--text);
         font-family: system-ui, -apple-system, sans-serif;
@@ -116,14 +116,18 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         box-shadow: 0 4px 12px rgba(59,130,246,.25);
       }
       .sticky-time-chips {
-        position: sticky;
-        top: 0;
+        flex-shrink: 0;
         z-index: 10;
         background: var(--bg);
         padding: 12px 0;
         border-bottom: 1px solid var(--line);
         backdrop-filter: blur(12px);
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      }
+      .content-scroll {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
       .chips {
         display: flex;
