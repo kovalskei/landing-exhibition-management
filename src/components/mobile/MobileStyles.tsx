@@ -48,14 +48,20 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         color: var(--text);
         font-family: system-ui, -apple-system, sans-serif;
       }
-      .m-top {
+      .mobile-sticky-header {
         position: sticky;
         top: 0;
         z-index: 20;
         background: var(--bg);
         border-bottom: 1px solid var(--line);
-        padding: 14px;
         backdrop-filter: blur(12px);
+        transition: all 0.3s ease;
+      }
+      .mobile-sticky-header.compact {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+      .m-top {
+        padding: 14px;
       }
       .m-title {
         margin: 0 0 12px;
@@ -100,7 +106,7 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 12px;
-        padding: 10px 0 8px;
+        padding: 8px 0;
       }
       .m-tab {
         min-height: var(--tap);
@@ -122,7 +128,7 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
       .chips {
         display: flex;
         gap: 10px;
-        padding: 10px 0 0;
+        padding: 8px 0 12px;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
@@ -146,17 +152,15 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         box-shadow: 0 3px 10px rgba(59,130,246,.2);
       }
       .now-banner {
-        position: sticky;
-        top: 122px;
-        z-index: 15;
         background: linear-gradient(135deg, var(--accent), #8b5cf6);
         color: #fff;
         padding: 12px 14px;
-        margin: 0 -14px 14px;
+        margin: 8px 0;
         display: flex;
         align-items: center;
         justify-content: space-between;
         box-shadow: 0 4px 12px rgba(59,130,246,.2);
+        border-radius: 12px;
       }
       .now-text {
         font-weight: 700;
@@ -170,6 +174,11 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         color: #fff;
         font-weight: 600;
         cursor: pointer;
+      }
+      .mobile-scroll-content {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
       .timeline {
         display: flex;

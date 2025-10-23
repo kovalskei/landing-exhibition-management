@@ -24,6 +24,9 @@ export default function MobileProgram() {
   const [exportingPdf, setExportingPdf] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [isHeaderCompact, setIsHeaderCompact] = useState(false);
+  const lastScrollY = useRef(0);
+  const contentScrollRef = useRef<HTMLDivElement>(null);
 
   const loadData = async (silent = false) => {
     try {
@@ -123,6 +126,20 @@ export default function MobileProgram() {
   const handleTimeChipClick = (time: string) => {
     setSelectedTime(time);
     scrollToTime(time);
+  };
+
+  const handleContentScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const currentScrollY = e.currentTarget.scrollTop;
+    
+    if (currentScrollY > 50 && currentScrollY > lastScrollY.current) {
+      // Скролл вниз - сворачиваем
+      setIsHeaderCompact(true);
+    } else if (currentScrollY < 20 || currentScrollY < lastScrollY.current - 10) {
+      // Скролл вверх или почти наверху - разворачиваем
+      setIsHeaderCompact(false);
+    }
+    
+    lastScrollY.current = currentScrollY;
   };
 
   const addToPlan = (id: string) => {
@@ -229,33 +246,47 @@ export default function MobileProgram() {
     <div className="mobile-program-app" style={cssVars as React.CSSProperties}>
       <MobileStyles theme={theme} />
 
-      <MobileHeader
-        title={data.meta.title}
-        date={data.meta.date}
-        venue={data.meta.venue}
-        onMenuToggle={() => setShowMenu(true)}
-      />
-
-      <div style={{ padding: '0 14px', flex: 1 }}>
-        <MobileTabs
-          activeTab={tab}
-          planCount={plan.size}
-          onTabChange={setTab}
+      <div className={`mobile-sticky-header ${isHeaderCompact ? 'compact' : ''}`}>
+        <MobileHeader
+          title={data.meta.title}
+          date={data.meta.date}
+          venue={data.meta.venue}
+          onMenuToggle={() => setShowMenu(true)}
+          compact={isHeaderCompact}
         />
 
+        <div style={{ padding: '0 14px' }}>
+          <MobileTabs
+            activeTab={tab}
+            planCount={plan.size}
+            onTabChange={setTab}
+          />
+
+          {tab === 'now' && (
+            <>
+              <div className="now-banner">
+                <div className="now-text">⏰ Сейчас: {data.now}</div>
+                <button onClick={jumpToNow} className="now-btn">Перейти</button>
+              </div>
+
+              <MobileTimeChips
+                times={times}
+                selectedTime={selectedTime}
+                onTimeSelect={handleTimeChipClick}
+              />
+            </>
+          )}
+        </div>
+      </div>
+
+      <div 
+        ref={contentScrollRef}
+        className="mobile-scroll-content"
+        onScroll={handleContentScroll}
+        style={{ padding: '0 14px' }}
+      >
         {tab === 'now' && (
           <>
-            <div className="now-banner">
-              <div className="now-text">⏰ Сейчас: {data.now}</div>
-              <button onClick={jumpToNow} className="now-btn">Перейти</button>
-            </div>
-
-            <MobileTimeChips
-              times={times}
-              selectedTime={selectedTime}
-              onTimeSelect={handleTimeChipClick}
-            />
-
             <div ref={timelineRef} className="timeline" onScroll={handleTimelineScroll}>
               {times.map(slot => {
                 const atSlot = filtered.filter(s => s.start === slot);
