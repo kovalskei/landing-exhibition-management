@@ -72,11 +72,12 @@ export default function SessionCard({ session, theme, onAddToPlan }: SessionCard
         <div className="text-[13px] leading-relaxed">
           {session.desc.split('\n').map((line, i) => {
             const trimmed = line.trim();
-            if (trimmed.startsWith('- ')) {
+            const bulletMatch = trimmed.match(/^[-•–—\*]\s*(.+)$/);
+            if (bulletMatch) {
               return (
                 <div key={i} className="flex gap-2 mb-1.5">
                   <span className="flex-shrink-0 mt-0.5">•</span>
-                  <span className="flex-1">{trimmed.slice(2)}</span>
+                  <span className="flex-1">{bulletMatch[1]}</span>
                 </div>
               );
             }

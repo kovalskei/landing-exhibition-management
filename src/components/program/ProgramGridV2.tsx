@@ -175,14 +175,29 @@ export default function ProgramGridV2({ data, filteredSessions, theme, onAddToPl
                     {/* Описание */}
                     {session.desc && (
                       <div className="relative">
-                        <p 
+                        <div 
                           className={`
                             text-sm text-[var(--muted)] leading-relaxed
-                            ${isExpanded ? '' : 'line-clamp-2'}
+                            ${isExpanded ? '' : 'line-clamp-3'}
                           `}
                         >
-                          {session.desc}
-                        </p>
+                          {session.desc.split('\n').map((line, i) => {
+                            const trimmed = line.trim();
+                            const bulletMatch = trimmed.match(/^[-•–—\*]\s*(.+)$/);
+                            if (bulletMatch) {
+                              return (
+                                <div key={i} className="flex gap-2 mb-1.5">
+                                  <span className="flex-shrink-0 mt-0.5">•</span>
+                                  <span className="flex-1">{bulletMatch[1]}</span>
+                                </div>
+                              );
+                            }
+                            if (trimmed) {
+                              return <div key={i} className="mb-2">{trimmed}</div>;
+                            }
+                            return null;
+                          })}
+                        </div>
                         {session.desc.length > 100 && (
                           <button
                             onClick={() => toggleExpanded(session.id)}
