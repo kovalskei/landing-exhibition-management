@@ -101,7 +101,9 @@ export default function ProgramGrid({ data, filteredSessions, theme, onAddToPlan
                     rowSpan={span}
                     className="border-b border-r border-[var(--line)] p-3 align-top"
                   >
-                    <SessionCard session={session} theme={theme} onAddToPlan={onAddToPlan} />
+                    <div className="bg-[var(--chip)] rounded-lg p-3">
+                      <SessionCard session={session} theme={theme} onAddToPlan={onAddToPlan} />
+                    </div>
                   </td>
                 );
               })}
