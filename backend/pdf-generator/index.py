@@ -294,7 +294,7 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         fontName=font_bold,
         fontSize=12,
         leading=16,
-        textColor=colors.HexColor('#2563eb'),
+        textColor=colors.HexColor('#475569'),
         spaceAfter=6
     )
     
@@ -349,7 +349,7 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         fontName=font_italic,
         fontSize=10,
         leading=14,
-        textColor=colors.HexColor('#94a3b8'),
+        textColor=colors.HexColor('#64748b'),
         spaceAfter=4
     )
     
