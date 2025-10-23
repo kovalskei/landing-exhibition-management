@@ -172,8 +172,32 @@ export default function MobileProgram() {
   const times = [...new Set(data.sessions.map(s => s.start))].sort();
   const filtered = matchQuery(data.sessions);
 
+  const cssVars = theme === 'dark' 
+    ? {
+        '--bg': '#0f1115',
+        '--panel': '#151922',
+        '--text': '#e9edf3',
+        '--muted': '#9aa3ad',
+        '--line': '#242a36',
+        '--accent': '#3b82f6',
+        '--ok': '#10b981',
+        '--err': '#ef4444',
+        '--shadow': '0 10px 28px rgba(0,0,0,.3)'
+      }
+    : {
+        '--bg': '#f3f6fb',
+        '--panel': '#ffffff',
+        '--text': '#1a2433',
+        '--muted': '#475569',
+        '--line': '#e6e8ee',
+        '--accent': '#2563eb',
+        '--ok': '#10b981',
+        '--err': '#ef4444',
+        '--shadow': '0 10px 28px rgba(15,23,42,.1)'
+      };
+
   return (
-    <div className="mobile-program-app">
+    <div className="mobile-program-app" style={cssVars as React.CSSProperties}>
       <MobileStyles theme={theme} />
 
       <MobileHeader
