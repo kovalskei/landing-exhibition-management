@@ -84,28 +84,46 @@ export default function MobileProgram() {
     return times[0] || '';
   };
 
-  const scrollToActiveTimeline = () => {
+  const isScrollingProgrammatically = useRef(false);
+  const scrollTimeoutRef = useRef<number>();
+
+  const scrollToTime = (time: string) => {
     if (!timelineRef.current || !data) return;
     const times = [...new Set(data.sessions.map(s => s.start))].sort();
-    const idx = times.indexOf(selectedTime);
+    const idx = times.indexOf(time);
     if (idx === -1) return;
+    
+    isScrollingProgrammatically.current = true;
     timelineRef.current.scrollTo({ left: idx * timelineRef.current.clientWidth, behavior: 'smooth' });
+    
+    setTimeout(() => {
+      isScrollingProgrammatically.current = false;
+    }, 600);
   };
 
   const handleTimelineScroll = () => {
-    if (!timelineRef.current || !data) return;
-    const times = [...new Set(data.sessions.map(s => s.start))].sort();
-    const scrollLeft = timelineRef.current.scrollLeft;
-    const width = timelineRef.current.clientWidth;
-    const idx = Math.round(scrollLeft / width);
-    if (times[idx] && times[idx] !== selectedTime) {
-      setSelectedTime(times[idx]);
+    if (isScrollingProgrammatically.current || !timelineRef.current || !data) return;
+    
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
     }
+    
+    scrollTimeoutRef.current = window.setTimeout(() => {
+      if (!timelineRef.current || !data) return;
+      const times = [...new Set(data.sessions.map(s => s.start))].sort();
+      const scrollLeft = timelineRef.current.scrollLeft;
+      const width = timelineRef.current.clientWidth;
+      const idx = Math.round(scrollLeft / width);
+      if (times[idx] && times[idx] !== selectedTime) {
+        setSelectedTime(times[idx]);
+      }
+    }, 100);
   };
 
-  useEffect(() => {
-    scrollToActiveTimeline();
-  }, [selectedTime]);
+  const handleTimeChipClick = (time: string) => {
+    setSelectedTime(time);
+    scrollToTime(time);
+  };
 
   const addToPlan = (id: string) => {
     setPlan(prev => new Set([...prev, id]));
@@ -235,7 +253,7 @@ export default function MobileProgram() {
             <MobileTimeChips
               times={times}
               selectedTime={selectedTime}
-              onTimeSelect={setSelectedTime}
+              onTimeSelect={handleTimeChipClick}
             />
 
             <div ref={timelineRef} className="timeline" onScroll={handleTimelineScroll}>
