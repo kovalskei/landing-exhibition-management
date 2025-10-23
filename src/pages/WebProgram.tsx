@@ -3,6 +3,7 @@ import { fetchProgramData, ProgramData, Session } from '@/utils/googleSheetsPars
 import { Button } from '@/components/ui/button';
 import ProgramHeader from '@/components/program/ProgramHeader';
 import ProgramGrid from '@/components/program/ProgramGrid';
+import ProgramGridV2 from '@/components/program/ProgramGridV2';
 import ProgramPlan from '@/components/program/ProgramPlan';
 
 export default function WebProgram() {
@@ -18,6 +19,7 @@ export default function WebProgram() {
   const [refreshing, setRefreshing] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [generatingPlanPdf, setGeneratingPlanPdf] = useState(false);
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('cards');
 
   const loadData = async (silent = false) => {
     try {
@@ -236,8 +238,12 @@ export default function WebProgram() {
   }, [selectedTags, data]);
 
   const addToPlan = (session: Session) => {
-    if (plan.find(s => s.id === session.id)) return;
-    setPlan(prev => [...prev, session]);
+    const existing = plan.find(s => s.id === session.id);
+    if (existing) {
+      removeFromPlan(session.id);
+    } else {
+      setPlan(prev => [...prev, session]);
+    }
   };
 
   const removeFromPlan = (id: string) => {
@@ -307,15 +313,42 @@ export default function WebProgram() {
           onToggleTheme={toggleTheme}
         />
 
+        <div className="mb-4 flex items-center gap-2">
+          <Button
+            onClick={() => setViewMode('cards')}
+            variant={viewMode === 'cards' ? 'default' : 'outline'}
+            size="sm"
+          >
+            Карточки
+          </Button>
+          <Button
+            onClick={() => setViewMode('table')}
+            variant={viewMode === 'table' ? 'default' : 'outline'}
+            size="sm"
+          >
+            Таблица
+          </Button>
+        </div>
+
         <div className={`grid gap-6 ${showPlan ? 'grid-cols-[1fr_380px]' : 'grid-cols-1'}`}>
-          <div className="border border-[var(--line)] rounded-lg bg-[var(--panel)]">
+          <div className={viewMode === 'table' ? 'border border-[var(--line)] rounded-lg bg-[var(--panel)]' : ''}>
             {data && (
-              <ProgramGrid
-                data={data}
-                filteredSessions={filteredSessions}
-                theme={theme}
-                onAddToPlan={addToPlan}
-              />
+              viewMode === 'cards' ? (
+                <ProgramGridV2
+                  data={data}
+                  filteredSessions={filteredSessions}
+                  theme={theme}
+                  onAddToPlan={addToPlan}
+                  planSessionIds={new Set(plan.map(s => s.id))}
+                />
+              ) : (
+                <ProgramGrid
+                  data={data}
+                  filteredSessions={filteredSessions}
+                  theme={theme}
+                  onAddToPlan={addToPlan}
+                />
+              )
             )}
           </div>
 
