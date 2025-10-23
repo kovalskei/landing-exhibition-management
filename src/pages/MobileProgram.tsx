@@ -243,7 +243,12 @@ export default function MobileProgram() {
       };
 
   return (
-    <div className="mobile-program-app" style={cssVars as React.CSSProperties}>
+    <div 
+      className="mobile-program-app" 
+      style={cssVars as React.CSSProperties}
+      ref={contentScrollRef}
+      onScroll={handleContentScroll}
+    >
       <MobileStyles theme={theme} />
 
       <div className={`mobile-sticky-header ${isHeaderCompact ? 'compact' : ''}`}>
@@ -298,12 +303,7 @@ export default function MobileProgram() {
         )}
       </div>
 
-      <div 
-        ref={contentScrollRef}
-        className="mobile-scroll-content"
-        onScroll={handleContentScroll}
-        style={{ padding: '0 14px' }}
-      >
+      <div style={{ padding: '0 14px' }}>
         {tab === 'now' && (
           <>
             <div ref={timelineRef} className="timeline" onScroll={handleTimelineScroll}>

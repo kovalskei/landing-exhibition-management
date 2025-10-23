@@ -41,9 +41,9 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         --shadow: ${vars.shadow};
         --tap: 48px;
         --radius: 16px;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
+        height: 100vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
         background: var(--bg);
         color: var(--text);
         font-family: system-ui, -apple-system, sans-serif;
@@ -205,11 +205,7 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         font-weight: 600;
         cursor: pointer;
       }
-      .mobile-scroll-content {
-        flex: 1;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-      }
+
       .timeline {
         display: flex;
         overflow-x: auto;
