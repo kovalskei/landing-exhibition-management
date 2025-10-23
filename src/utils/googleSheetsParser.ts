@@ -191,45 +191,27 @@ function normAll(s: string): string {
 export async function fetchProgramData(): Promise<ProgramData> {
   try {
     const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
-    const metaUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1485890782`;
 
-    const [mainResponse, metaResponse] = await Promise.all([
-      fetch(csvUrl, {
-        method: 'GET',
-        headers: { Accept: 'text/csv' }
-      }),
-      fetch(metaUrl, {
-        method: 'GET',
-        headers: { Accept: 'text/csv' }
-      }).catch(() => null)
-    ]);
+    const response = await fetch(csvUrl, {
+      method: 'GET',
+      headers: {
+        Accept: 'text/csv'
+      }
+    });
 
-    if (!mainResponse.ok) {
-      if (mainResponse.status === 404) {
+    if (!response.ok) {
+      if (response.status === 404) {
         throw new Error('Таблица не найдена. Проверьте ID таблицы.');
       }
-      if (mainResponse.status === 403) {
+      if (response.status === 403) {
         throw new Error(
           'Доступ запрещён. Откройте доступ к таблице: Настройки доступа → "Все, у кого есть ссылка"'
         );
       }
-      throw new Error(`Ошибка загрузки: ${mainResponse.status}`);
+      throw new Error(`Ошибка загрузки: ${response.status}`);
     }
 
-    const csvText = await mainResponse.text();
-    
-    const metaFromSheet: Record<string, string> = {};
-    if (metaResponse?.ok) {
-      const metaText = await metaResponse.text();
-      const metaLines = metaText.split('\n').filter(Boolean);
-      for (const line of metaLines) {
-        const [key, ...valueParts] = line.split(',');
-        const value = valueParts.join(',').replace(/^"|"$/g, '').trim();
-        if (key && value) {
-          metaFromSheet[key.trim()] = value;
-        }
-      }
-    }
+    const csvText = await response.text();
 
     // Правильный CSV-парсинг: обрабатываем кавычки и переносы строк внутри ячеек
     const rows: string[][] = [];
@@ -461,6 +443,18 @@ export async function fetchProgramData(): Promise<ProgramData> {
 
     const now = new Date();
     const nowTime = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+
+    const metaFromSheet: Record<string, string> = {};
+    const META_KEY_COL = 10;
+    const META_VAL_COL = 11;
+    
+    for (let r = 0; r < Math.min(10, R); r++) {
+      const key = String(rows[r]?.[META_KEY_COL] || '').trim();
+      const value = String(rows[r]?.[META_VAL_COL] || '').trim();
+      if (key && value) {
+        metaFromSheet[key] = value;
+      }
+    }
 
     const metaTitle = metaFromSheet['title'] || String(rows[0]?.[0] || 'Программа мероприятия').trim();
     const metaSubtitle = metaFromSheet['subtitle'] || String(rows[1]?.[0] || '').trim();
