@@ -381,10 +381,8 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
     # Обложка
     if cover_img:
         try:
-            from reportlab.lib.utils import ImageReader
             cover_img.seek(0)
-            img_reader = ImageReader(cover_img)
-            img = Image(img_reader)
+            img = Image(cover_img)
             img_width = A4[0] - 40*mm
             aspect = img.imageHeight / img.imageWidth
             img.drawWidth = img_width
@@ -392,8 +390,9 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
             story.append(Spacer(1, 20*mm))
             story.append(img)
             story.append(PageBreak())
+            print('✅ Обложка добавлена в PDF')
         except Exception as e:
-            print(f'Ошибка обложки: {e}')
+            print(f'❌ Ошибка обложки: {e}')
             cover_img = None
     
     # Текстовый заголовок если нет обложки
