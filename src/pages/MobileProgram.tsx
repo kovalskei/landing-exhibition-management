@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { fetchProgramData, ProgramData, Session } from '@/utils/googleSheetsParser';
 import { exportProgramToPdf } from '@/utils/exportProgramToPdf';
 import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
 import MobileStyles from '@/components/mobile/MobileStyles';
 import MobileHeader from '@/components/mobile/MobileHeader';
 import MobileTabs from '@/components/mobile/MobileTabs';
@@ -247,36 +248,53 @@ export default function MobileProgram() {
       <MobileStyles theme={theme} />
 
       <div className={`mobile-sticky-header ${isHeaderCompact ? 'compact' : ''}`}>
-        <MobileHeader
-          title={data.meta.title}
-          date={data.meta.date}
-          venue={data.meta.venue}
-          onMenuToggle={() => setShowMenu(true)}
-          compact={isHeaderCompact}
-        />
-
-        <div style={{ padding: '0 14px' }}>
-          <MobileTabs
-            activeTab={tab}
-            planCount={plan.size}
-            onTabChange={setTab}
+        {!isHeaderCompact && (
+          <MobileHeader
+            title={data.meta.title}
+            date={data.meta.date}
+            venue={data.meta.venue}
+            onMenuToggle={() => setShowMenu(true)}
+            compact={false}
           />
+        )}
 
-          {tab === 'now' && (
-            <>
+        {!isHeaderCompact && (
+          <div style={{ padding: '0 14px' }}>
+            <MobileTabs
+              activeTab={tab}
+              planCount={plan.size}
+              onTabChange={setTab}
+            />
+
+            {tab === 'now' && (
               <div className="now-banner">
                 <div className="now-text">⏰ Сейчас: {data.now}</div>
                 <button onClick={jumpToNow} className="now-btn">Перейти</button>
               </div>
+            )}
+          </div>
+        )}
 
-              <MobileTimeChips
-                times={times}
-                selectedTime={selectedTime}
-                onTimeSelect={handleTimeChipClick}
-              />
-            </>
-          )}
-        </div>
+        {isHeaderCompact && (
+          <div className="compact-header">
+            <div className="compact-row-1">
+              <h1 className="compact-title">{data.meta.title}</h1>
+              <button onClick={() => setShowMenu(true)} className="m-pill">
+                <Icon name="Menu" size={20} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {tab === 'now' && (
+          <div style={{ padding: '0 14px' }}>
+            <MobileTimeChips
+              times={times}
+              selectedTime={selectedTime}
+              onTimeSelect={handleTimeChipClick}
+            />
+          </div>
+        )}
       </div>
 
       <div 

@@ -63,6 +63,25 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
       .m-top {
         padding: 14px;
       }
+      .compact-header {
+        padding: 10px 14px;
+      }
+      .compact-row-1 {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .compact-title {
+        margin: 0;
+        font-weight: 800;
+        font-size: 16px;
+        letter-spacing: -0.01em;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
       .m-title {
         margin: 0 0 12px;
         font-weight: 800;
