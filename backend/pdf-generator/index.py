@@ -291,7 +291,7 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         'Time',
         fontName=font_bold,
         fontSize=13,
-        textColor=colors.black,
+        textColor=colors.HexColor('#1a1a1a'),
         spaceAfter=4
     )
     
@@ -299,7 +299,7 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         'Speaker',
         fontName=font_bold,
         fontSize=12,
-        textColor=colors.black,
+        textColor=colors.HexColor('#1a1a1a'),
         spaceAfter=1
     )
     
@@ -315,7 +315,7 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         'SessionTitle',
         fontName=font_bold,
         fontSize=12,
-        textColor=colors.black,
+        textColor=colors.HexColor('#1a1a1a'),
         spaceAfter=4
     )
     
@@ -323,7 +323,7 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         'Desc',
         fontName=font_name,
         fontSize=11,
-        leading=12.65,
+        leading=13.2,
         textColor=colors.black,
         spaceAfter=2
     )
@@ -332,7 +332,7 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         'Bullet',
         fontName=font_name,
         fontSize=11,
-        leading=12.65,
+        leading=13.2,
         leftIndent=12,
         textColor=colors.black,
         spaceAfter=2
