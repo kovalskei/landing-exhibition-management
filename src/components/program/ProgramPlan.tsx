@@ -38,6 +38,17 @@ export default function ProgramPlan({
 
   return (
     <aside className="sticky top-24 h-[calc(100vh-120px)] overflow-auto border border-[var(--line)] rounded-lg bg-[var(--panel)] p-4">
+      <style>{`
+        .plan-button {
+          background: var(--button-bg);
+          border: 1px solid var(--button-border);
+          color: var(--button-text);
+        }
+        .plan-button:hover:not(:disabled) {
+          background: var(--button-hover);
+        }
+      `}</style>
+      
       <div className="flex items-center justify-between mb-4">
         <div className="font-bold">Мой план</div>
         <div className="flex gap-2">
@@ -46,6 +57,7 @@ export default function ProgramPlan({
             disabled={generatingPlanPdf || plan.length === 0}
             variant="outline"
             size="sm"
+            className="plan-button"
           >
             <Icon name={generatingPlanPdf ? 'Loader2' : 'FileDown'} size={14} className={generatingPlanPdf ? 'animate-spin' : ''} />
           </Button>
@@ -53,6 +65,7 @@ export default function ProgramPlan({
             onClick={onClearPlan}
             variant="outline"
             size="sm"
+            className="plan-button"
           >
             Очистить
           </Button>
@@ -143,7 +156,7 @@ export default function ProgramPlan({
                   onClick={() => onRemoveFromPlan(session.id)}
                   variant="outline"
                   size="sm"
-                  className="w-full"
+                  className="w-full plan-button"
                 >
                   Убрать
                 </Button>

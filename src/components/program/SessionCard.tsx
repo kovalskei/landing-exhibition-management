@@ -21,11 +21,22 @@ export default function SessionCard({ session, theme, onAddToPlan }: SessionCard
 
   return (
     <div className="space-y-2">
+      <style>{`
+        .session-button {
+          background: var(--button-bg);
+          border: 1px solid var(--button-border);
+          color: var(--button-text);
+        }
+        .session-button:hover:not(:disabled) {
+          background: var(--button-hover);
+        }
+      `}</style>
+      
       <Button
         onClick={() => onAddToPlan(session)}
         variant="outline"
         size="sm"
-        className="w-full"
+        className="w-full session-button"
       >
         + В план
       </Button>

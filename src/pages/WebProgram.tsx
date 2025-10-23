@@ -271,12 +271,16 @@ export default function WebProgram() {
         '--muted': theme === 'dark' ? '#9aa3ad' : '#5b6572',
         '--line': theme === 'dark' ? '#242a36' : '#e6e8ee',
         '--chip': theme === 'dark' ? '#1b2130' : '#f0f3f9',
-        '--accent': theme === 'dark' ? '#3b82f6' : '#2563eb'
+        '--accent': theme === 'dark' ? '#3b82f6' : '#2563eb',
+        '--button-bg': theme === 'dark' ? '#1a2130' : '#ffffff',
+        '--button-border': theme === 'dark' ? '#2a3544' : '#d1d5db',
+        '--button-text': theme === 'dark' ? '#e9edf3' : '#1a2433',
+        '--button-hover': theme === 'dark' ? '#242d3d' : '#f3f4f6'
       } as React.CSSProperties}
     >
       <div className="max-w-[1840px] mx-auto p-5">
         <ProgramHeader
-          title={data?.title || 'Программа мероприятия'}
+          title={data?.meta.title || 'Программа мероприятия'}
           date={data?.meta.date}
           refreshing={refreshing}
           generatingPdf={generatingPdf}

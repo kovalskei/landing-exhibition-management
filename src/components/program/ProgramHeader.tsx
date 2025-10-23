@@ -40,6 +40,17 @@ export default function ProgramHeader({
 
   return (
     <div className="sticky top-0 bg-[var(--bg)] border-b border-[var(--line)] pb-3 mb-5 z-50">
+      <style>{`
+        .program-button {
+          background: var(--button-bg);
+          border: 1px solid var(--button-border);
+          color: var(--button-text);
+        }
+        .program-button:hover:not(:disabled) {
+          background: var(--button-hover);
+        }
+      `}</style>
+      
       <div className="flex items-center justify-between gap-4 mb-2">
         <div>
           <h1 className="text-2xl font-bold mb-1">{title}</h1>
@@ -59,6 +70,7 @@ export default function ProgramHeader({
             disabled={refreshing}
             variant="outline"
             size="sm"
+            className="program-button"
           >
             <Icon name={refreshing ? 'Loader2' : 'RefreshCw'} size={16} className={refreshing ? 'animate-spin' : ''} />
           </Button>
@@ -68,6 +80,7 @@ export default function ProgramHeader({
               onClick={onToggleTagDropdown}
               variant="outline"
               size="sm"
+              className="program-button"
             >
               Теги: {selectedTags.size ? selectedTags.size : 'все'}
             </Button>
@@ -103,10 +116,11 @@ export default function ProgramHeader({
                     }}
                     variant="outline"
                     size="sm"
+                    className="program-button"
                   >
                     Сбросить
                   </Button>
-                  <Button onClick={onToggleTagDropdown} size="sm">
+                  <Button onClick={onToggleTagDropdown} size="sm" className="program-button">
                     Применить
                   </Button>
                 </div>
@@ -119,12 +133,13 @@ export default function ProgramHeader({
             disabled={generatingPdf}
             variant="outline"
             size="sm"
+            className="program-button"
           >
             <Icon name={generatingPdf ? 'Loader2' : 'FileDown'} size={16} className={generatingPdf ? 'animate-spin mr-2' : 'mr-2'} />
             {generatingPdf ? 'Готовлю PDF...' : 'Скачать PDF'}
           </Button>
 
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="program-button">
             <a
               href={`https://docs.google.com/spreadsheets/d/1HgPCnMmB0KuP080xWYjBlCPdvBy5AzQMeRVX_PUxca4/export?format=xlsx`}
               target="_blank"
@@ -135,11 +150,11 @@ export default function ProgramHeader({
             </a>
           </Button>
 
-          <Button onClick={onTogglePlan} variant="outline" size="sm">
+          <Button onClick={onTogglePlan} variant="outline" size="sm" className="program-button">
             План
           </Button>
 
-          <Button onClick={onToggleTheme} variant="outline" size="sm">
+          <Button onClick={onToggleTheme} variant="outline" size="sm" className="program-button">
             {theme === 'dark' ? '☀️' : '🌙'}
           </Button>
         </div>
