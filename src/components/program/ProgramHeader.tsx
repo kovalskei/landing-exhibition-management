@@ -5,6 +5,7 @@ import { getTagCanonMap } from '@/utils/googleSheetsParser';
 interface ProgramHeaderProps {
   title: string;
   date?: string;
+  venue?: string;
   refreshing: boolean;
   generatingPdf: boolean;
   tagDropdownOpen: boolean;
@@ -22,6 +23,7 @@ interface ProgramHeaderProps {
 export default function ProgramHeader({
   title,
   date,
+  venue,
   refreshing,
   generatingPdf,
   tagDropdownOpen,
@@ -54,9 +56,11 @@ export default function ProgramHeader({
       <div className="flex items-center justify-between gap-4 mb-2">
         <div>
           <h1 className="text-2xl font-bold mb-1">{title}</h1>
-          {date && (
+          {(date || venue) && (
             <div className="text-sm text-[var(--muted)]">
-              Дата проведения: {date}
+              {date && <span>{date}</span>}
+              {date && venue && <span className="mx-2">•</span>}
+              {venue && <span>{venue}</span>}
             </div>
           )}
           <div className="text-xs text-[var(--muted)] mt-1">

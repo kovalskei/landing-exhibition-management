@@ -282,6 +282,7 @@ export default function WebProgram() {
         <ProgramHeader
           title={data?.meta.title || 'Программа мероприятия'}
           date={data?.meta.date}
+          venue={data?.meta.venue}
           refreshing={refreshing}
           generatingPdf={generatingPdf}
           tagDropdownOpen={tagDropdownOpen}
