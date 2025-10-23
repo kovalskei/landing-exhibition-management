@@ -1,5 +1,5 @@
 const SHEET_ID = '1HgPCnMmB0KuP080xWYjBlCPdvBy5AzQMeRVX_PUxca4';
-const META_SHEET_GID = ''; // Укажите gid листа Meta из URL таблицы (число после #gid=)
+const META_SHEET_GID = '1494690392';
 
 export interface Hall {
   id: string;
