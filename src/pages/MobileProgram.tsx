@@ -131,12 +131,11 @@ export default function MobileProgram() {
 
   const handleContentScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const currentScrollY = e.currentTarget.scrollTop;
+    const threshold = 150;
     
-    if (currentScrollY > 50 && currentScrollY > lastScrollY.current) {
-      // Скролл вниз - сворачиваем
+    if (currentScrollY > threshold && currentScrollY > lastScrollY.current) {
       setIsHeaderCompact(true);
-    } else if (currentScrollY < 20 || currentScrollY < lastScrollY.current - 10) {
-      // Скролл вверх или почти наверху - разворачиваем
+    } else if (currentScrollY < threshold) {
       setIsHeaderCompact(false);
     }
     
@@ -249,50 +248,52 @@ export default function MobileProgram() {
 
       <div className={`mobile-sticky-header ${isHeaderCompact ? 'compact' : ''}`}>
         {!isHeaderCompact && (
-          <MobileHeader
-            title={data.meta.title}
-            date={data.meta.date}
-            venue={data.meta.venue}
-            onMenuToggle={() => setShowMenu(true)}
-            compact={false}
-          />
-        )}
-
-        {!isHeaderCompact && (
-          <div style={{ padding: '0 14px' }}>
-            <MobileTabs
-              activeTab={tab}
-              planCount={plan.size}
-              onTabChange={setTab}
+          <>
+            <MobileHeader
+              title={data.meta.title}
+              date={data.meta.date}
+              venue={data.meta.venue}
+              onMenuToggle={() => setShowMenu(true)}
+              compact={false}
             />
 
-            {tab === 'now' && (
-              <div className="now-banner">
-                <div className="now-text">⏰ Сейчас: {data.now}</div>
-                <button onClick={jumpToNow} className="now-btn">Перейти</button>
-              </div>
-            )}
-          </div>
+            <div style={{ padding: '0 14px' }}>
+              <MobileTabs
+                activeTab={tab}
+                planCount={plan.size}
+                onTabChange={setTab}
+              />
+
+              {tab === 'now' && (
+                <div className="now-banner">
+                  <div className="now-text">⏰ Сейчас: {data.now}</div>
+                  <button onClick={jumpToNow} className="now-btn">Перейти</button>
+                </div>
+              )}
+
+              {tab === 'now' && (
+                <MobileTimeChips
+                  times={times}
+                  selectedTime={selectedTime}
+                  onTimeSelect={handleTimeChipClick}
+                />
+              )}
+            </div>
+          </>
         )}
 
-        {isHeaderCompact && (
+        {isHeaderCompact && tab === 'now' && (
           <div className="compact-header">
-            <div className="compact-row-1">
-              <h1 className="compact-title">{data.meta.title}</h1>
-              <button onClick={() => setShowMenu(true)} className="m-pill">
+            <div className="compact-time-row">
+              <MobileTimeChips
+                times={times}
+                selectedTime={selectedTime}
+                onTimeSelect={handleTimeChipClick}
+              />
+              <button onClick={() => setShowMenu(true)} className="compact-menu-btn">
                 <Icon name="Menu" size={20} />
               </button>
             </div>
-          </div>
-        )}
-
-        {tab === 'now' && (
-          <div style={{ padding: '0 14px' }}>
-            <MobileTimeChips
-              times={times}
-              selectedTime={selectedTime}
-              onTimeSelect={handleTimeChipClick}
-            />
           </div>
         )}
       </div>

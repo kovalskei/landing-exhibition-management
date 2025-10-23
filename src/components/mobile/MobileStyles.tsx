@@ -64,23 +64,34 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         padding: 14px;
       }
       .compact-header {
-        padding: 10px 14px;
+        padding: 8px 14px;
       }
-      .compact-row-1 {
+      .compact-time-row {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 12px;
+        gap: 10px;
       }
-      .compact-title {
-        margin: 0;
-        font-weight: 800;
-        font-size: 16px;
-        letter-spacing: -0.01em;
+      .compact-time-row .chips {
         flex: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        padding: 0;
+        margin: 0;
+      }
+      .compact-menu-btn {
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .compact-menu-btn:active {
+        transform: scale(0.95);
+        background: var(--line);
       }
       .m-title {
         margin: 0 0 12px;
