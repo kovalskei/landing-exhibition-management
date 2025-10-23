@@ -56,16 +56,11 @@ export default function ProgramHeader({
       <div className="flex items-center justify-between gap-4 mb-2">
         <div>
           <h1 className="text-2xl font-bold mb-1">{title}</h1>
-          {date && (
-            <div className="text-sm text-[var(--muted)]">
-              <span className="font-medium">Дата мероприятия:</span> {date}
-            </div>
-          )}
-          {venue && (
-            <div className="text-sm text-[var(--muted)] whitespace-pre-line">
-              <span className="font-medium">Адрес проведения:</span> {venue}
-            </div>
-          )}
+          <div className="text-sm text-[var(--muted)]">
+            {date && <span>Дата проведения: {date}</span>}
+            {date && venue && <span> • </span>}
+            {venue && <span>{venue}</span>}
+          </div>
           <div className="text-xs text-[var(--muted)] mt-1">
             Обновлено: {new Date().toLocaleString()}
           </div>
