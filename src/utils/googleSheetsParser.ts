@@ -311,8 +311,6 @@ export async function fetchProgramData(): Promise<ProgramData> {
       }
     }
 
-    console.log(`Всего залов найдено: ${halls.length}, залы:`, halls.map(h => h.name));
-
     // Парсинг докладов
     for (let h = 0; h < halls.length; h++) {
       const cs = parseInt(halls[h].id);
