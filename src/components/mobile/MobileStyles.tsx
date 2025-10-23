@@ -49,13 +49,9 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         font-family: system-ui, -apple-system, sans-serif;
       }
       .m-top {
-        position: sticky;
-        top: 0;
-        z-index: 20;
         background: var(--bg);
         border-bottom: 1px solid var(--line);
         padding: 14px;
-        backdrop-filter: blur(12px);
       }
       .m-title {
         margin: 0 0 12px;
@@ -124,10 +120,10 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         top: 0;
         z-index: 10;
         background: var(--bg);
-        padding: 8px 14px;
-        margin: 0 -14px;
+        padding: 12px 0;
         border-bottom: 1px solid var(--line);
         backdrop-filter: blur(12px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
       }
       .chips {
         display: flex;
