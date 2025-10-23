@@ -113,15 +113,31 @@ def setup_fonts():
 def download_image(file_id: str) -> Optional[io.BytesIO]:
     """Загрузка изображения из Google Drive"""
     if not file_id:
+        print('⚠️ file_id пустой, изображение не загружено')
         return None
     
     try:
-        url = f'https://drive.google.com/uc?export=download&id={file_id}'
-        response = urllib.request.urlopen(url)
+        # Используем прямую ссылку для скачивания
+        url = f'https://drive.google.com/uc?export=download&id={file_id}&confirm=t'
+        print(f'📥 Загружаю изображение: {file_id}')
+        
+        request = urllib.request.Request(url)
+        request.add_header('User-Agent', 'Mozilla/5.0')
+        
+        response = urllib.request.urlopen(request, timeout=15)
         data = response.read()
-        return io.BytesIO(data)
+        
+        # Проверяем, что это действительно изображение
+        if data.startswith(b'<!DOCTYPE') or data.startswith(b'<html'):
+            print(f'❌ Получен HTML вместо изображения для {file_id}')
+            return None
+        
+        print(f'✅ Изображение загружено: {len(data)} байт')
+        img_buffer = io.BytesIO(data)
+        img_buffer.seek(0)
+        return img_buffer
     except Exception as e:
-        print(f'Ошибка загрузки изображения {file_id}: {e}')
+        print(f'❌ Ошибка загрузки изображения {file_id}: {e}')
         return None
 
 
@@ -220,6 +236,8 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
     buffer = io.BytesIO()
     
     meta_data = data.get('meta', {})
+    print(f'📋 Meta data: {meta_data}')
+    
     meta = Meta(
         title=meta_data.get('title', 'Программа'),
         subtitle=meta_data.get('subtitle', ''),
@@ -228,6 +246,9 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
         logo_id=meta_data.get('logoId', LOGO_FILE_ID),
         cover_id=meta_data.get('coverId', COVER_IMAGE_ID)
     )
+    
+    print(f'🖼️ Cover ID: {meta.cover_id}')
+    print(f'🏢 Logo ID: {meta.logo_id}')
     
     cover_img = download_image(meta.cover_id or COVER_IMAGE_ID)
     logo_img = download_image(meta.logo_id or LOGO_FILE_ID)
