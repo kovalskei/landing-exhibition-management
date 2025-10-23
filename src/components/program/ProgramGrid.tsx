@@ -36,13 +36,17 @@ export default function ProgramGrid({ data, filteredSessions, theme, onAddToPlan
 
   const covered: Record<string, boolean> = {};
   const key = (r: number, c: number) => `${r}|${c}`;
+  
+  // Адаптивная ширина колонок в зависимости от количества залов
+  const hallCount = data.halls.length;
+  const minHallWidth = hallCount <= 2 ? 400 : hallCount <= 3 ? 320 : 280;
 
   return (
     <div className="relative">
-      <table className="w-full border-separate border-spacing-0">
+      <table className="w-full border-separate border-spacing-0" style={{ minWidth: `${80 + hallCount * minHallWidth}px` }}>
         <colgroup>
           <col style={{ width: '80px', minWidth: '80px' }} />
-          {data.halls.map((_, i) => <col key={i} style={{ minWidth: '320px', width: `${100 / data.halls.length}%` }} />)}
+          {data.halls.map((_, i) => <col key={i} style={{ minWidth: `${minHallWidth}px` }} />)}
         </colgroup>
         <thead className="sticky top-0 z-40">
           <tr>
