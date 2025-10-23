@@ -1,16 +1,44 @@
-export default function MobileStyles() {
+interface MobileStylesProps {
+  theme: 'light' | 'dark';
+}
+
+export default function MobileStyles({ theme }: MobileStylesProps) {
+  const vars = theme === 'dark' 
+    ? {
+        bg: '#0f1115',
+        panel: '#151922',
+        text: '#e9edf3',
+        muted: '#9aa3ad',
+        line: '#242a36',
+        accent: '#3b82f6',
+        ok: '#10b981',
+        err: '#ef4444',
+        shadow: '0 10px 28px rgba(0,0,0,.3)'
+      }
+    : {
+        bg: '#f3f6fb',
+        panel: '#ffffff',
+        text: '#1a2433',
+        muted: '#475569',
+        line: '#e6e8ee',
+        accent: '#2563eb',
+        ok: '#10b981',
+        err: '#ef4444',
+        shadow: '0 10px 28px rgba(15,23,42,.1)'
+      };
+
   return (
     <style>{`
       .mobile-program-app {
-        --bg: #f8f9fc;
-        --panel: #ffffff;
-        --text: #1e293b;
-        --muted: #64748b;
-        --line: #e2e8f0;
-        --accent: #3b82f6;
-        --ok: #10b981;
-        --err: #ef4444;
-        --shadow: 0 10px 28px rgba(15,23,42,.1);
+        --bg: ${vars.bg};
+        --panel: ${vars.panel};
+        --text: ${vars.text};
+        --muted: ${vars.muted};
+        --line: ${vars.line};
+        --accent: ${vars.accent};
+        --ok: ${vars.ok};
+        --err: ${vars.err};
+        --shadow: ${vars.shadow};
         --tap: 48px;
         --radius: 16px;
         min-height: 100vh;

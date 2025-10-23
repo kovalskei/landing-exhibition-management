@@ -3,16 +3,20 @@ import Icon from '@/components/ui/icon';
 
 interface MobileMenuProps {
   exportingPdf: boolean;
+  theme: 'light' | 'dark';
   onClose: () => void;
   onExportPdf: () => void;
   onDownloadXlsx: () => void;
+  onToggleTheme: () => void;
 }
 
 export default function MobileMenu({
   exportingPdf,
+  theme,
   onClose,
   onExportPdf,
-  onDownloadXlsx
+  onDownloadXlsx,
+  onToggleTheme
 }: MobileMenuProps) {
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -41,6 +45,15 @@ export default function MobileMenu({
           >
             <Icon name="FileSpreadsheet" size={18} className="mr-2" />
             Скачать XLSX
+          </Button>
+
+          <Button
+            onClick={onToggleTheme}
+            variant="outline"
+            className="w-full justify-start"
+          >
+            <Icon name={theme === 'dark' ? 'Sun' : 'Moon'} size={18} className="mr-2" />
+            {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
           </Button>
         </div>
       </div>

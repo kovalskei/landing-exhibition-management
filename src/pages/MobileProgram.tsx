@@ -23,6 +23,7 @@ export default function MobileProgram() {
   const [showMenu, setShowMenu] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   const loadData = async (silent = false) => {
     try {
@@ -173,7 +174,7 @@ export default function MobileProgram() {
 
   return (
     <div className="mobile-program-app">
-      <MobileStyles />
+      <MobileStyles theme={theme} />
 
       <MobileHeader
         title={data.meta.title}
@@ -319,11 +320,13 @@ export default function MobileProgram() {
       {showMenu && (
         <MobileMenu
           exportingPdf={exportingPdf}
+          theme={theme}
           onClose={() => setShowMenu(false)}
           onExportPdf={handleExportPdf}
           onDownloadXlsx={() => {
             window.open(`https://docs.google.com/spreadsheets/d/1-W6lgnoQKfKhbeUgRBjnUVv7yf5hahdimJc1psEMpo0/export?format=xlsx`, '_blank');
           }}
+          onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
         />
       )}
     </div>
