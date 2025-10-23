@@ -106,7 +106,7 @@ export async function exportProgramToPdf(data: ProgramData): Promise<void> {
 
   // Рендерим каждый зал
   let firstHall = true;
-  sessionsByHall.forEach((sessions, hallName) => {
+  for (const [hallName, sessions] of sessionsByHall.entries()) {
     const hall = data.halls.find(h => h.name === hallName);
     
     if (!firstHall) {
@@ -216,7 +216,7 @@ export async function exportProgramToPdf(data: ProgramData): Promise<void> {
         y += 8;
       }
     }
-  });
+  }
 
   // Сохраняем PDF
   doc.save('program.pdf');
