@@ -88,7 +88,7 @@ export default function MobileProgram() {
 
   const isScrollingProgrammatically = useRef(false);
   const lastSnapIndex = useRef(0);
-  const scrollEndTimer = useRef<number>();
+  const touchStartX = useRef(0);
 
   const scrollToTime = (time: string) => {
     if (!timelineRef.current || !data) return;
@@ -105,8 +105,43 @@ export default function MobileProgram() {
     }, 600);
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!timelineRef.current || !data || isScrollingProgrammatically.current) return;
+    
+    const times = [...new Set(data.sessions.map(s => s.start))].sort();
+    const scrollLeft = timelineRef.current.scrollLeft;
+    const width = timelineRef.current.clientWidth;
+    const currentIdx = Math.round(scrollLeft / width);
+    const diff = currentIdx - lastSnapIndex.current;
+    
+    const targetIdx = diff > 0 
+      ? Math.min(lastSnapIndex.current + 1, times.length - 1)
+      : diff < 0 
+      ? Math.max(lastSnapIndex.current - 1, 0)
+      : lastSnapIndex.current;
+    
+    isScrollingProgrammatically.current = true;
+    timelineRef.current.scrollTo({ 
+      left: targetIdx * width, 
+      behavior: 'smooth' 
+    });
+    lastSnapIndex.current = targetIdx;
+    
+    if (times[targetIdx]) {
+      setSelectedTime(times[targetIdx]);
+    }
+    
+    setTimeout(() => {
+      isScrollingProgrammatically.current = false;
+    }, 600);
+  };
+
   const handleTimelineScroll = () => {
-    if (!timelineRef.current || !data) return;
+    if (!timelineRef.current || !data || isScrollingProgrammatically.current) return;
     
     const times = [...new Set(data.sessions.map(s => s.start))].sort();
     const scrollLeft = timelineRef.current.scrollLeft;
@@ -116,35 +151,6 @@ export default function MobileProgram() {
     if (times[currentIdx] && times[currentIdx] !== selectedTime) {
       setSelectedTime(times[currentIdx]);
     }
-    
-    if (scrollEndTimer.current) {
-      clearTimeout(scrollEndTimer.current);
-    }
-    
-    scrollEndTimer.current = window.setTimeout(() => {
-      if (!timelineRef.current || isScrollingProgrammatically.current) return;
-      
-      const finalScrollLeft = timelineRef.current.scrollLeft;
-      const finalIdx = Math.round(finalScrollLeft / width);
-      const diff = finalIdx - lastSnapIndex.current;
-      
-      if (Math.abs(diff) > 1) {
-        const clampedIdx = diff > 0 
-          ? lastSnapIndex.current + 1
-          : lastSnapIndex.current - 1;
-        
-        timelineRef.current.scrollTo({ 
-          left: clampedIdx * width, 
-          behavior: 'smooth' 
-        });
-        lastSnapIndex.current = clampedIdx;
-        if (times[clampedIdx]) {
-          setSelectedTime(times[clampedIdx]);
-        }
-      } else {
-        lastSnapIndex.current = finalIdx;
-      }
-    }, 150);
   };
 
   const handleTimeChipClick = (time: string) => {
@@ -298,7 +304,13 @@ export default function MobileProgram() {
       <div style={{ padding: '0 14px' }}>
         {tab === 'now' && (
           <>
-            <div ref={timelineRef} className="timeline" onScroll={handleTimelineScroll}>
+            <div 
+              ref={timelineRef} 
+              className="timeline" 
+              onScroll={handleTimelineScroll}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
               {times.map(slot => {
                 const atSlot = filtered.filter(s => s.start === slot);
                 const planList = data.sessions.filter(s => plan.has(s.id));
