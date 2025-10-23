@@ -88,6 +88,7 @@ export default function MobileProgram() {
 
   const isScrollingProgrammatically = useRef(false);
   const lastSnapIndex = useRef(0);
+  const scrollEndTimer = useRef<number>();
 
   const scrollToTime = (time: string) => {
     if (!timelineRef.current || !data) return;
@@ -112,27 +113,38 @@ export default function MobileProgram() {
     const width = timelineRef.current.clientWidth;
     const currentIdx = Math.round(scrollLeft / width);
     
-    if (!isScrollingProgrammatically.current) {
-      const diff = currentIdx - lastSnapIndex.current;
-      const clampedIdx = diff > 0 
-        ? Math.min(lastSnapIndex.current + 1, times.length - 1)
-        : diff < 0 
-        ? Math.max(lastSnapIndex.current - 1, 0)
-        : lastSnapIndex.current;
+    if (times[currentIdx] && times[currentIdx] !== selectedTime) {
+      setSelectedTime(times[currentIdx]);
+    }
+    
+    if (scrollEndTimer.current) {
+      clearTimeout(scrollEndTimer.current);
+    }
+    
+    scrollEndTimer.current = window.setTimeout(() => {
+      if (!timelineRef.current || isScrollingProgrammatically.current) return;
       
-      if (clampedIdx !== currentIdx) {
+      const finalScrollLeft = timelineRef.current.scrollLeft;
+      const finalIdx = Math.round(finalScrollLeft / width);
+      const diff = finalIdx - lastSnapIndex.current;
+      
+      if (Math.abs(diff) > 1) {
+        const clampedIdx = diff > 0 
+          ? lastSnapIndex.current + 1
+          : lastSnapIndex.current - 1;
+        
         timelineRef.current.scrollTo({ 
           left: clampedIdx * width, 
           behavior: 'smooth' 
         });
+        lastSnapIndex.current = clampedIdx;
+        if (times[clampedIdx]) {
+          setSelectedTime(times[clampedIdx]);
+        }
+      } else {
+        lastSnapIndex.current = finalIdx;
       }
-      
-      lastSnapIndex.current = clampedIdx;
-    }
-    
-    if (times[currentIdx] && times[currentIdx] !== selectedTime) {
-      setSelectedTime(times[currentIdx]);
-    }
+    }, 150);
   };
 
   const handleTimeChipClick = (time: string) => {
