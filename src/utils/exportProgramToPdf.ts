@@ -222,6 +222,141 @@ export async function exportProgramToPdf(data: ProgramData): Promise<void> {
   doc.save('program.pdf');
 }
 
+export async function exportPlanToPdf(data: ProgramData, planSessionIds: Set<string>): Promise<void> {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 20;
+  const contentWidth = pageWidth - 2 * margin;
+  let y = margin;
+
+  doc.setFont('helvetica');
+
+  const checkPageBreak = (neededSpace: number) => {
+    if (y + neededSpace > pageHeight - margin) {
+      doc.addPage();
+      y = margin;
+      addFooter(doc, data.meta);
+      return true;
+    }
+    return false;
+  };
+
+  doc.setFontSize(24);
+  doc.setFont('helvetica', 'bold');
+  const titleLines = doc.splitTextToSize('Мой план посещения', contentWidth);
+  doc.text(titleLines, pageWidth / 2, 60, { align: 'center' });
+  
+  y = 80;
+  if (data.meta?.date) {
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Дата: ${data.meta.date}`, pageWidth / 2, y, { align: 'center' });
+    y += 10;
+  }
+
+  addFooter(doc, data.meta);
+
+  const planSessions = data.sessions
+    .filter(s => planSessionIds.has(s.id))
+    .sort((a, b) => a.start.localeCompare(b.start));
+
+  if (planSessions.length === 0) {
+    doc.addPage();
+    y = margin;
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'normal');
+    doc.text('План пуст', pageWidth / 2, y + 40, { align: 'center' });
+    doc.save('my-plan.pdf');
+    return;
+  }
+
+  doc.addPage();
+  y = margin;
+  addFooter(doc, data.meta);
+
+  planSessions.forEach((session, idx) => {
+    const hallName = data.halls.find(h => h.id === session.hallId)?.name || `Зал ${session.hallId}`;
+    
+    checkPageBreak(40);
+
+    doc.setFontSize(TIME_SIZE);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(BODY_COLOR);
+    doc.text(`${session.start} – ${session.end}`, margin, y);
+    y += 7;
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(META_FOOTER_COLOR);
+    doc.text(hallName, margin, y);
+    y += 7;
+
+    if (session.speaker) {
+      checkPageBreak(10);
+      doc.setFontSize(SPEAKER_SIZE);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(BODY_COLOR);
+      const speakerLines = doc.splitTextToSize(session.speaker, contentWidth);
+      doc.text(speakerLines, margin, y);
+      y += speakerLines.length * 5;
+    }
+
+    if (session.role) {
+      checkPageBreak(8);
+      doc.setFontSize(ROLE_SIZE);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(SUBTLE_COLOR);
+      const roleLines = doc.splitTextToSize(session.role, contentWidth);
+      doc.text(roleLines, margin, y);
+      y += roleLines.length * 5;
+    }
+
+    if (session.title) {
+      checkPageBreak(10);
+      doc.setFontSize(TITLE_SIZE);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(BODY_COLOR);
+      const titleLines = doc.splitTextToSize(session.title, contentWidth);
+      doc.text(titleLines, margin, y);
+      y += titleLines.length * 5.5;
+    }
+
+    if (session.desc) {
+      checkPageBreak(10);
+      doc.setFontSize(DESC_SIZE);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(BODY_COLOR);
+      const descLines = session.desc.split('\n');
+      descLines.forEach(line => {
+        checkPageBreak(5);
+        const isBullet = /^\s*-\s+/.test(line);
+        const cleanLine = isBullet ? '• ' + line.replace(/^\s*-\s+/, '') : line;
+        const wrappedLines = doc.splitTextToSize(cleanLine, contentWidth);
+        doc.text(wrappedLines, margin, y);
+        y += wrappedLines.length * 5;
+      });
+    }
+
+    if (idx < planSessions.length - 1) {
+      y += 5;
+      checkPageBreak(5);
+      doc.setDrawColor(200);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 10;
+    } else {
+      y += 8;
+    }
+  });
+
+  doc.save('my-plan.pdf');
+}
+
 function addFooter(doc: jsPDF, meta?: { date?: string; venue?: string }) {
   const pageHeight = doc.internal.pageSize.getHeight();
   const pageWidth = doc.internal.pageSize.getWidth();

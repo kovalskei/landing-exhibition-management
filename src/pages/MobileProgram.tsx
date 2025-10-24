@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { fetchProgramData, ProgramData, Session } from '@/utils/googleSheetsParser';
-import { exportProgramToPdf } from '@/utils/exportProgramToPdf';
+import { exportProgramToPdf, exportPlanToPdf } from '@/utils/exportProgramToPdf';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import MobileStyles from '@/components/mobile/MobileStyles';
@@ -245,6 +245,19 @@ export default function MobileProgram() {
     }
   };
 
+  const handleExportPlanPdf = async () => {
+    if (!data) return;
+    try {
+      setExportingPdf(true);
+      await exportPlanToPdf(data, plan);
+    } catch (err) {
+      console.error('Ошибка экспорта PDF плана:', err);
+      alert('Не удалось создать PDF плана');
+    } finally {
+      setExportingPdf(false);
+    }
+  };
+
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center">
@@ -425,7 +438,7 @@ export default function MobileProgram() {
             ) : (
               <>
                 <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
-                  <button onClick={handleExportPdf} disabled={exportingPdf} className="plan-action">
+                  <button onClick={handleExportPlanPdf} disabled={exportingPdf} className="plan-action">
                     <Icon name={exportingPdf ? 'Loader2' : 'FileDown'} size={18} className={exportingPdf ? 'animate-spin' : ''} />
                     {exportingPdf ? 'Создание PDF...' : 'Скачать PDF'}
                   </button>
