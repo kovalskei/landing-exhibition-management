@@ -97,12 +97,15 @@ export default function MobileProgram() {
   useEffect(() => {
     if (!eventIdFromUrl || sheetId) {
       loadData();
-      const interval = setInterval(() => {
-        loadData(true); // Тихое обновление фоном
-      }, 30000);
-      return () => clearInterval(interval);
     }
   }, [sheetId]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadData(true); // Тихое обновление фоном каждые 30 секунд
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem('mobile-program-plan');

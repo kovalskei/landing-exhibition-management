@@ -97,7 +97,7 @@ export default function ProgramSettings() {
 
   const getIframeCode = (eventId: string) => {
     const baseUrl = window.location.origin;
-    return `<iframe src="${baseUrl}/program?eventId=${eventId}" width="100%" height="800" frameborder="0" style="border:none;"></iframe>`;
+    return `<iframe src="${baseUrl}/program?eventId=${eventId}" width="100%" height="100vh" frameborder="0" style="border:none; display:block;"></iframe>`;
   };
 
   const copyIframeCode = (eventId: string) => {

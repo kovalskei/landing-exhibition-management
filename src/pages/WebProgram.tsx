@@ -109,6 +109,7 @@ export default function WebProgram() {
           speaker: s.speaker || '',
           role: s.role || '',
           desc: s.desc || '',
+          photo: s.photo || '',
           tagsCanon: (s.tagsCanon || []).slice()
         })),
         meta: {
@@ -121,6 +122,8 @@ export default function WebProgram() {
         },
         hallIntros
       };
+
+      console.log('📄 PDF Meta:', pdfData.meta);
 
       const response = await fetch('https://functions.poehali.dev/627176dc-e9bb-4240-b145-2a99dfd51f06', {
         method: 'POST',
@@ -230,14 +233,15 @@ export default function WebProgram() {
   useEffect(() => {
     if (!eventIdFromUrl || sheetId) {
       loadData();
-      
-      const interval = setInterval(() => {
-        loadData(true); // Тихое обновление фоном
-      }, 30000);
-      
-      return () => clearInterval(interval);
     }
   }, [sheetId]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadData(true); // Тихое обновление фоном каждые 30 секунд
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem('web-program-plan');
