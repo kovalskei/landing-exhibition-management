@@ -318,12 +318,24 @@ export default function MobileProgram() {
         throw new Error(result.error || 'Неизвестная ошибка');
       }
 
+      // Конвертируем base64 в Blob для мобильных браузеров
+      const binaryString = atob(result.b64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      
       const link = document.createElement('a');
-      link.href = 'data:application/pdf;base64,' + result.b64;
+      link.href = url;
       link.download = 'program.pdf';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      // Освобождаем память
+      setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (err) {
       console.error('Ошибка экспорта PDF:', err);
       alert('Не удалось создать PDF: ' + (err instanceof Error ? err.message : 'Неизвестная ошибка'));
@@ -398,12 +410,24 @@ export default function MobileProgram() {
         throw new Error(result.error || 'Неизвестная ошибка');
       }
 
+      // Конвертируем base64 в Blob для мобильных браузеров
+      const binaryString = atob(result.b64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      
       const link = document.createElement('a');
-      link.href = 'data:application/pdf;base64,' + result.b64;
+      link.href = url;
       link.download = 'my-plan.pdf';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      // Освобождаем память
+      setTimeout(() => URL.revokeObjectURL(url), 100);
       
     } catch (err) {
       console.error('Ошибка генерации PDF плана:', err);
