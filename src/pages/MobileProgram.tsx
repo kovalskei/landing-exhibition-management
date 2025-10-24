@@ -120,8 +120,11 @@ export default function MobileProgram() {
       const headerHeight = 160;
       const slotsAfterHeader = mapped.filter(s => s.top >= headerHeight);
       
+      console.log('Slots after header:', slotsAfterHeader.map(s => `${s.time}:${Math.round(s.top)}`).join(', '));
+      
       if (slotsAfterHeader.length > 0) {
         const time = slotsAfterHeader[0].time;
+        console.log('Setting time to:', time);
         if (time) {
           setSelectedTime(time);
         }
