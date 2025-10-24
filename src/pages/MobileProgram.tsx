@@ -534,68 +534,64 @@ export default function MobileProgram() {
         )}
       </div>
 
-      {(daySheets.length > 1 || tab === 'now' || tab === 'all') && (
-        <div style={{ padding: '8px 14px 0' }}>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
-            {daySheets.length > 1 && (
-              <div style={{ 
-                display: 'flex', 
-                gap: '6px', 
-                overflowX: 'auto',
-                flex: 1
-              }}>
-                {daySheets.map((day) => (
-                  <button
-                    key={day.gid}
-                    onClick={() => handleDayChange(day.gid)}
-                    style={{
-                      padding: '6px 12px',
-                      borderRadius: '16px',
-                      border: 'none',
-                      background: selectedDay === day.gid ? 'var(--accent)' : 'var(--panel)',
-                      color: selectedDay === day.gid ? '#fff' : 'var(--text)',
-                      fontWeight: selectedDay === day.gid ? '600' : '500',
-                      fontSize: '13px',
-                      whiteSpace: 'nowrap',
-                      cursor: 'pointer',
-                      boxShadow: 'var(--shadow)',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    {day.name}
-                  </button>
-                ))}
-              </div>
-            )}
-            
-            <button
-              onClick={() => setTab('plan')}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '16px',
-                border: 'none',
-                background: 'var(--ok)',
-                color: '#fff',
-                fontWeight: '600',
-                fontSize: '13px',
-                whiteSpace: 'nowrap',
-                cursor: 'pointer',
-                boxShadow: 'var(--shadow)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                flex: '0 0 auto'
-              }}
-            >
-              План {plan.size > 0 && `(${plan.size})`}
-            </button>
-          </div>
-        </div>
-      )}
-
       {tab === 'now' && (
         <div className="sticky-time-chips">
-          <div style={{ padding: '0 14px' }}>
+          <div style={{ padding: '8px 14px' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: daySheets.length > 1 ? '8px' : '0' }}>
+              {daySheets.length > 1 && (
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '6px', 
+                  overflowX: 'auto',
+                  flex: 1
+                }}>
+                  {daySheets.map((day) => (
+                    <button
+                      key={day.gid}
+                      onClick={() => handleDayChange(day.gid)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '16px',
+                        border: 'none',
+                        background: selectedDay === day.gid ? 'var(--accent)' : 'var(--panel)',
+                        color: selectedDay === day.gid ? '#fff' : 'var(--text)',
+                        fontWeight: selectedDay === day.gid ? '600' : '500',
+                        fontSize: '13px',
+                        whiteSpace: 'nowrap',
+                        cursor: 'pointer',
+                        boxShadow: 'var(--shadow)',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {day.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+              
+              <button
+                onClick={() => setTab('plan')}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '16px',
+                  border: 'none',
+                  background: 'var(--ok)',
+                  color: '#fff',
+                  fontWeight: '600',
+                  fontSize: '13px',
+                  whiteSpace: 'nowrap',
+                  cursor: 'pointer',
+                  boxShadow: 'var(--shadow)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  flex: '0 0 auto'
+                }}
+              >
+                План {plan.size > 0 && `(${plan.size})`}
+              </button>
+            </div>
+            
             <MobileTimeChips
               times={times}
               selectedTime={selectedTime}
@@ -607,7 +603,62 @@ export default function MobileProgram() {
 
       {tab === 'all' && (
         <div className="sticky-time-chips">
-          <div style={{ padding: '0 14px' }}>
+          <div style={{ padding: '8px 14px' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: daySheets.length > 1 ? '8px' : '0' }}>
+              {daySheets.length > 1 && (
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '6px', 
+                  overflowX: 'auto',
+                  flex: 1
+                }}>
+                  {daySheets.map((day) => (
+                    <button
+                      key={day.gid}
+                      onClick={() => handleDayChange(day.gid)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '16px',
+                        border: 'none',
+                        background: selectedDay === day.gid ? 'var(--accent)' : 'var(--panel)',
+                        color: selectedDay === day.gid ? '#fff' : 'var(--text)',
+                        fontWeight: selectedDay === day.gid ? '600' : '500',
+                        fontSize: '13px',
+                        whiteSpace: 'nowrap',
+                        cursor: 'pointer',
+                        boxShadow: 'var(--shadow)',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {day.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+              
+              <button
+                onClick={() => setTab('plan')}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '16px',
+                  border: 'none',
+                  background: 'var(--ok)',
+                  color: '#fff',
+                  fontWeight: '600',
+                  fontSize: '13px',
+                  whiteSpace: 'nowrap',
+                  cursor: 'pointer',
+                  boxShadow: 'var(--shadow)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  flex: '0 0 auto'
+                }}
+              >
+                План {plan.size > 0 && `(${plan.size})`}
+              </button>
+            </div>
+            
             <MobileHallFilter
               halls={data.halls}
               selectedHall={selectedHall}
