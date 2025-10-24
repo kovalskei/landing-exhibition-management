@@ -30,6 +30,8 @@ export default function ProgramSettings() {
   const [loading, setLoading] = useState(true);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingEditLogo, setUploadingEditLogo] = useState<string | null>(null);
+  const [uploadingEditCover, setUploadingEditCover] = useState<string | null>(null);
 
   const loadEvents = async () => {
     try {
@@ -123,9 +125,13 @@ export default function ProgramSettings() {
     alert('Код iframe скопирован в буфер обмена!');
   };
 
-  const uploadImage = async (file: File, type: 'logo' | 'cover') => {
-    const setUploading = type === 'logo' ? setUploadingLogo : setUploadingCover;
-    const setUrl = type === 'logo' ? setNewLogoUrl : setNewCoverUrl;
+  const uploadImage = async (file: File, type: 'logo' | 'cover', eventId?: string) => {
+    const setUploading = eventId 
+      ? (type === 'logo' ? setUploadingEditLogo : setUploadingEditCover)
+      : (type === 'logo' ? setUploadingLogo : setUploadingCover);
+    const setUrl = eventId
+      ? null
+      : (type === 'logo' ? setNewLogoUrl : setNewCoverUrl);
     
     setUploading(true);
     
@@ -143,7 +149,12 @@ export default function ProgramSettings() {
         const result = await response.json();
         
         if (result.success) {
-          setUrl(result.url);
+          if (eventId) {
+            const input = document.getElementById(`${type}-${eventId}`) as HTMLInputElement;
+            if (input) input.value = result.url;
+          } else if (setUrl) {
+            setUrl(result.url);
+          }
         } else {
           alert('Ошибка загрузки: ' + (result.error || 'Неизвестная ошибка'));
         }
@@ -154,7 +165,12 @@ export default function ProgramSettings() {
       console.error('Upload failed:', err);
       alert('Не удалось загрузить изображение');
     } finally {
-      setUploading(false);
+      if (eventId) {
+        if (type === 'logo') setUploadingEditLogo(null);
+        else setUploadingEditCover(null);
+      } else {
+        setUploading(false);
+      }
     }
   };
 
@@ -284,16 +300,58 @@ export default function ProgramSettings() {
                       defaultValue={event.sheetUrl}
                       id={`url-${event.id}`}
                     />
-                    <Input
-                      defaultValue={event.logoUrl || ''}
-                      id={`logo-${event.id}`}
-                      placeholder="URL логотипа"
-                    />
-                    <Input
-                      defaultValue={event.coverUrl || ''}
-                      id={`cover-${event.id}`}
-                      placeholder="URL титульного изображения"
-                    />
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Логотип</label>
+                      <div className="flex gap-2">
+                        <Input
+                          defaultValue={event.logoUrl || ''}
+                          id={`logo-${event.id}`}
+                          placeholder="URL логотипа"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={uploadingEditLogo === event.id}
+                          onClick={() => document.getElementById(`logo-upload-${event.id}`)?.click()}
+                        >
+                          {uploadingEditLogo === event.id ? 'Загрузка...' : <Icon name="Upload" size={16} />}
+                        </Button>
+                        <input
+                          id={`logo-upload-${event.id}`}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0], 'logo', event.id)}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Титульное изображение</label>
+                      <div className="flex gap-2">
+                        <Input
+                          defaultValue={event.coverUrl || ''}
+                          id={`cover-${event.id}`}
+                          placeholder="URL титульного изображения"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={uploadingEditCover === event.id}
+                          onClick={() => document.getElementById(`cover-upload-${event.id}`)?.click()}
+                        >
+                          {uploadingEditCover === event.id ? 'Загрузка...' : <Icon name="Upload" size={16} />}
+                        </Button>
+                        <input
+                          id={`cover-upload-${event.id}`}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0], 'cover', event.id)}
+                        />
+                      </div>
+                    </div>
                     <Textarea
                       defaultValue={event.daySheets || ''}
                       id={`days-${event.id}`}
