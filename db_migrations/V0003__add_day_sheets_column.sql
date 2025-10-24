@@ -1,0 +1,1 @@
+ALTER TABLE program_events ADD COLUMN IF NOT EXISTS day_sheets TEXT;

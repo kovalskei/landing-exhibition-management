@@ -48,6 +48,19 @@ export default function WebProgram() {
         
         if (eventData.logoUrl) setEventLogoUrl(eventData.logoUrl);
         if (eventData.coverUrl) setEventCoverUrl(eventData.coverUrl);
+        
+        if (eventData.daySheets) {
+          const lines = eventData.daySheets.split('\n').filter((l: string) => l.trim());
+          const parsed = lines.map((line: string) => {
+            const [name, gid] = line.split(':').map((s: string) => s.trim());
+            return name && gid ? { name, gid } : null;
+          }).filter(Boolean);
+          
+          if (parsed.length > 0) {
+            setDaySheets(parsed);
+            setSelectedDay(parsed[0].gid);
+          }
+        }
       } catch (err) {
         console.error('Failed to load event:', err);
       }
@@ -250,12 +263,14 @@ export default function WebProgram() {
   };
 
   useEffect(() => {
-    const sheets = getDaySheets();
-    setDaySheets(sheets);
-    if (sheets.length > 0) {
-      setSelectedDay(sheets[0].gid);
+    if (!eventIdFromUrl) {
+      const sheets = getDaySheets();
+      setDaySheets(sheets);
+      if (sheets.length > 0) {
+        setSelectedDay(sheets[0].gid);
+      }
     }
-  }, []);
+  }, [eventIdFromUrl]);
 
   useEffect(() => {
     if (!eventIdFromUrl || sheetId) {

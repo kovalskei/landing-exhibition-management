@@ -12,6 +12,7 @@ interface ProgramEvent {
   sheetUrl: string;
   logoUrl?: string;
   coverUrl?: string;
+  daySheets?: string;
   createdAt: string;
 }
 
@@ -24,6 +25,7 @@ export default function ProgramSettings() {
   const [newEventUrl, setNewEventUrl] = useState('');
   const [newLogoUrl, setNewLogoUrl] = useState('');
   const [newCoverUrl, setNewCoverUrl] = useState('');
+  const [newDaySheets, setNewDaySheets] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -54,6 +56,7 @@ export default function ProgramSettings() {
       sheetUrl: newEventUrl.trim(),
       logoUrl: newLogoUrl.trim() || undefined,
       coverUrl: newCoverUrl.trim() || undefined,
+      daySheets: newDaySheets.trim() || undefined,
       createdAt: new Date().toISOString()
     };
 
@@ -69,6 +72,7 @@ export default function ProgramSettings() {
       setNewEventUrl('');
       setNewLogoUrl('');
       setNewCoverUrl('');
+      setNewDaySheets('');
     } catch (err) {
       console.error('Failed to create event:', err);
       alert('Не удалось создать событие');
@@ -89,12 +93,12 @@ export default function ProgramSettings() {
     }
   };
 
-  const updateEvent = async (id: string, name: string, url: string, logoUrl?: string, coverUrl?: string) => {
+  const updateEvent = async (id: string, name: string, url: string, logoUrl?: string, coverUrl?: string, daySheets?: string) => {
     try {
       await fetch(API_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, name, sheetUrl: url, logoUrl, coverUrl })
+        body: JSON.stringify({ id, name, sheetUrl: url, logoUrl, coverUrl, daySheets })
       });
       
       await loadEvents();
@@ -240,6 +244,19 @@ export default function ProgramSettings() {
                 />
               </div>
             </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Дни события (опционально)</label>
+              <Textarea
+                placeholder={'День 1: 0\nДень 2: 1234567\n15 мая: 7654321'}
+                value={newDaySheets}
+                onChange={(e) => setNewDaySheets(e.target.value)}
+                rows={3}
+                className="font-mono text-sm"
+              />
+              <p className="text-xs text-muted-foreground">
+                Формат: Название: GID листа (каждая строка = отдельный день)
+              </p>
+            </div>
             <Button onClick={addEvent} className="w-full">
               <Icon name="Plus" size={16} className="mr-2" />
               Добавить событие
@@ -277,6 +294,13 @@ export default function ProgramSettings() {
                       id={`cover-${event.id}`}
                       placeholder="URL титульного изображения"
                     />
+                    <Textarea
+                      defaultValue={event.daySheets || ''}
+                      id={`days-${event.id}`}
+                      placeholder="День 1: 0&#10;День 2: 1234567"
+                      rows={3}
+                      className="font-mono text-sm"
+                    />
                     <div className="flex gap-2">
                       <Button
                         size="sm"
@@ -285,7 +309,8 @@ export default function ProgramSettings() {
                           const url = (document.getElementById(`url-${event.id}`) as HTMLInputElement).value;
                           const logo = (document.getElementById(`logo-${event.id}`) as HTMLInputElement).value;
                           const cover = (document.getElementById(`cover-${event.id}`) as HTMLInputElement).value;
-                          updateEvent(event.id, name, url, logo, cover);
+                          const days = (document.getElementById(`days-${event.id}`) as HTMLTextAreaElement).value;
+                          updateEvent(event.id, name, url, logo, cover, days);
                         }}
                       >
                         Сохранить
