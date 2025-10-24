@@ -494,7 +494,8 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         box-shadow: 0 8px 24px rgba(59,130,246,0.4);
         cursor: pointer;
         transition: transform 0.2s, box-shadow 0.2s;
-        z-index: 50;
+        z-index: 90;
+        pointer-events: auto;
       }
       .floating-now-btn:active {
         transform: scale(0.95);
