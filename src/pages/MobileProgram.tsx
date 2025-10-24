@@ -428,33 +428,37 @@ export default function MobileProgram() {
                   Очистить план
                 </button>
                 <div style={{ paddingTop: 14 }}>
-                  {data.sessions.filter(s => plan.has(s.id)).map(session => {
-                    const planList = data.sessions.filter(s => plan.has(s.id));
-                    const conflictingSession = planList.find(p => p.id !== session.id && overlap(p, session));
-                    const hasConflict = !!conflictingSession;
-                    
-                    if (hasConflict) {
-                      console.log('🔴 Конфликт в плане:', {
-                        session: `${session.start}-${session.end} ${hallName(session.hallId)}`,
-                        conflictWith: conflictingSession ? `${conflictingSession.start}-${conflictingSession.end} ${hallName(conflictingSession.hallId)}` : 'unknown'
-                      });
-                    }
+                  {data.sessions
+                    .filter(s => plan.has(s.id))
+                    .sort((a, b) => a.start.localeCompare(b.start))
+                    .map(session => {
+                      const planList = data.sessions.filter(s => plan.has(s.id)).sort((a, b) => a.start.localeCompare(b.start));
+                      
+                      const conflictingSession = planList.find(p => p.id !== session.id && overlap(p, session));
+                      
+                      const nextSession = planList.find(p => 
+                        p.start >= session.end && p.hallId !== session.hallId
+                      );
+                      
+                      const transitionSession = conflictingSession || nextSession;
+                      const hasConflict = !!conflictingSession;
+                      const hasTransition = !conflictingSession && !!nextSession;
 
-                    return (
-                      <MobileSessionCard
-                        key={session.id}
-                        session={session}
-                        inPlan={true}
-                        hallName={hallName(session.hallId)}
-                        duration={durationText(session)}
-                        hasConflict={hasConflict}
-                        conflictSession={conflictingSession}
-                        conflictHallName={conflictingSession ? hallName(conflictingSession.hallId) : undefined}
-                        onTogglePlan={() => removeFromPlan(session.id)}
-                        onClick={() => setSelectedSession(session)}
-                      />
-                    );
-                  })}
+                      return (
+                        <MobileSessionCard
+                          key={session.id}
+                          session={session}
+                          inPlan={true}
+                          hallName={hallName(session.hallId)}
+                          duration={durationText(session)}
+                          hasConflict={hasConflict || hasTransition}
+                          conflictSession={transitionSession}
+                          conflictHallName={transitionSession ? hallName(transitionSession.hallId) : undefined}
+                          onTogglePlan={() => removeFromPlan(session.id)}
+                          onClick={() => setSelectedSession(session)}
+                        />
+                      );
+                    })}
                 </div>
               </>
             )}
