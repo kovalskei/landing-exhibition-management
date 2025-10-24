@@ -240,12 +240,7 @@ export default function WebProgram() {
     }
   }, [sheetId]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      loadData(true); // Тихое обновление фоном каждые 5 минут
-    }, 300000);
-    return () => clearInterval(interval);
-  }, []);
+  // Автообновление отключено - пользователь может обновить через кнопку Refresh
 
   useEffect(() => {
     const saved = localStorage.getItem('web-program-plan');

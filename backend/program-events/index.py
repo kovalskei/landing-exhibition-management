@@ -41,7 +41,7 @@ def handler(event, context):
             if event_id:
                 cur = conn.cursor()
                 safe_id = event_id.replace("'", "''")
-                cur.execute(f"SELECT id, name, sheet_url, created_at FROM program_events WHERE id = '{safe_id}'")
+                cur.execute(f"SELECT id, name, sheet_url, logo_url, cover_url, created_at FROM program_events WHERE id = '{safe_id}'")
                 row = cur.fetchone()
                 cur.close()
                 
@@ -58,12 +58,14 @@ def handler(event, context):
                         'id': row[0],
                         'name': row[1],
                         'sheetUrl': row[2],
-                        'createdAt': row[3].isoformat() if row[3] else None
+                        'logoUrl': row[3],
+                        'coverUrl': row[4],
+                        'createdAt': row[5].isoformat() if row[5] else None
                     })
                 }
             else:
                 cur = conn.cursor()
-                cur.execute("SELECT id, name, sheet_url, created_at FROM program_events ORDER BY created_at DESC")
+                cur.execute("SELECT id, name, sheet_url, logo_url, cover_url, created_at FROM program_events ORDER BY created_at DESC")
                 rows = cur.fetchall()
                 cur.close()
                 
@@ -72,7 +74,9 @@ def handler(event, context):
                         'id': row[0],
                         'name': row[1],
                         'sheetUrl': row[2],
-                        'createdAt': row[3].isoformat() if row[3] else None
+                        'logoUrl': row[3],
+                        'coverUrl': row[4],
+                        'createdAt': row[5].isoformat() if row[5] else None
                     }
                     for row in rows
                 ]
@@ -87,6 +91,8 @@ def handler(event, context):
             event_id = body.get('id')
             name = body.get('name')
             sheet_url = body.get('sheetUrl')
+            logo_url = body.get('logoUrl', '')
+            cover_url = body.get('coverUrl', '')
             
             if not event_id or not name or not sheet_url:
                 return {
@@ -99,7 +105,9 @@ def handler(event, context):
             safe_id = event_id.replace("'", "''")
             safe_name = name.replace("'", "''")
             safe_url = sheet_url.replace("'", "''")
-            cur.execute(f"INSERT INTO program_events (id, name, sheet_url) VALUES ('{safe_id}', '{safe_name}', '{safe_url}')")
+            safe_logo = logo_url.replace("'", "''") if logo_url else ''
+            safe_cover = cover_url.replace("'", "''") if cover_url else ''
+            cur.execute(f"INSERT INTO program_events (id, name, sheet_url, logo_url, cover_url) VALUES ('{safe_id}', '{safe_name}', '{safe_url}', '{safe_logo}', '{safe_cover}')")
             cur.close()
             
             return {
@@ -113,6 +121,8 @@ def handler(event, context):
             event_id = body.get('id')
             name = body.get('name')
             sheet_url = body.get('sheetUrl')
+            logo_url = body.get('logoUrl', '')
+            cover_url = body.get('coverUrl', '')
             
             if not event_id or not name or not sheet_url:
                 return {
@@ -125,7 +135,9 @@ def handler(event, context):
             safe_id = event_id.replace("'", "''")
             safe_name = name.replace("'", "''")
             safe_url = sheet_url.replace("'", "''")
-            cur.execute(f"UPDATE program_events SET name = '{safe_name}', sheet_url = '{safe_url}' WHERE id = '{safe_id}'")
+            safe_logo = logo_url.replace("'", "''") if logo_url else ''
+            safe_cover = cover_url.replace("'", "''") if cover_url else ''
+            cur.execute(f"UPDATE program_events SET name = '{safe_name}', sheet_url = '{safe_url}', logo_url = '{safe_logo}', cover_url = '{safe_cover}' WHERE id = '{safe_id}'")
             cur.close()
             
             return {

@@ -10,6 +10,8 @@ interface ProgramEvent {
   id: string;
   name: string;
   sheetUrl: string;
+  logoUrl?: string;
+  coverUrl?: string;
   createdAt: string;
 }
 
@@ -20,6 +22,8 @@ export default function ProgramSettings() {
   const [events, setEvents] = useState<ProgramEvent[]>([]);
   const [newEventName, setNewEventName] = useState('');
   const [newEventUrl, setNewEventUrl] = useState('');
+  const [newLogoUrl, setNewLogoUrl] = useState('');
+  const [newCoverUrl, setNewCoverUrl] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -46,6 +50,8 @@ export default function ProgramSettings() {
       id: Date.now().toString(),
       name: newEventName.trim(),
       sheetUrl: newEventUrl.trim(),
+      logoUrl: newLogoUrl.trim() || undefined,
+      coverUrl: newCoverUrl.trim() || undefined,
       createdAt: new Date().toISOString()
     };
 
@@ -59,6 +65,8 @@ export default function ProgramSettings() {
       await loadEvents();
       setNewEventName('');
       setNewEventUrl('');
+      setNewLogoUrl('');
+      setNewCoverUrl('');
     } catch (err) {
       console.error('Failed to create event:', err);
       alert('Не удалось создать событие');
@@ -79,12 +87,12 @@ export default function ProgramSettings() {
     }
   };
 
-  const updateEvent = async (id: string, name: string, url: string) => {
+  const updateEvent = async (id: string, name: string, url: string, logoUrl?: string, coverUrl?: string) => {
     try {
       await fetch(API_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, name, sheetUrl: url })
+        body: JSON.stringify({ id, name, sheetUrl: url, logoUrl, coverUrl })
       });
       
       await loadEvents();
@@ -99,7 +107,7 @@ export default function ProgramSettings() {
     const baseUrl = window.location.origin;
     return `<!-- FULL-BLEED контейнер: во всю ширину экрана и на высоту окна -->
 <div style="position:relative; width:100vw; height:100vh; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw; overflow:hidden;">
-  <iframe src="${baseUrl}/program?eventId=${eventId}" style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <iframe src="${baseUrl}/program?eventId=${eventId}&view=mobile" style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
 </div>`;
   };
 
@@ -143,6 +151,16 @@ export default function ProgramSettings() {
               value={newEventUrl}
               onChange={(e) => setNewEventUrl(e.target.value)}
             />
+            <Input
+              placeholder="URL логотипа (опционально)"
+              value={newLogoUrl}
+              onChange={(e) => setNewLogoUrl(e.target.value)}
+            />
+            <Input
+              placeholder="URL титульного изображения (опционально)"
+              value={newCoverUrl}
+              onChange={(e) => setNewCoverUrl(e.target.value)}
+            />
             <Button onClick={addEvent} className="w-full">
               <Icon name="Plus" size={16} className="mr-2" />
               Добавить событие
@@ -170,13 +188,25 @@ export default function ProgramSettings() {
                       defaultValue={event.sheetUrl}
                       id={`url-${event.id}`}
                     />
+                    <Input
+                      defaultValue={event.logoUrl || ''}
+                      id={`logo-${event.id}`}
+                      placeholder="URL логотипа"
+                    />
+                    <Input
+                      defaultValue={event.coverUrl || ''}
+                      id={`cover-${event.id}`}
+                      placeholder="URL титульного изображения"
+                    />
                     <div className="flex gap-2">
                       <Button
                         size="sm"
                         onClick={() => {
                           const name = (document.getElementById(`name-${event.id}`) as HTMLInputElement).value;
                           const url = (document.getElementById(`url-${event.id}`) as HTMLInputElement).value;
-                          updateEvent(event.id, name, url);
+                          const logo = (document.getElementById(`logo-${event.id}`) as HTMLInputElement).value;
+                          const cover = (document.getElementById(`cover-${event.id}`) as HTMLInputElement).value;
+                          updateEvent(event.id, name, url, logo, cover);
                         }}
                       >
                         Сохранить

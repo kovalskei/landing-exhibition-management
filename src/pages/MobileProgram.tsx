@@ -100,12 +100,7 @@ export default function MobileProgram() {
     }
   }, [sheetId]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      loadData(true); // Тихое обновление фоном каждые 5 минут
-    }, 300000);
-    return () => clearInterval(interval);
-  }, []);
+  // Автообновление отключено - пользователь может обновить вручную через pull-to-refresh
 
   useEffect(() => {
     const saved = localStorage.getItem('mobile-program-plan');
