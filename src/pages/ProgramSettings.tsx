@@ -26,6 +26,8 @@ export default function ProgramSettings() {
   const [newCoverUrl, setNewCoverUrl] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   const loadEvents = async () => {
     try {
@@ -117,6 +119,41 @@ export default function ProgramSettings() {
     alert('Код iframe скопирован в буфер обмена!');
   };
 
+  const uploadImage = async (file: File, type: 'logo' | 'cover') => {
+    const setUploading = type === 'logo' ? setUploadingLogo : setUploadingCover;
+    const setUrl = type === 'logo' ? setNewLogoUrl : setNewCoverUrl;
+    
+    setUploading(true);
+    
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        
+        const response = await fetch('https://functions.poehali.dev/e6e8b38e-3cf4-4b94-8b02-f8380a12cb42', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64 })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          setUrl(result.url);
+        } else {
+          alert('Ошибка загрузки: ' + (result.error || 'Неизвестная ошибка'));
+        }
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert('Не удалось загрузить изображение');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -151,16 +188,58 @@ export default function ProgramSettings() {
               value={newEventUrl}
               onChange={(e) => setNewEventUrl(e.target.value)}
             />
-            <Input
-              placeholder="URL логотипа (опционально)"
-              value={newLogoUrl}
-              onChange={(e) => setNewLogoUrl(e.target.value)}
-            />
-            <Input
-              placeholder="URL титульного изображения (опционально)"
-              value={newCoverUrl}
-              onChange={(e) => setNewCoverUrl(e.target.value)}
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Логотип (опционально)</label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="URL логотипа"
+                  value={newLogoUrl}
+                  onChange={(e) => setNewLogoUrl(e.target.value)}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploadingLogo}
+                  onClick={() => document.getElementById('logo-upload')?.click()}
+                >
+                  {uploadingLogo ? 'Загрузка...' : <Icon name="Upload" size={16} />}
+                </Button>
+                <input
+                  id="logo-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0], 'logo')}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Титульное изображение (опционально)</label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="URL титульного изображения"
+                  value={newCoverUrl}
+                  onChange={(e) => setNewCoverUrl(e.target.value)}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploadingCover}
+                  onClick={() => document.getElementById('cover-upload')?.click()}
+                >
+                  {uploadingCover ? 'Загрузка...' : <Icon name="Upload" size={16} />}
+                </Button>
+                <input
+                  id="cover-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0], 'cover')}
+                />
+              </div>
+            </div>
             <Button onClick={addEvent} className="w-full">
               <Icon name="Plus" size={16} className="mr-2" />
               Добавить событие
