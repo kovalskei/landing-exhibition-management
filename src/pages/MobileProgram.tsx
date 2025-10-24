@@ -88,34 +88,13 @@ export default function MobileProgram() {
   };
 
   const scrollToTime = (time: string) => {
-    console.log('scrollToTime вызван для:', time);
-    if (!timelineRef.current) {
-      console.log('timelineRef.current не найден');
-      return;
-    }
-    
-    const slot = timelineRef.current.querySelector(`[data-time="${time}"]`) as HTMLElement;
-    console.log('Найден слот:', slot);
-    
+    const slot = document.querySelector(`[data-time="${time}"]`) as HTMLElement;
     if (slot) {
       isScrollingProgrammatically.current = true;
-      
-      const headerOffset = 140;
-      const elementPosition = slot.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - headerOffset;
-      
-      console.log('Скроллим к позиции:', offsetPosition);
-      
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-      
+      slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => {
         isScrollingProgrammatically.current = false;
       }, 1000);
-    } else {
-      console.log('Слот не найден для времени:', time);
     }
   };
 
@@ -163,9 +142,8 @@ export default function MobileProgram() {
 
 
   const handleTimeChipClick = (time: string) => {
-    console.log('Клик по чипу:', time);
     setSelectedTime(time);
-    setTimeout(() => scrollToTime(time), 100);
+    scrollToTime(time);
   };
 
 
@@ -205,16 +183,11 @@ export default function MobileProgram() {
   const overlap = (a: Session, b: Session) => a.start < b.end && b.start < a.end;
 
   const jumpToNow = () => {
-    console.log('jumpToNow вызван');
-    if (!data) {
-      console.log('data не найдена');
-      return;
-    }
+    if (!data) return;
     const times = [...new Set(data.sessions.map(s => s.start))].sort();
     const nearest = nearestSlot(times, data.now);
-    console.log('Ближайшее время:', nearest, 'Текущее:', data.now);
     setSelectedTime(nearest);
-    setTimeout(() => scrollToTime(nearest), 100);
+    scrollToTime(nearest);
   };
 
   const handleExportPdf = async () => {
