@@ -478,7 +478,11 @@ export default function MobileProgram() {
 
   if (!data) return null;
 
-  const times = [...new Set(data.sessions.map(s => s.start))].sort();
+  const times = [...new Set(data.sessions.map(s => s.start))].sort((a, b) => {
+    const [ha, ma] = a.split(':').map(Number);
+    const [hb, mb] = b.split(':').map(Number);
+    return (ha * 60 + ma) - (hb * 60 + mb);
+  });
   const filtered = matchQuery(data.sessions);
 
   const cssVars = theme === 'dark' 
