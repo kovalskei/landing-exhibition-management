@@ -89,61 +89,49 @@ export default function MobileProgram() {
 
   const scrollToTime = (time: string) => {
     const slot = document.querySelector(`[data-time="${time}"]`) as HTMLElement;
-    console.log('scrollToTime called for:', time, 'found slot:', !!slot);
     if (slot) {
       isScrollingProgrammatically.current = true;
-      console.log('Blocking observer, scrolling to time:', time);
       slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => {
         isScrollingProgrammatically.current = false;
-        console.log('Unblocked observer');
-      }, 500);
+      }, 800);
     }
   };
 
   useEffect(() => {
-    if (!timelineRef.current || !data || tab !== 'now') return;
+    if (!data || tab !== 'now') return;
 
     let timeoutId: NodeJS.Timeout;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        console.log('Observer triggered, entries:', entries.length);
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          console.log('After timeout, isScrolling:', isScrollingProgrammatically.current);
-          if (isScrollingProgrammatically.current) return;
-          
-          const allSlots = Array.from(timelineRef.current?.querySelectorAll('[data-time]') || []);
-          const visibleSlots = allSlots.filter(slot => {
+    const handleScroll = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        if (isScrollingProgrammatically.current) return;
+        
+        const allSlots = Array.from(document.querySelectorAll('[data-time]'));
+        const visibleSlots = allSlots
+          .map(slot => {
             const rect = slot.getBoundingClientRect();
-            return rect.top >= 100 && rect.top <= 300;
-          });
-          
-          console.log('Visible slots:', visibleSlots.length);
-          if (visibleSlots.length > 0) {
-            const closestSlot = visibleSlots[0] as HTMLElement;
-            const time = closestSlot.getAttribute('data-time');
-            console.log('Detected time:', time, 'current:', selectedTime);
-            if (time && time !== selectedTime) {
-              console.log('Setting time to:', time);
-              setSelectedTime(time);
-            }
+            return { slot, top: rect.top };
+          })
+          .filter(item => item.top >= 100 && item.top <= 400)
+          .sort((a, b) => a.top - b.top);
+        
+        if (visibleSlots.length > 0) {
+          const time = visibleSlots[0].slot.getAttribute('data-time');
+          if (time && time !== selectedTime) {
+            setSelectedTime(time);
           }
-        }, 200);
-      },
-      {
-        root: null,
-        threshold: [0, 0.5, 1]
-      }
-    );
+        }
+      }, 150);
+    };
 
-    const slots = timelineRef.current.querySelectorAll('[data-time]');
-    slots.forEach(slot => observer.observe(slot));
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
 
     return () => {
       clearTimeout(timeoutId);
-      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [data, selectedTime, tab]);
 
