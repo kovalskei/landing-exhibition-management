@@ -91,7 +91,7 @@ export default function MobileProgram() {
     
     const slot = timelineRef.current.querySelector(`[data-time="${time}"]`) as HTMLElement;
     if (slot) {
-      const offset = 80;
+      const offset = 120;
       const elementPosition = slot.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - offset;
       
@@ -101,6 +101,29 @@ export default function MobileProgram() {
       });
     }
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!timelineRef.current || !data || tab !== 'now') return;
+
+      const times = [...new Set(data.sessions.map(s => s.start))].sort();
+      const slots = Array.from(timelineRef.current.querySelectorAll('[data-time]'));
+      
+      for (const slot of slots) {
+        const rect = slot.getBoundingClientRect();
+        if (rect.top >= 100 && rect.top <= 300) {
+          const time = slot.getAttribute('data-time');
+          if (time && time !== selectedTime) {
+            setSelectedTime(time);
+          }
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [data, selectedTime, tab]);
 
 
 
@@ -354,6 +377,13 @@ export default function MobileProgram() {
           </>
         )}
       </div>
+
+      {tab === 'now' && (
+        <button onClick={jumpToNow} className="floating-now-btn">
+          <Icon name="Clock" size={20} />
+          <span>Сейчас</span>
+        </button>
+      )}
 
       {selectedSession && (
         <MobileSessionModal

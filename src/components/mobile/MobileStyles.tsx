@@ -386,6 +386,29 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         margin: 14px;
         cursor: pointer;
       }
+      .floating-now-btn {
+        position: fixed;
+        bottom: 24px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--accent);
+        color: #fff;
+        border: 0;
+        padding: 14px 20px;
+        border-radius: 24px;
+        font-weight: 700;
+        font-size: 15px;
+        box-shadow: 0 8px 24px rgba(59,130,246,0.4);
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        z-index: 50;
+      }
+      .floating-now-btn:active {
+        transform: scale(0.95);
+        box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+      }
     `}</style>
   );
 }
