@@ -121,7 +121,8 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         top: 0;
         z-index: 100;
         background: var(--bg);
-        padding: 12px 0;
+        padding: 12px 14px;
+        margin: 0 -14px;
         border-bottom: 1px solid var(--line);
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         transform: translateZ(0);

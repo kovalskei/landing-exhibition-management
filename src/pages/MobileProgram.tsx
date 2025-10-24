@@ -280,18 +280,6 @@ export default function MobileProgram() {
         )}
       </div>
 
-      {tab === 'now' && (
-        <div className="sticky-time-chips">
-          <div style={{ padding: '0 14px' }}>
-            <MobileTimeChips
-              times={times}
-              selectedTime={selectedTime}
-              onTimeSelect={handleTimeChipClick}
-            />
-          </div>
-        </div>
-      )}
-
       <div style={{ padding: '0 14px' }}>
         {tab === 'now' && (
           <>
@@ -300,6 +288,13 @@ export default function MobileProgram() {
               className="timeline" 
               onScroll={handleTimelineScroll}
             >
+              <div className="sticky-time-chips">
+                <MobileTimeChips
+                  times={times}
+                  selectedTime={selectedTime}
+                  onTimeSelect={handleTimeChipClick}
+                />
+              </div>
               {times.map(slot => {
                 const atSlot = filtered.filter(s => s.start === slot);
                 const planList = data.sessions.filter(s => plan.has(s.id));
