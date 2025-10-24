@@ -13,6 +13,8 @@ interface ProgramHeaderProps {
   showPlan: boolean;
   theme: 'light' | 'dark';
   viewMode: 'table' | 'cards';
+  daySheets: { name: string; gid: string }[];
+  selectedDay: string;
   onRefresh: () => void;
   onDownloadPdf: () => void;
   onToggleTagDropdown: () => void;
@@ -20,6 +22,7 @@ interface ProgramHeaderProps {
   onTogglePlan: () => void;
   onToggleTheme: () => void;
   onViewModeChange: (mode: 'table' | 'cards') => void;
+  onDayChange: (dayGid: string) => void;
 }
 
 export default function ProgramHeader({
@@ -33,13 +36,16 @@ export default function ProgramHeader({
   showPlan,
   theme,
   viewMode,
+  daySheets,
+  selectedDay,
   onRefresh,
   onDownloadPdf,
   onToggleTagDropdown,
   onTagsChange,
   onTogglePlan,
   onToggleTheme,
-  onViewModeChange
+  onViewModeChange,
+  onDayChange
 }: ProgramHeaderProps) {
   const tagCanonMap = getTagCanonMap();
   const allCanons = Object.keys(tagCanonMap).sort();
@@ -89,6 +95,23 @@ export default function ProgramHeader({
         </div>
 
         <div className="flex items-center gap-1.5 lg:gap-2 flex-wrap">
+          {daySheets.length > 1 && (
+            <>
+              <div className="flex items-center gap-1.5 mr-2">
+                {daySheets.map((day) => (
+                  <Button
+                    key={day.gid}
+                    onClick={() => onDayChange(day.gid)}
+                    size="sm"
+                    className={selectedDay === day.gid ? 'view-mode-button-active' : 'view-mode-button'}
+                  >
+                    {day.name}
+                  </Button>
+                ))}
+              </div>
+              <div className="w-px h-6 bg-[var(--line)] hidden lg:block"></div>
+            </>
+          )}
           <div className="flex items-center gap-1.5 mr-2">
             <Button
               onClick={() => onViewModeChange('cards')}

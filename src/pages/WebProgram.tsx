@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { fetchProgramData, ProgramData, Session } from '@/utils/googleSheetsParser';
+import { fetchProgramData, fetchProgramDataByGid, ProgramData, Session, getDaySheets } from '@/utils/googleSheetsParser';
 import { Button } from '@/components/ui/button';
 import ProgramHeader from '@/components/program/ProgramHeader';
 import ProgramGrid from '@/components/program/ProgramGrid';
@@ -25,6 +25,8 @@ export default function WebProgram() {
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [generatingPlanPdf, setGeneratingPlanPdf] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('cards');
+  const [selectedDay, setSelectedDay] = useState<string>('0');
+  const [daySheets, setDaySheets] = useState<{ name: string; gid: string }[]>([]);
 
   const [eventLogoUrl, setEventLogoUrl] = useState<string>('');
   const [eventCoverUrl, setEventCoverUrl] = useState<string>('');
@@ -54,13 +56,15 @@ export default function WebProgram() {
     loadSheetId();
   }, [eventIdFromUrl]);
 
-  const loadData = async (silent = false) => {
+  const loadData = async (silent = false, dayGid?: string) => {
     try {
       if (!silent) {
         setLoading(true);
         setError(null);
       }
-      const programData = await fetchProgramData(sheetId || undefined);
+      
+      const gidToLoad = dayGid || selectedDay;
+      const programData = await fetchProgramDataByGid(sheetId || undefined, gidToLoad);
       setData(programData);
       
       // При фоновой загрузке сохраняем фильтры
@@ -82,10 +86,15 @@ export default function WebProgram() {
   const handleRefresh = async () => {
     try {
       setRefreshing(true);
-      await loadData();
+      await loadData(false, selectedDay);
     } finally {
       setRefreshing(false);
     }
+  };
+
+  const handleDayChange = async (dayGid: string) => {
+    setSelectedDay(dayGid);
+    await loadData(false, dayGid);
   };
 
   const toMin = (hhmm: string): number => {
@@ -241,10 +250,18 @@ export default function WebProgram() {
   };
 
   useEffect(() => {
+    const sheets = getDaySheets();
+    setDaySheets(sheets);
+    if (sheets.length > 0) {
+      setSelectedDay(sheets[0].gid);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!eventIdFromUrl || sheetId) {
       loadData();
     }
-  }, [sheetId]);
+  }, [sheetId, selectedDay]);
 
   // Автообновление отключено - пользователь может обновить через кнопку Refresh
 
@@ -348,6 +365,8 @@ export default function WebProgram() {
           showPlan={showPlan}
           theme={theme}
           viewMode={viewMode}
+          daySheets={daySheets}
+          selectedDay={selectedDay}
           onRefresh={handleRefresh}
           onDownloadPdf={downloadProgramPdf}
           onToggleTagDropdown={() => setTagDropdownOpen(!tagDropdownOpen)}
@@ -355,6 +374,7 @@ export default function WebProgram() {
           onTogglePlan={() => setShowPlan(!showPlan)}
           onToggleTheme={toggleTheme}
           onViewModeChange={setViewMode}
+          onDayChange={handleDayChange}
         />
 
         <div className={`grid gap-6 ${showPlan ? 'xl:grid-cols-[1fr_380px] lg:grid-cols-[1fr_320px] grid-cols-1' : 'grid-cols-1'}`}>

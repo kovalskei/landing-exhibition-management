@@ -1,6 +1,10 @@
 const SHEET_ID = '1-W6lgnoQKfKhbeUgRBjnUVv7yf5hahdimJc1psEMpo0';
 const META_SHEET_GID = '1494690392';
 
+const DAY_SHEETS: { name: string; gid: string }[] = [
+  { name: 'День 1', gid: '0' },
+];
+
 export interface Hall {
   id: string;
   name: string;
@@ -548,4 +552,246 @@ export async function fetchProgramData(customSheetId?: string): Promise<ProgramD
 
 export function getTagCanonMap(): Record<string, string> {
   return TAG_CANON_MAP;
+}
+
+export function getDaySheets(): { name: string; gid: string }[] {
+  return DAY_SHEETS;
+}
+
+export async function fetchProgramDataByGid(customSheetId: string | undefined, gid: string): Promise<ProgramData> {
+  try {
+    const sheetId = customSheetId || SHEET_ID;
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+
+    const response = await fetch(csvUrl, {
+      method: 'GET',
+      headers: {
+        Accept: 'text/csv'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Ошибка загрузки листа: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+    
+    const metaFromSheet: Record<string, string> = {};
+    
+    if (META_SHEET_GID) {
+      try {
+        const metaUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${META_SHEET_GID}`;
+        const metaResponse = await fetch(metaUrl, {
+          method: 'GET',
+          headers: { Accept: 'text/csv' }
+        });
+        
+        if (metaResponse.ok) {
+          const metaText = await metaResponse.text();
+          
+          const metaRows: string[][] = [];
+          let metaCurrentRow: string[] = [];
+          let metaCurrentCell = '';
+          let metaInQuotes = false;
+          
+          for (let i = 0; i < metaText.length; i++) {
+            const ch = metaText[i];
+            
+            if (ch === '"') {
+              if (metaInQuotes && metaText[i + 1] === '"') {
+                metaCurrentCell += '"';
+                i++;
+              } else {
+                metaInQuotes = !metaInQuotes;
+              }
+            } else if (ch === ',' && !metaInQuotes) {
+              metaCurrentRow.push(metaCurrentCell);
+              metaCurrentCell = '';
+            } else if ((ch === '\n' || ch === '\r') && !metaInQuotes) {
+              if (ch === '\r' && metaText[i + 1] === '\n') {
+                i++;
+              }
+              metaCurrentRow.push(metaCurrentCell);
+              if (metaCurrentRow.some(c => c.trim() !== '')) {
+                metaRows.push(metaCurrentRow);
+              }
+              metaCurrentRow = [];
+              metaCurrentCell = '';
+            } else {
+              metaCurrentCell += ch;
+            }
+          }
+          
+          if (metaCurrentCell || metaCurrentRow.length) {
+            metaCurrentRow.push(metaCurrentCell);
+            if (metaCurrentRow.some(c => c.trim() !== '')) {
+              metaRows.push(metaCurrentRow);
+            }
+          }
+          
+          for (const row of metaRows) {
+            if (row.length >= 2) {
+              const key = String(row[0] || '').trim();
+              const val = String(row[1] || '').trim();
+              if (key && val) {
+                metaFromSheet[key] = val;
+              }
+            }
+          }
+        }
+      } catch (metaErr) {
+        console.warn('Meta sheet not loaded:', metaErr);
+      }
+    }
+
+    const rows: string[][] = [];
+    let currentRow: string[] = [];
+    let currentCell = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < csvText.length; i++) {
+      const ch = csvText[i];
+      
+      if (ch === '"') {
+        if (inQuotes && csvText[i + 1] === '"') {
+          currentCell += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (ch === ',' && !inQuotes) {
+        currentRow.push(currentCell);
+        currentCell = '';
+      } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
+        if (ch === '\r' && csvText[i + 1] === '\n') {
+          i++;
+        }
+        currentRow.push(currentCell);
+        if (currentRow.some(c => c.trim() !== '')) {
+          rows.push(currentRow);
+        }
+        currentRow = [];
+        currentCell = '';
+      } else {
+        currentCell += ch;
+      }
+    }
+    
+    if (currentCell || currentRow.length) {
+      currentRow.push(currentCell);
+      if (currentRow.some(c => c.trim() !== '')) {
+        rows.push(currentRow);
+      }
+    }
+
+    if (rows.length < 2) {
+      throw new Error('Недостаточно данных в таблице');
+    }
+
+    const header = rows[0];
+    const dataRows = rows.slice(1);
+
+    const halls: Hall[] = [];
+    const hallMap: Map<number, string> = new Map();
+
+    for (let col = 2; col < header.length; col++) {
+      if (EXCLUDED_HEADER_COLS[col]) continue;
+      const hallName = String(header[col] || '').trim();
+      if (!hallName) continue;
+      
+      let hallObj = halls.find(h => h.name === hallName);
+      if (!hallObj) {
+        hallObj = { id: `hall-${halls.length}`, name: hallName, bullets: [] };
+        halls.push(hallObj);
+      }
+      hallMap.set(col, hallObj.id);
+    }
+
+    const sessions: Session[] = [];
+
+    for (const row of dataRows) {
+      const start = normalizeTime(row[0] || '');
+      const end = normalizeTime(row[1] || '');
+      if (!start) continue;
+
+      for (let col = 2; col < row.length; col++) {
+        if (EXCLUDED_HEADER_COLS[col]) continue;
+        const cellContent = (row[col] || '').trim();
+        if (!cellContent) continue;
+        const hallId = hallMap.get(col);
+        if (!hallId) continue;
+
+        const hallObj = halls.find(h => h.id === hallId);
+        if (!hallObj) continue;
+
+        const existingSession = sessions.find(
+          s => s.hallId === hallId && s.start === start
+        );
+
+        if (existingSession) {
+          const ex = existingSession;
+          const parsed = parseTalk(cellContent);
+          
+          ex.speaker = smartMergeText(ex.speaker, parsed.speaker);
+          ex.role = smartMergeText(ex.role, parsed.role);
+          ex.title = smartMergeText(ex.title, parsed.title);
+          ex.desc = smartMergeText(ex.desc, parsed.abstract);
+          
+          const oldCanons = new Set(ex.tagsCanon || []);
+          parsed.tagsCanon.forEach(c => oldCanons.add(c));
+          ex.tagsCanon = Array.from(oldCanons);
+          ex.tags = ex.tagsCanon.map(c => TAG_CANON_MAP[c] || prettyTagFromCanon(c));
+        } else {
+          const parsed = parseTalk(cellContent);
+          parsed.tagsCanon.forEach(c => {
+            if (!TAG_CANON_MAP[c]) {
+              TAG_CANON_MAP[c] = prettyTagFromCanon(c);
+            }
+          });
+
+          sessions.push({
+            id: `${hallId}-${start}`,
+            hallId,
+            hall: hallObj.name,
+            start,
+            end: end || start,
+            title: parsed.title,
+            speaker: parsed.speaker,
+            role: parsed.role,
+            desc: parsed.abstract,
+            tags: parsed.tagsCanon.map(c => TAG_CANON_MAP[c] || prettyTagFromCanon(c)),
+            tagsCanon: parsed.tagsCanon
+          });
+        }
+      }
+    }
+
+    const now = new Date();
+    const nowStr = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+
+    const metaTitle = metaFromSheet['Название мероприятия'] || metaFromSheet['title'] || 'Программа мероприятия';
+    const metaSubtitle = metaFromSheet['Подзаголовок'] || metaFromSheet['subtitle'] || '';
+    const metaDate = metaFromSheet['Дата проведения'] || metaFromSheet['date'] || '';
+    const metaVenue = metaFromSheet['Место проведения'] || metaFromSheet['venue'] || '';
+    const metaLogoId = metaFromSheet['ID логотипа'] || metaFromSheet['logoId'] || '';
+    const metaCoverId = metaFromSheet['ID обложки'] || metaFromSheet['coverId'] || '';
+
+    return {
+      title: metaTitle,
+      halls,
+      sessions,
+      now: nowStr,
+      meta: {
+        title: metaTitle,
+        subtitle: metaSubtitle,
+        date: metaDate,
+        venue: metaVenue,
+        logoId: metaLogoId,
+        coverId: metaCoverId
+      }
+    };
+  } catch (error) {
+    console.error('Ошибка загрузки данных:', error);
+    throw error;
+  }
 }
