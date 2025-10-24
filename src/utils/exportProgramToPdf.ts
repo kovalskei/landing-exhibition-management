@@ -355,16 +355,8 @@ export async function exportPlanToPdf(data: ProgramData, planSessionIds: Set<str
       });
     }
 
-    if (idx < planSessions.length - 1) {
-      y += 5;
-      checkPageBreak(5);
-      doc.setDrawColor(200);
-      doc.line(margin, y, pageWidth - margin, y);
-      y += 10;
-    } else {
-      y += 8;
-    }
-  });
+    y += 8;
+  }
 
   doc.save('my-plan.pdf');
 }
