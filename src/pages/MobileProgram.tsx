@@ -26,6 +26,7 @@ export default function MobileProgram() {
   const [refreshing, setRefreshing] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const contentScrollRef = useRef<HTMLDivElement>(null);
+  const isScrollingProgrammatically = useRef(false);
 
   const loadData = async (silent = false) => {
     try {
@@ -97,6 +98,8 @@ export default function MobileProgram() {
     console.log('Найден слот:', slot);
     
     if (slot) {
+      isScrollingProgrammatically.current = true;
+      
       const headerOffset = 140;
       const elementPosition = slot.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.scrollY - headerOffset;
@@ -107,6 +110,10 @@ export default function MobileProgram() {
         top: offsetPosition,
         behavior: 'smooth'
       });
+      
+      setTimeout(() => {
+        isScrollingProgrammatically.current = false;
+      }, 1000);
     } else {
       console.log('Слот не найден для времени:', time);
     }
@@ -119,8 +126,12 @@ export default function MobileProgram() {
 
     const observer = new IntersectionObserver(
       (entries) => {
+        if (isScrollingProgrammatically.current) return;
+        
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
+          if (isScrollingProgrammatically.current) return;
+          
           const visibleEntries = entries.filter(e => e.isIntersecting && e.intersectionRatio > 0.3);
           if (visibleEntries.length > 0) {
             const topEntry = visibleEntries.reduce((top, curr) => 
