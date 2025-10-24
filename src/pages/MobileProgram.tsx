@@ -90,18 +90,24 @@ export default function MobileProgram() {
   };
 
   const scrollToTime = (time: string) => {
+    console.log('🟢 scrollToTime вызван для:', time);
     const slot = document.querySelector(`[data-time="${time}"]`) as HTMLElement;
+    console.log('🟡 Найден элемент:', slot);
+    
     if (slot) {
       isScrollingProgrammatically.current = true;
       
       const yOffset = -200;
       const y = slot.getBoundingClientRect().top + window.pageYOffset + yOffset;
       
+      console.log('🟠 Прокручиваю к позиции:', y);
       window.scrollTo({ top: y, behavior: 'smooth' });
       
       setTimeout(() => {
         isScrollingProgrammatically.current = false;
       }, 1000);
+    } else {
+      console.error('❌ Элемент с data-time не найден:', time);
     }
   };
 
@@ -163,6 +169,7 @@ export default function MobileProgram() {
 
 
   const handleTimeChipClick = (time: string) => {
+    console.log('🔵 Клик по чипу времени:', time);
     setSelectedTime(time);
     scrollToTime(time);
   };
