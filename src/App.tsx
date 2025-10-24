@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from "react-r
 import Index from "./pages/Index";
 import MobileProgram from "./pages/MobileProgram";
 import WebProgram from "./pages/WebProgram";
+import ProgramSettings from "./pages/ProgramSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/program" element={<ProgramRouter />} />
+          <Route path="/program/settings" element={<ProgramSettings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
