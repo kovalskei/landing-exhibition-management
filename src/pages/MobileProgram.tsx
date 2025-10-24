@@ -75,7 +75,7 @@ export default function MobileProgram() {
       loadData(true); // Тихое обновление фоном
     }, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [sheetIdFromUrl]);
 
   useEffect(() => {
     const saved = localStorage.getItem('mobile-program-plan');

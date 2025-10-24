@@ -212,7 +212,7 @@ export default function WebProgram() {
     }, 30000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [sheetIdFromUrl]);
 
   useEffect(() => {
     const saved = localStorage.getItem('web-program-plan');
