@@ -364,7 +364,8 @@ export default function MobileProgram() {
                 </div>
                 {atSlot.map(session => {
                   const inPlan = plan.has(session.id);
-                  const hasConflict = inPlan ? false : planList.some(p => overlap(p, session));
+                  const conflictingSession = planList.find(p => overlap(p, session));
+                  const hasConflict = inPlan ? false : !!conflictingSession;
 
                   return (
                     <MobileSessionCard
@@ -374,6 +375,8 @@ export default function MobileProgram() {
                       hallName={hallName(session.hallId)}
                       duration={durationText(session)}
                       hasConflict={hasConflict}
+                      conflictSession={conflictingSession}
+                      conflictHallName={conflictingSession ? hallName(conflictingSession.hallId) : undefined}
                       onTogglePlan={() => inPlan ? removeFromPlan(session.id) : addToPlan(session.id)}
                       onClick={() => setSelectedSession(session)}
                     />
@@ -390,7 +393,8 @@ export default function MobileProgram() {
             {filtered.map(session => {
               const inPlan = plan.has(session.id);
               const planList = data.sessions.filter(s => plan.has(s.id));
-              const hasConflict = inPlan ? false : planList.some(p => overlap(p, session));
+              const conflictingSession = planList.find(p => overlap(p, session));
+              const hasConflict = inPlan ? false : !!conflictingSession;
 
               return (
                 <MobileSessionCard
@@ -400,6 +404,8 @@ export default function MobileProgram() {
                   hallName={hallName(session.hallId)}
                   duration={durationText(session)}
                   hasConflict={hasConflict}
+                  conflictSession={conflictingSession}
+                  conflictHallName={conflictingSession ? hallName(conflictingSession.hallId) : undefined}
                   onTogglePlan={() => inPlan ? removeFromPlan(session.id) : addToPlan(session.id)}
                   onClick={() => setSelectedSession(session)}
                 />
@@ -424,7 +430,8 @@ export default function MobileProgram() {
                 <div style={{ paddingTop: 14 }}>
                   {data.sessions.filter(s => plan.has(s.id)).map(session => {
                     const planList = data.sessions.filter(s => plan.has(s.id));
-                    const hasConflict = planList.some(p => p.id !== session.id && overlap(p, session));
+                    const conflictingSession = planList.find(p => p.id !== session.id && overlap(p, session));
+                    const hasConflict = !!conflictingSession;
 
                     return (
                       <MobileSessionCard
@@ -434,6 +441,8 @@ export default function MobileProgram() {
                         hallName={hallName(session.hallId)}
                         duration={durationText(session)}
                         hasConflict={hasConflict}
+                        conflictSession={conflictingSession}
+                        conflictHallName={conflictingSession ? hallName(conflictingSession.hallId) : undefined}
                         onTogglePlan={() => removeFromPlan(session.id)}
                         onClick={() => setSelectedSession(session)}
                       />

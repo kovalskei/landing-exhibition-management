@@ -7,6 +7,8 @@ interface MobileSessionCardProps {
   hallName: string;
   duration: string;
   hasConflict: boolean;
+  conflictSession?: Session;
+  conflictHallName?: string;
   onTogglePlan: () => void;
   onClick: () => void;
 }
@@ -17,6 +19,8 @@ export default function MobileSessionCard({
   hallName,
   duration,
   hasConflict,
+  conflictSession,
+  conflictHallName,
   onTogglePlan,
   onClick
 }: MobileSessionCardProps) {
@@ -41,10 +45,21 @@ export default function MobileSessionCard({
       {session.role && <div className="ses-role">{session.role}</div>}
       {session.title && <div className="ses-title">{session.title}</div>}
 
-      {hasConflict && (
+      {hasConflict && conflictSession && conflictHallName && (
         <div className="conflict">
           <Icon name="AlertCircle" size={14} />
-          <span>Накладка с планом</span>
+          <span>
+            {inPlan 
+              ? `Переход: ${hallName} → ${conflictHallName} к ${conflictSession.start}`
+              : 'Пересечение залов по времени'
+            }
+          </span>
+        </div>
+      )}
+      {hasConflict && (!conflictSession || !conflictHallName) && (
+        <div className="conflict">
+          <Icon name="AlertCircle" size={14} />
+          <span>Пересечение залов по времени</span>
         </div>
       )}
     </div>
