@@ -11,13 +11,13 @@ export default function MobileTabs({ activeTab, planCount, onTabChange }: Mobile
         className={`m-tab ${activeTab === 'now' ? 'active' : ''}`}
         onClick={() => onTabChange('now')}
       >
-        Сейчас
+        По времени
       </button>
       <button
         className={`m-tab ${activeTab === 'all' ? 'active' : ''}`}
         onClick={() => onTabChange('all')}
       >
-        Программа
+        По залам
       </button>
       <button
         className={`m-tab ${activeTab === 'plan' ? 'active' : ''}`}
