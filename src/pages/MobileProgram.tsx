@@ -111,7 +111,7 @@ export default function MobileProgram() {
         timeoutId = setTimeout(() => {
           if (isScrollingProgrammatically.current) return;
           
-          const visibleEntries = entries.filter(e => e.isIntersecting);
+          const visibleEntries = entries.filter(e => e.isIntersecting && e.intersectionRatio > 0.2);
           if (visibleEntries.length > 0) {
             const topEntry = visibleEntries.reduce((top, curr) => 
               curr.boundingClientRect.top < top.boundingClientRect.top ? curr : top
@@ -121,12 +121,12 @@ export default function MobileProgram() {
               setSelectedTime(time);
             }
           }
-        }, 100);
+        }, 150);
       },
       {
         root: null,
-        rootMargin: '-140px 0px -50% 0px',
-        threshold: [0, 0.5, 1]
+        rootMargin: '-130px 0px -55% 0px',
+        threshold: [0, 0.2, 0.5, 0.8, 1]
       }
     );
 
