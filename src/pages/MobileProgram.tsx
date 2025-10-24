@@ -97,11 +97,16 @@ export default function MobileProgram() {
     if (slot) {
       isScrollingProgrammatically.current = true;
       
-      const yOffset = -200;
-      const y = slot.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      
-      console.log('🟠 Прокручиваю к позиции:', y);
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      const appContainer = document.querySelector('.mobile-program-app') as HTMLElement;
+      if (appContainer) {
+        const yOffset = 200;
+        const containerTop = appContainer.scrollTop;
+        const slotTop = slot.offsetTop;
+        const scrollPosition = slotTop - yOffset;
+        
+        console.log('🟠 Прокручиваю контейнер к позиции:', scrollPosition);
+        appContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+      }
       
       setTimeout(() => {
         isScrollingProgrammatically.current = false;
