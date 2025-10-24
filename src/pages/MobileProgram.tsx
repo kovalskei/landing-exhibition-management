@@ -103,26 +103,40 @@ export default function MobileProgram() {
   };
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (!timelineRef.current || !data || tab !== 'now') return;
+    if (!timelineRef.current || !data || tab !== 'now') return;
 
-      const times = [...new Set(data.sessions.map(s => s.start))].sort();
-      const slots = Array.from(timelineRef.current.querySelectorAll('[data-time]'));
-      
-      for (const slot of slots) {
-        const rect = slot.getBoundingClientRect();
-        if (rect.top >= 100 && rect.top <= 300) {
-          const time = slot.getAttribute('data-time');
-          if (time && time !== selectedTime) {
-            setSelectedTime(time);
+    let timeoutId: NodeJS.Timeout;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          const visibleEntries = entries.filter(e => e.isIntersecting && e.intersectionRatio > 0.3);
+          if (visibleEntries.length > 0) {
+            const topEntry = visibleEntries.reduce((top, curr) => 
+              curr.boundingClientRect.top < top.boundingClientRect.top ? curr : top
+            );
+            const time = topEntry.target.getAttribute('data-time');
+            if (time && time !== selectedTime) {
+              setSelectedTime(time);
+            }
           }
-          break;
-        }
+        }, 150);
+      },
+      {
+        root: null,
+        rootMargin: '-120px 0px -60% 0px',
+        threshold: [0, 0.3, 0.5, 0.7, 1]
       }
-    };
+    );
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const slots = timelineRef.current.querySelectorAll('[data-time]');
+    slots.forEach(slot => observer.observe(slot));
+
+    return () => {
+      clearTimeout(timeoutId);
+      observer.disconnect();
+    };
   }, [data, selectedTime, tab]);
 
 
@@ -173,7 +187,7 @@ export default function MobileProgram() {
     const times = [...new Set(data.sessions.map(s => s.start))].sort();
     const nearest = nearestSlot(times, data.now);
     setSelectedTime(nearest);
-    scrollToTime(nearest);
+    setTimeout(() => scrollToTime(nearest), 100);
   };
 
   const handleExportPdf = async () => {
