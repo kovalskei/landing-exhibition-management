@@ -298,13 +298,25 @@ export async function exportPlanToPdf(data: ProgramData, planSessionIds: Set<str
     y += 7;
 
     if (session.speaker) {
+      const hasPhoto = session.photo && session.photo.startsWith('http');
+      const photoSize = 20;
+      const textStartX = hasPhoto ? margin + photoSize + 5 : margin;
+      const availableWidth = hasPhoto ? contentWidth - photoSize - 5 : contentWidth;
+
+      if (hasPhoto) {
+        const photoBase64 = await loadImageAsBase64(session.photo!);
+        if (photoBase64) {
+          doc.addImage(photoBase64, 'JPEG', margin, y - 5, photoSize, photoSize);
+        }
+      }
+
       checkPageBreak(10);
       doc.setFontSize(SPEAKER_SIZE);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(BODY_COLOR);
-      const speakerLines = doc.splitTextToSize(session.speaker, contentWidth);
-      doc.text(speakerLines, margin, y);
-      y += speakerLines.length * 5;
+      const speakerLines = doc.splitTextToSize(session.speaker, availableWidth);
+      doc.text(speakerLines, textStartX, y);
+      y += Math.max(speakerLines.length * 6, hasPhoto ? photoSize : 0);
     }
 
     if (session.role) {
