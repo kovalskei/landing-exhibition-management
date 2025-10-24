@@ -135,6 +135,7 @@ export default function MobileProgram() {
       }, 150);
     };
 
+    document.addEventListener('scroll', handleScroll, { passive: true, capture: true });
     window.addEventListener('scroll', handleScroll, { passive: true });
     console.log('Initial call');
     handleScroll();
@@ -142,6 +143,7 @@ export default function MobileProgram() {
     return () => {
       console.log('Cleanup listener');
       clearTimeout(timeoutId);
+      document.removeEventListener('scroll', handleScroll, true);
       window.removeEventListener('scroll', handleScroll);
     };
   }, [data, tab]);
