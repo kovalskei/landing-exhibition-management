@@ -186,8 +186,12 @@ export default function ProgramSettings() {
                           size="sm"
                           variant="outline"
                           onClick={() => {
-                            localStorage.setItem('currentProgramSheet', event.sheetUrl);
-                            navigate('/program');
+                            const sheetId = extractSheetId(event.sheetUrl);
+                            if (sheetId) {
+                              navigate(`/program?sheetId=${sheetId}`);
+                            } else {
+                              alert('Неверный формат ссылки на Google Sheets');
+                            }
                           }}
                         >
                           <Icon name="Eye" size={14} className="mr-1" />
