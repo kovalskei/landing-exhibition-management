@@ -94,7 +94,7 @@ export default function MobileProgram() {
       slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => {
         isScrollingProgrammatically.current = false;
-      }, 1000);
+      }, 500);
     }
   };
 
@@ -105,13 +105,11 @@ export default function MobileProgram() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (isScrollingProgrammatically.current) return;
-        
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
           if (isScrollingProgrammatically.current) return;
           
-          const visibleEntries = entries.filter(e => e.isIntersecting && e.intersectionRatio > 0.2);
+          const visibleEntries = entries.filter(e => e.isIntersecting && e.intersectionRatio > 0.3);
           if (visibleEntries.length > 0) {
             const topEntry = visibleEntries.reduce((top, curr) => 
               curr.boundingClientRect.top < top.boundingClientRect.top ? curr : top
@@ -121,12 +119,12 @@ export default function MobileProgram() {
               setSelectedTime(time);
             }
           }
-        }, 150);
+        }, 200);
       },
       {
         root: null,
-        rootMargin: '-130px 0px -55% 0px',
-        threshold: [0, 0.2, 0.5, 0.8, 1]
+        rootMargin: '-140px 0px -50% 0px',
+        threshold: [0, 0.3, 0.5, 1]
       }
     );
 
