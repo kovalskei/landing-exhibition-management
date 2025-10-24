@@ -273,12 +273,19 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
       .modal-content {
         background: var(--panel);
         width: 100%;
-        max-height: 90vh;
+        max-height: 85vh;
         border-radius: var(--radius) var(--radius) 0 0;
         padding: 20px;
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
         animation: slideUp 0.25s ease-out;
         position: relative;
+      }
+      @supports (height: 100dvh) {
+        .modal-content {
+          max-height: 85dvh;
+        }
       }
       @keyframes slideUp {
         from { transform: translateY(100%); }
@@ -353,7 +360,7 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
       }
       .modal-btn {
         width: 100%;
-        height: 52px;
+        min-height: 52px;
         background: var(--accent);
         color: #fff;
         border: 0;
