@@ -101,38 +101,47 @@ export default function MobileProgram() {
   useEffect(() => {
     if (!data || tab !== 'now') return;
 
-    let timeoutId: NodeJS.Timeout;
+    let rafId: number | null = null;
+    let lastUpdate = 0;
+
+    const updateSelectedTime = () => {
+      if (isScrollingProgrammatically.current) return;
+      
+      const now = Date.now();
+      if (now - lastUpdate < 50) return;
+      lastUpdate = now;
+      
+      const allSlots = Array.from(document.querySelectorAll('[data-time]'));
+      const mapped = allSlots.map(slot => {
+        const rect = slot.getBoundingClientRect();
+        return { top: rect.top, time: slot.getAttribute('data-time') };
+      });
+      
+      const headerHeight = 160;
+      const slotsAfterHeader = mapped.filter(s => s.top >= headerHeight);
+      
+      if (slotsAfterHeader.length > 0) {
+        const time = slotsAfterHeader[0].time;
+        if (time) {
+          setSelectedTime(time);
+        }
+      }
+    };
 
     const handleScroll = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        if (isScrollingProgrammatically.current) return;
-        
-        const allSlots = Array.from(document.querySelectorAll('[data-time]'));
-        const mapped = allSlots.map(slot => {
-          const rect = slot.getBoundingClientRect();
-          return { slot, top: rect.top, time: slot.getAttribute('data-time') };
-        });
-        
-        const headerHeight = 150;
-        const slotsAfterHeader = mapped.filter(s => s.top >= headerHeight);
-        
-        if (slotsAfterHeader.length > 0) {
-          const closestSlot = slotsAfterHeader[0];
-          const time = closestSlot.time;
-          if (time) {
-            setSelectedTime(time);
-          }
-        }
-      }, 100);
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        updateSelectedTime();
+        rafId = null;
+      });
     };
 
     document.addEventListener('scroll', handleScroll, { passive: true, capture: true });
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
+    updateSelectedTime();
 
     return () => {
-      clearTimeout(timeoutId);
+      if (rafId) cancelAnimationFrame(rafId);
       document.removeEventListener('scroll', handleScroll, true);
       window.removeEventListener('scroll', handleScroll);
     };
