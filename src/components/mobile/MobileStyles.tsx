@@ -100,14 +100,15 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
       }
       .m-tab {
         min-height: var(--tap);
-        padding: 0 16px;
+        padding: 0 10px;
         font-weight: 700;
-        font-size: 15px;
+        font-size: 13px;
         border-radius: 14px;
         border: 1px solid var(--line);
         background: var(--panel);
         transition: all 0.15s;
         cursor: pointer;
+        white-space: nowrap;
       }
       .m-tab.active {
         background: var(--accent);
