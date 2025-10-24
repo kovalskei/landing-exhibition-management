@@ -328,7 +328,7 @@ export default function MobileProgram() {
         </div>
       )}
 
-      <div style={{ padding: '0 14px' }}>
+      <div style={{ padding: '0 14px', paddingBottom: '100px', minHeight: 'calc(100vh - 280px)' }}>
         {tab === 'now' && (
           <div ref={timelineRef}>
             {times.map(slot => {

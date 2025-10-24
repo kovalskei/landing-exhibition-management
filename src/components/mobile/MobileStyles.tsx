@@ -122,6 +122,8 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         background: var(--bg);
         padding: 12px 0;
         border-bottom: 1px solid var(--line);
+        will-change: transform;
+        transform: translateZ(0);
       }
       .chips {
         display: flex;
