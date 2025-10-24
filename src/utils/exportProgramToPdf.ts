@@ -280,23 +280,29 @@ export async function exportPlanToPdf(data: ProgramData, planSessionIds: Set<str
   y = margin;
   addFooter(doc, data.meta);
 
-  for (const session of planSessions) {
+  for (let idx = 0; idx < planSessions.length; idx++) {
+    const session = planSessions[idx];
     const hallName = data.halls.find(h => h.id === session.hallId)?.name || `Зал ${session.hallId}`;
     
     checkPageBreak(40);
 
+    // Время
     doc.setFontSize(TIME_SIZE);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(BODY_COLOR);
-    doc.text(`${session.start} – ${session.end}`, margin, y);
-    y += 7;
+    const timeText = `${session.start}${session.end ? ' — ' + session.end : ''}`;
+    doc.text(timeText, margin, y);
+    y += 8;
 
+    // Зал
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(META_FOOTER_COLOR);
     doc.text(hallName, margin, y);
     y += 7;
+    doc.setTextColor(BODY_COLOR);
 
+    // Спикер + фото
     if (session.speaker) {
       const hasPhoto = session.photo && session.photo.startsWith('http');
       const photoSize = 20;
@@ -310,43 +316,40 @@ export async function exportPlanToPdf(data: ProgramData, planSessionIds: Set<str
         }
       }
 
-      checkPageBreak(10);
       doc.setFontSize(SPEAKER_SIZE);
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(BODY_COLOR);
       const speakerLines = doc.splitTextToSize(session.speaker, availableWidth);
       doc.text(speakerLines, textStartX, y);
       y += Math.max(speakerLines.length * 6, hasPhoto ? photoSize : 0);
     }
 
+    // Роль
     if (session.role) {
-      checkPageBreak(8);
       doc.setFontSize(ROLE_SIZE);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(SUBTLE_COLOR);
       const roleLines = doc.splitTextToSize(session.role, contentWidth);
       doc.text(roleLines, margin, y);
       y += roleLines.length * 5;
+      doc.setTextColor(BODY_COLOR);
     }
 
+    // Заголовок доклада
     if (session.title) {
-      checkPageBreak(10);
       doc.setFontSize(TITLE_SIZE);
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(BODY_COLOR);
       const titleLines = doc.splitTextToSize(session.title, contentWidth);
       doc.text(titleLines, margin, y);
-      y += titleLines.length * 5.5;
+      y += titleLines.length * 6;
     }
 
+    // Описание
     if (session.desc) {
-      checkPageBreak(10);
       doc.setFontSize(DESC_SIZE);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(BODY_COLOR);
-      const descLines = session.desc.split('\n');
+      const descLines = session.desc.split('\n').filter(Boolean);
       descLines.forEach(line => {
-        checkPageBreak(5);
+        checkPageBreak(6);
         const isBullet = /^\s*-\s+/.test(line);
         const cleanLine = isBullet ? '• ' + line.replace(/^\s*-\s+/, '') : line;
         const wrappedLines = doc.splitTextToSize(cleanLine, contentWidth);
@@ -355,7 +358,16 @@ export async function exportPlanToPdf(data: ProgramData, planSessionIds: Set<str
       });
     }
 
-    y += 8;
+    // Разделитель между сессиями
+    if (idx < planSessions.length - 1) {
+      y += 5;
+      checkPageBreak(5);
+      doc.setDrawColor(200);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 10;
+    } else {
+      y += 8;
+    }
   }
 
   doc.save('my-plan.pdf');
