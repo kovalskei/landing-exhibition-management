@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 interface MobileMenuProps {
@@ -45,34 +44,31 @@ export default function MobileMenu({
             />
           </div>
 
-          <Button
+          <button
             onClick={onRefresh}
             disabled={refreshing}
-            variant="outline"
-            className="w-full justify-start"
+            className="menu-btn"
           >
-            <Icon name={refreshing ? 'Loader2' : 'RefreshCw'} size={18} className={refreshing ? 'animate-spin mr-2' : 'mr-2'} />
+            <Icon name={refreshing ? 'Loader2' : 'RefreshCw'} size={18} className={refreshing ? 'animate-spin' : ''} />
             {refreshing ? 'Обновление...' : 'Обновить программу'}
-          </Button>
+          </button>
 
-          <Button
+          <button
             onClick={onExportPdf}
             disabled={exportingPdf}
-            variant="outline"
-            className="w-full justify-start"
+            className="menu-btn"
           >
-            <Icon name={exportingPdf ? 'Loader2' : 'FileDown'} size={18} className={exportingPdf ? 'animate-spin mr-2' : 'mr-2'} />
+            <Icon name={exportingPdf ? 'Loader2' : 'FileDown'} size={18} className={exportingPdf ? 'animate-spin' : ''} />
             {exportingPdf ? 'Генерация PDF...' : 'Скачать PDF'}
-          </Button>
+          </button>
 
-          <Button
+          <button
             onClick={onToggleTheme}
-            variant="outline"
-            className="w-full justify-start"
+            className="menu-btn"
           >
-            <Icon name={theme === 'dark' ? 'Sun' : 'Moon'} size={18} className="mr-2" />
+            <Icon name={theme === 'dark' ? 'Sun' : 'Moon'} size={18} />
             {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
-          </Button>
+          </button>
         </div>
       </div>
     </div>

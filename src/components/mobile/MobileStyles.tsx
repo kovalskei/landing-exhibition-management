@@ -335,6 +335,30 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         align-items: center;
         justify-content: center;
         cursor: pointer;
+        color: var(--text);
+      }
+      .menu-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        color: var(--text);
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .menu-btn:active {
+        transform: scale(0.98);
+        background: var(--bg);
+      }
+      .menu-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
       }
       .modal-time {
         font-weight: 700;
