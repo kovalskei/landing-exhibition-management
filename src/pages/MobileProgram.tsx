@@ -89,11 +89,14 @@ export default function MobileProgram() {
 
   const scrollToTime = (time: string) => {
     const slot = document.querySelector(`[data-time="${time}"]`) as HTMLElement;
+    console.log('scrollToTime called for:', time, 'found slot:', !!slot);
     if (slot) {
       isScrollingProgrammatically.current = true;
+      console.log('Blocking observer, scrolling to time:', time);
       slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => {
         isScrollingProgrammatically.current = false;
+        console.log('Unblocked observer');
       }, 500);
     }
   };
@@ -105,17 +108,22 @@ export default function MobileProgram() {
 
     const observer = new IntersectionObserver(
       (entries) => {
+        console.log('Observer triggered, entries:', entries.length);
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
+          console.log('After timeout, isScrolling:', isScrollingProgrammatically.current);
           if (isScrollingProgrammatically.current) return;
           
           const visibleEntries = entries.filter(e => e.isIntersecting && e.intersectionRatio > 0.3);
+          console.log('Visible entries:', visibleEntries.length);
           if (visibleEntries.length > 0) {
             const topEntry = visibleEntries.reduce((top, curr) => 
               curr.boundingClientRect.top < top.boundingClientRect.top ? curr : top
             );
             const time = topEntry.target.getAttribute('data-time');
+            console.log('Detected time:', time, 'current:', selectedTime);
             if (time && time !== selectedTime) {
+              console.log('Setting time to:', time);
               setSelectedTime(time);
             }
           }
