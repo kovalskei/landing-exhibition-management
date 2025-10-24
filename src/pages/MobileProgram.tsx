@@ -114,20 +114,16 @@ export default function MobileProgram() {
           console.log('After timeout, isScrolling:', isScrollingProgrammatically.current);
           if (isScrollingProgrammatically.current) return;
           
-          const visibleEntries = entries.filter(e => {
-            const rect = e.boundingClientRect;
-            const top = rect.top;
-            return e.isIntersecting && top > 0 && top < window.innerHeight / 2;
+          const allSlots = Array.from(timelineRef.current?.querySelectorAll('[data-time]') || []);
+          const visibleSlots = allSlots.filter(slot => {
+            const rect = slot.getBoundingClientRect();
+            return rect.top >= 100 && rect.top <= 300;
           });
           
-          console.log('Visible entries:', visibleEntries.length);
-          if (visibleEntries.length > 0) {
-            const topEntry = visibleEntries.reduce((top, curr) => {
-              const topRect = top.boundingClientRect.top;
-              const currRect = curr.boundingClientRect.top;
-              return Math.abs(currRect - 140) < Math.abs(topRect - 140) ? curr : top;
-            });
-            const time = topEntry.target.getAttribute('data-time');
+          console.log('Visible slots:', visibleSlots.length);
+          if (visibleSlots.length > 0) {
+            const closestSlot = visibleSlots[0] as HTMLElement;
+            const time = closestSlot.getAttribute('data-time');
             console.log('Detected time:', time, 'current:', selectedTime);
             if (time && time !== selectedTime) {
               console.log('Setting time to:', time);
@@ -138,7 +134,7 @@ export default function MobileProgram() {
       },
       {
         root: null,
-        threshold: [0, 0.1, 0.3, 0.5, 0.7, 1]
+        threshold: [0, 0.5, 1]
       }
     );
 
