@@ -150,31 +150,26 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         box-shadow: 0 3px 10px rgba(59,130,246,.2);
       }
       .hall-filter {
-        display: flex;
-        gap: 8px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 6px;
         padding: 0;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
         padding-bottom: 12px;
       }
-      .hall-filter::-webkit-scrollbar { display: none; }
-      .hall-filter::after {
-        content: '';
-        flex-shrink: 0;
-        width: 1px;
-      }
       .hall-chip {
-        flex-shrink: 0;
-        padding: 8px 16px;
-        font-size: 14px;
+        padding: 8px 10px;
+        font-size: 13px;
         font-weight: 600;
         border: 1px solid var(--line);
-        border-radius: 10px;
+        border-radius: 8px;
         background: var(--panel);
         color: var(--text);
         cursor: pointer;
         transition: all 0.15s;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .hall-chip.active {
         background: var(--accent);
