@@ -99,12 +99,8 @@ export default function MobileProgram() {
   };
 
   useEffect(() => {
-    if (!data || tab !== 'now') {
-      console.log('Не устанавливаю listener:', !data ? 'нет data' : `tab=${tab}`);
-      return;
-    }
+    if (!data || tab !== 'now') return;
 
-    console.log('Устанавливаю scroll listener');
     let timeoutId: NodeJS.Timeout;
 
     const handleScroll = () => {
@@ -118,29 +114,24 @@ export default function MobileProgram() {
           return { slot, top: rect.top, time: slot.getAttribute('data-time') };
         });
         
-        console.log('All slots:', mapped.map(s => `${s.time}:${Math.round(s.top)}`).join(', '));
+        const headerHeight = 150;
+        const slotsAfterHeader = mapped.filter(s => s.top >= headerHeight);
         
-        const visibleSlots = mapped
-          .filter(item => item.top >= 100 && item.top <= 400)
-          .sort((a, b) => a.top - b.top);
-        
-        console.log('Visible:', visibleSlots.map(v => v.time));
-        if (visibleSlots.length > 0) {
-          const time = visibleSlots[0].time;
+        if (slotsAfterHeader.length > 0) {
+          const closestSlot = slotsAfterHeader[0];
+          const time = closestSlot.time;
           if (time) {
             setSelectedTime(time);
           }
         }
-      }, 150);
+      }, 100);
     };
 
     document.addEventListener('scroll', handleScroll, { passive: true, capture: true });
     window.addEventListener('scroll', handleScroll, { passive: true });
-    console.log('Initial call');
     handleScroll();
 
     return () => {
-      console.log('Cleanup listener');
       clearTimeout(timeoutId);
       document.removeEventListener('scroll', handleScroll, true);
       window.removeEventListener('scroll', handleScroll);
