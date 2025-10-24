@@ -317,12 +317,14 @@ export default function MobileProgram() {
       )}
 
       {tab === 'all' && (
-        <div style={{ padding: '14px 14px 0' }}>
-          <MobileHallFilter
-            halls={data.halls}
-            selectedHall={selectedHall}
-            onHallSelect={setSelectedHall}
-          />
+        <div className="sticky-time-chips">
+          <div style={{ padding: '0 14px' }}>
+            <MobileHallFilter
+              halls={data.halls}
+              selectedHall={selectedHall}
+              onHallSelect={setSelectedHall}
+            />
+          </div>
         </div>
       )}
 

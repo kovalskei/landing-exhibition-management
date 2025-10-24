@@ -156,9 +156,14 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
-        margin-bottom: 14px;
+        padding-bottom: 12px;
       }
       .hall-filter::-webkit-scrollbar { display: none; }
+      .hall-filter::after {
+        content: '';
+        flex-shrink: 0;
+        width: 1px;
+      }
       .hall-chip {
         flex-shrink: 0;
         padding: 8px 16px;
