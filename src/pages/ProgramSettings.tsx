@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 
 interface ProgramEvent {
@@ -62,6 +63,17 @@ export default function ProgramSettings() {
   const setAsDefault = (url: string) => {
     localStorage.setItem('defaultProgramSheet', url);
     alert('Источник данных установлен по умолчанию');
+  };
+
+  const getIframeCode = (eventId: string) => {
+    const baseUrl = window.location.origin;
+    return `<iframe src="${baseUrl}/program?eventId=${eventId}" width="100%" height="800" frameborder="0" style="border:none;"></iframe>`;
+  };
+
+  const copyIframeCode = (eventId: string) => {
+    const code = getIframeCode(eventId);
+    navigator.clipboard.writeText(code);
+    alert('Код iframe скопирован в буфер обмена!');
   };
 
   return (
@@ -156,26 +168,46 @@ export default function ProgramSettings() {
                         </Button>
                       </div>
                     </div>
-                    <div className="flex gap-2 mt-3">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          localStorage.setItem('currentProgramSheet', event.sheetUrl);
-                          navigate('/program');
-                        }}
-                      >
-                        <Icon name="Eye" size={14} className="mr-1" />
-                        Открыть
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setAsDefault(event.sheetUrl)}
-                      >
-                        <Icon name="Star" size={14} className="mr-1" />
-                        По умолчанию
-                      </Button>
+                    <div className="space-y-3 mt-3">
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            localStorage.setItem('currentProgramSheet', event.sheetUrl);
+                            navigate('/program');
+                          }}
+                        >
+                          <Icon name="Eye" size={14} className="mr-1" />
+                          Открыть
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setAsDefault(event.sheetUrl)}
+                        >
+                          <Icon name="Star" size={14} className="mr-1" />
+                          По умолчанию
+                        </Button>
+                      </div>
+                      <div className="bg-muted p-3 rounded-md">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-semibold text-muted-foreground">Код для встраивания</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => copyIframeCode(event.id)}
+                          >
+                            <Icon name="Copy" size={14} className="mr-1" />
+                            Скопировать
+                          </Button>
+                        </div>
+                        <Textarea
+                          readOnly
+                          value={getIframeCode(event.id)}
+                          className="font-mono text-xs h-20 resize-none"
+                        />
+                      </div>
                     </div>
                   </div>
                 )}

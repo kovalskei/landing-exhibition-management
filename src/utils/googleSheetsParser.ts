@@ -190,9 +190,10 @@ function normAll(s: string): string {
   return splitLines(s).map(normLine).join(' ');
 }
 
-export async function fetchProgramData(): Promise<ProgramData> {
+export async function fetchProgramData(customSheetId?: string): Promise<ProgramData> {
   try {
-    const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+    const sheetId = customSheetId || SHEET_ID;
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0`;
 
     const response = await fetch(csvUrl, {
       method: 'GET',
@@ -219,7 +220,7 @@ export async function fetchProgramData(): Promise<ProgramData> {
     
     if (META_SHEET_GID) {
       try {
-        const metaUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${META_SHEET_GID}`;
+        const metaUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${META_SHEET_GID}`;
         const metaResponse = await fetch(metaUrl, {
           method: 'GET',
           headers: { Accept: 'text/csv' }
