@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { fetchProgramData, ProgramData, Session } from '@/utils/googleSheetsParser';
+import { fetchProgramData, fetchProgramDataByGid, ProgramData, Session } from '@/utils/googleSheetsParser';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import MobileStyles from '@/components/mobile/MobileStyles';
@@ -35,6 +35,8 @@ export default function MobileProgram() {
   const isScrollingProgrammatically = useRef(false);
   const [eventLogoUrl, setEventLogoUrl] = useState<string>('');
   const [eventCoverUrl, setEventCoverUrl] = useState<string>('');
+  const [selectedDay, setSelectedDay] = useState<string>('0');
+  const [daySheets, setDaySheets] = useState<{ name: string; gid: string }[]>([]);
 
   useEffect(() => {
     const loadSheetId = async () => {
@@ -53,6 +55,19 @@ export default function MobileProgram() {
         
         if (eventData.logoUrl) setEventLogoUrl(eventData.logoUrl);
         if (eventData.coverUrl) setEventCoverUrl(eventData.coverUrl);
+        
+        if (eventData.daySheets) {
+          const lines = eventData.daySheets.split('\n').filter((l: string) => l.trim());
+          const parsed = lines.map((line: string) => {
+            const [name, gid] = line.split(':').map((s: string) => s.trim());
+            return name && gid ? { name, gid } : null;
+          }).filter(Boolean);
+          
+          if (parsed.length > 0) {
+            setDaySheets(parsed);
+            setSelectedDay(parsed[0].gid);
+          }
+        }
       } catch (err) {
         console.error('Failed to load event:', err);
       }
@@ -61,14 +76,15 @@ export default function MobileProgram() {
     loadSheetId();
   }, [eventIdFromUrl]);
 
-  const loadData = async (silent = false) => {
+  const loadData = async (silent = false, dayGid?: string) => {
     try {
       if (!silent) {
         setLoading(true);
         setError(null);
       }
       console.log('🔍 Loading data with sheetId:', sheetId);
-      const programData = await fetchProgramData(sheetId || undefined);
+      const gidToLoad = dayGid || selectedDay;
+      const programData = await fetchProgramDataByGid(sheetId || undefined, gidToLoad);
       console.log('✅ Data loaded:', programData.meta.title);
       setData(programData);
       
@@ -92,10 +108,15 @@ export default function MobileProgram() {
   const handleRefresh = async () => {
     try {
       setRefreshing(true);
-      await loadData();
+      await loadData(false, selectedDay);
     } finally {
       setRefreshing(false);
     }
+  };
+
+  const handleDayChange = async (dayGid: string) => {
+    setSelectedDay(dayGid);
+    await loadData(false, dayGid);
   };
 
   useEffect(() => {
@@ -512,6 +533,39 @@ export default function MobileProgram() {
           </div>
         )}
       </div>
+
+      {daySheets.length > 1 && (
+        <div style={{ padding: '8px 14px 0' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            overflowX: 'auto',
+            paddingBottom: '8px'
+          }}>
+            {daySheets.map((day) => (
+              <button
+                key={day.gid}
+                onClick={() => handleDayChange(day.gid)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  border: 'none',
+                  background: selectedDay === day.gid ? 'var(--accent)' : 'var(--panel)',
+                  color: selectedDay === day.gid ? '#fff' : 'var(--text)',
+                  fontWeight: selectedDay === day.gid ? '600' : '500',
+                  fontSize: '14px',
+                  whiteSpace: 'nowrap',
+                  cursor: 'pointer',
+                  boxShadow: selectedDay === day.gid ? 'var(--shadow)' : 'none',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {day.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {tab === 'now' && (
         <div className="sticky-time-chips">
