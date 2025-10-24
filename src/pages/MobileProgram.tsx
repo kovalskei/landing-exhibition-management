@@ -307,17 +307,22 @@ export default function MobileProgram() {
       {tab === 'now' && (
         <div className="sticky-time-chips">
           <div style={{ padding: '0 14px' }}>
-            <MobileHallFilter
-              halls={data.halls}
-              selectedHall={selectedHall}
-              onHallSelect={setSelectedHall}
-            />
             <MobileTimeChips
               times={times}
               selectedTime={selectedTime}
               onTimeSelect={handleTimeChipClick}
             />
           </div>
+        </div>
+      )}
+
+      {tab === 'all' && (
+        <div style={{ padding: '14px 14px 0' }}>
+          <MobileHallFilter
+            halls={data.halls}
+            selectedHall={selectedHall}
+            onHallSelect={setSelectedHall}
+          />
         </div>
       )}
 
@@ -362,7 +367,7 @@ export default function MobileProgram() {
         )}
 
         {tab === 'all' && (
-          <div style={{ paddingTop: 14 }}>
+          <div style={{ padding: '0 14px', paddingTop: 0 }}>
             {filtered.map(session => {
               const inPlan = plan.has(session.id);
               const planList = data.sessions.filter(s => plan.has(s.id));
