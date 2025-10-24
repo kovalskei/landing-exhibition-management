@@ -93,10 +93,15 @@ export default function MobileProgram() {
     const slot = document.querySelector(`[data-time="${time}"]`) as HTMLElement;
     if (slot) {
       isScrollingProgrammatically.current = true;
-      slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      const yOffset = -200;
+      const y = slot.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      
+      window.scrollTo({ top: y, behavior: 'smooth' });
+      
       setTimeout(() => {
         isScrollingProgrammatically.current = false;
-      }, 800);
+      }, 1000);
     }
   };
 
