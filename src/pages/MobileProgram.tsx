@@ -99,16 +99,23 @@ export default function MobileProgram() {
   };
 
   useEffect(() => {
-    if (!data || tab !== 'now') return;
+    if (!data || tab !== 'now') {
+      console.log('Не устанавливаю listener:', !data ? 'нет data' : `tab=${tab}`);
+      return;
+    }
 
+    console.log('Устанавливаю scroll listener');
     let timeoutId: NodeJS.Timeout;
 
     const handleScroll = () => {
+      console.log('scroll event!');
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
+        console.log('timeout fired, blocked:', isScrollingProgrammatically.current);
         if (isScrollingProgrammatically.current) return;
         
         const allSlots = Array.from(document.querySelectorAll('[data-time]'));
+        console.log('slots found:', allSlots.length);
         const visibleSlots = allSlots
           .map(slot => {
             const rect = slot.getBoundingClientRect();
@@ -117,8 +124,10 @@ export default function MobileProgram() {
           .filter(item => item.top >= 100 && item.top <= 400)
           .sort((a, b) => a.top - b.top);
         
+        console.log('visible:', visibleSlots.map(v => v.time));
         if (visibleSlots.length > 0) {
           const time = visibleSlots[0].time;
+          console.log('setting time:', time);
           if (time) {
             setSelectedTime(time);
           }
@@ -127,9 +136,11 @@ export default function MobileProgram() {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    console.log('Initial call');
     handleScroll();
 
     return () => {
+      console.log('Cleanup listener');
       clearTimeout(timeoutId);
       window.removeEventListener('scroll', handleScroll);
     };
