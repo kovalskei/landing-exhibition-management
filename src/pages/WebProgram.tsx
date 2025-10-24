@@ -9,9 +9,10 @@ import ProgramPlan from '@/components/program/ProgramPlan';
 
 export default function WebProgram() {
   const [searchParams] = useSearchParams();
-  const sheetIdFromUrl = searchParams.get('sheetId');
+  const eventIdFromUrl = searchParams.get('eventId');
   
   const [data, setData] = useState<ProgramData | null>(null);
+  const [sheetId, setSheetId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState<Session[]>([]);
@@ -25,13 +26,35 @@ export default function WebProgram() {
   const [generatingPlanPdf, setGeneratingPlanPdf] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('cards');
 
+  useEffect(() => {
+    const loadSheetId = async () => {
+      if (!eventIdFromUrl) return;
+      
+      try {
+        const response = await fetch(`https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c?id=${eventIdFromUrl}`);
+        const eventData = await response.json();
+        
+        if (eventData.sheetUrl) {
+          const match = eventData.sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+          if (match) {
+            setSheetId(match[1]);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load event:', err);
+      }
+    };
+    
+    loadSheetId();
+  }, [eventIdFromUrl]);
+
   const loadData = async (silent = false) => {
     try {
       if (!silent) {
         setLoading(true);
         setError(null);
       }
-      const programData = await fetchProgramData(sheetIdFromUrl || undefined);
+      const programData = await fetchProgramData(sheetId || undefined);
       setData(programData);
       
       // При фоновой загрузке сохраняем фильтры
@@ -205,14 +228,16 @@ export default function WebProgram() {
   };
 
   useEffect(() => {
-    loadData();
-    
-    const interval = setInterval(() => {
-      loadData(true); // Тихое обновление фоном
-    }, 30000);
-    
-    return () => clearInterval(interval);
-  }, [sheetIdFromUrl]);
+    if (!eventIdFromUrl || sheetId) {
+      loadData();
+      
+      const interval = setInterval(() => {
+        loadData(true); // Тихое обновление фоном
+      }, 30000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [sheetId]);
 
   useEffect(() => {
     const saved = localStorage.getItem('web-program-plan');

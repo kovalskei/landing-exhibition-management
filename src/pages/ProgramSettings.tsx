@@ -13,26 +13,33 @@ interface ProgramEvent {
   createdAt: string;
 }
 
+const API_URL = 'https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c';
+
 export default function ProgramSettings() {
   const navigate = useNavigate();
   const [events, setEvents] = useState<ProgramEvent[]>([]);
   const [newEventName, setNewEventName] = useState('');
   const [newEventUrl, setNewEventUrl] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const stored = localStorage.getItem('programEvents');
-    if (stored) {
-      setEvents(JSON.parse(stored));
+  const loadEvents = async () => {
+    try {
+      const response = await fetch(API_URL);
+      const data = await response.json();
+      setEvents(data.events || []);
+    } catch (err) {
+      console.error('Failed to load events:', err);
+    } finally {
+      setLoading(false);
     }
-  }, []);
-
-  const saveEvents = (updatedEvents: ProgramEvent[]) => {
-    setEvents(updatedEvents);
-    localStorage.setItem('programEvents', JSON.stringify(updatedEvents));
   };
 
-  const addEvent = () => {
+  useEffect(() => {
+    loadEvents();
+  }, []);
+
+  const addEvent = async () => {
     if (!newEventName.trim() || !newEventUrl.trim()) return;
 
     const newEvent: ProgramEvent = {
@@ -42,51 +49,73 @@ export default function ProgramSettings() {
       createdAt: new Date().toISOString()
     };
 
-    saveEvents([...events, newEvent]);
-    setNewEventName('');
-    setNewEventUrl('');
-  };
-
-  const deleteEvent = (id: string) => {
-    if (confirm('Удалить это событие?')) {
-      saveEvents(events.filter(e => e.id !== id));
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newEvent)
+      });
+      
+      await loadEvents();
+      setNewEventName('');
+      setNewEventUrl('');
+    } catch (err) {
+      console.error('Failed to create event:', err);
+      alert('Не удалось создать событие');
     }
   };
 
-  const updateEvent = (id: string, name: string, url: string) => {
-    saveEvents(events.map(e => 
-      e.id === id ? { ...e, name, sheetUrl: url } : e
-    ));
-    setEditingId(null);
+  const deleteEvent = async (id: string) => {
+    if (!confirm('Удалить это событие?')) return;
+
+    try {
+      await fetch(`${API_URL}?id=${id}`, {
+        method: 'DELETE'
+      });
+      await loadEvents();
+    } catch (err) {
+      console.error('Failed to delete event:', err);
+      alert('Не удалось удалить событие');
+    }
   };
 
-  const setAsDefault = (url: string) => {
-    localStorage.setItem('defaultProgramSheet', url);
-    alert('Источник данных установлен по умолчанию');
+  const updateEvent = async (id: string, name: string, url: string) => {
+    try {
+      await fetch(API_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, name, sheetUrl: url })
+      });
+      
+      await loadEvents();
+      setEditingId(null);
+    } catch (err) {
+      console.error('Failed to update event:', err);
+      alert('Не удалось обновить событие');
+    }
   };
 
-  const extractSheetId = (url: string): string | null => {
-    const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-    return match ? match[1] : null;
-  };
-
-  const getIframeCode = (sheetUrl: string) => {
-    const sheetId = extractSheetId(sheetUrl);
-    if (!sheetId) return 'Неверный формат ссылки на Google Sheets';
-    
+  const getIframeCode = (eventId: string) => {
     const baseUrl = window.location.origin;
-    return `<iframe src="${baseUrl}/program?sheetId=${sheetId}" width="100%" height="800" frameborder="0" style="border:none;"></iframe>`;
+    return `<iframe src="${baseUrl}/program?eventId=${eventId}" width="100%" height="800" frameborder="0" style="border:none;"></iframe>`;
   };
 
-  const copyIframeCode = (sheetUrl: string) => {
-    const code = getIframeCode(sheetUrl);
-    if (code.includes('Неверный формат')) {
-      alert(code);
-      return;
-    }
+  const copyIframeCode = (eventId: string) => {
+    const code = getIframeCode(eventId);
     navigator.clipboard.writeText(code);
     alert('Код iframe скопирован в буфер обмена!');
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -185,25 +214,10 @@ export default function ProgramSettings() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => {
-                            const sheetId = extractSheetId(event.sheetUrl);
-                            if (sheetId) {
-                              navigate(`/program?sheetId=${sheetId}`);
-                            } else {
-                              alert('Неверный формат ссылки на Google Sheets');
-                            }
-                          }}
+                          onClick={() => navigate(`/program?eventId=${event.id}`)}
                         >
                           <Icon name="Eye" size={14} className="mr-1" />
                           Открыть
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setAsDefault(event.sheetUrl)}
-                        >
-                          <Icon name="Star" size={14} className="mr-1" />
-                          По умолчанию
                         </Button>
                       </div>
                       <div className="bg-muted p-3 rounded-md">
@@ -212,7 +226,7 @@ export default function ProgramSettings() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => copyIframeCode(event.sheetUrl)}
+                            onClick={() => copyIframeCode(event.id)}
                           >
                             <Icon name="Copy" size={14} className="mr-1" />
                             Скопировать
@@ -220,7 +234,7 @@ export default function ProgramSettings() {
                         </div>
                         <Textarea
                           readOnly
-                          value={getIframeCode(event.sheetUrl)}
+                          value={getIframeCode(event.id)}
                           className="font-mono text-xs h-20 resize-none"
                         />
                       </div>

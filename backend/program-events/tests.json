@@ -1,0 +1,41 @@
+{
+  "tests": [
+    {
+      "name": "GET all events - empty list",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "events": []
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST create event",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "id": "test-event-1",
+        "name": "Test Event",
+        "sheetUrl": "https://docs.google.com/spreadsheets/d/test123/edit"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "success": true,
+        "id": "test-event-1"
+      }
+    },
+    {
+      "name": "GET specific event",
+      "method": "GET",
+      "path": "/?id=test-event-1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "id": "test-event-1",
+        "name": "Test Event",
+        "sheetUrl": "https://docs.google.com/spreadsheets/d/test123/edit"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
