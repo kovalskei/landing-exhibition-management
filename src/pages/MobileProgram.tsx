@@ -26,7 +26,7 @@ export default function MobileProgram() {
   const [showMenu, setShowMenu] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const contentScrollRef = useRef<HTMLDivElement>(null);
   const isScrollingProgrammatically = useRef(false);
 
