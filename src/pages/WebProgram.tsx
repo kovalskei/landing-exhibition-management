@@ -26,6 +26,9 @@ export default function WebProgram() {
   const [generatingPlanPdf, setGeneratingPlanPdf] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('cards');
 
+  const [eventLogoUrl, setEventLogoUrl] = useState<string>('');
+  const [eventCoverUrl, setEventCoverUrl] = useState<string>('');
+
   useEffect(() => {
     const loadSheetId = async () => {
       if (!eventIdFromUrl) return;
@@ -40,6 +43,9 @@ export default function WebProgram() {
             setSheetId(match[1]);
           }
         }
+        
+        if (eventData.logoUrl) setEventLogoUrl(eventData.logoUrl);
+        if (eventData.coverUrl) setEventCoverUrl(eventData.coverUrl);
       } catch (err) {
         console.error('Failed to load event:', err);
       }
@@ -117,8 +123,8 @@ export default function WebProgram() {
           title: data.meta.title || '',
           subtitle: data.meta.subtitle || '',
           venue: data.meta.venue || '',
-          logoId: data.meta.logoId || '',
-          coverId: data.meta.coverId || ''
+          logoId: eventLogoUrl || data.meta.logoId || '',
+          coverId: eventCoverUrl || data.meta.coverId || ''
         },
         hallIntros
       };
@@ -195,8 +201,8 @@ export default function WebProgram() {
           subtitle: 'Мой план',
           date: data.meta.date || '',
           venue: data.meta.venue || '',
-          logoId: data.meta.logoId || '',
-          coverId: data.meta.coverId || ''
+          logoId: eventLogoUrl || data.meta.logoId || '',
+          coverId: eventCoverUrl || data.meta.coverId || ''
         },
         hallIntros: {}
       };
@@ -240,13 +246,7 @@ export default function WebProgram() {
     }
   }, [sheetId]);
 
-  // Автообновление каждые 30 секунд
-  useEffect(() => {
-    const interval = setInterval(() => {
-      loadData(true);
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [sheetId]);
+  // Автообновление отключено - пользователь может обновить через кнопку Refresh
 
   useEffect(() => {
     const saved = localStorage.getItem('web-program-plan');

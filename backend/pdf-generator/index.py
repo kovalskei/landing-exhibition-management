@@ -110,8 +110,8 @@ def setup_fonts():
         raise Exception(f'Не удалось зарегистрировать семейство шрифтов: {e}')
 
 
-def download_image(url_or_id: str) -> Optional[io.BytesIO]:
-    """Загрузка изображения из URL или Google Drive ID"""
+def download_image(url_or_id: str) -> Optional[str]:
+    """Загрузка изображения из URL или Google Drive ID, возвращает путь к временному файлу"""
     if not url_or_id:
         print('⚠️ url_or_id пустой, изображение не загружено')
         return None
@@ -138,9 +138,21 @@ def download_image(url_or_id: str) -> Optional[io.BytesIO]:
             return None
         
         print(f'✅ Изображение загружено: {len(data)} байт')
-        img_buffer = io.BytesIO(data)
-        img_buffer.seek(0)
-        return img_buffer
+        
+        # Сохраняем во временный файл
+        import tempfile
+        suffix = '.jpg'
+        if data.startswith(b'\x89PNG'):
+            suffix = '.png'
+        elif data.startswith(b'GIF'):
+            suffix = '.gif'
+        
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+        temp_file.write(data)
+        temp_file.close()
+        
+        print(f'✅ Изображение сохранено: {temp_file.name}')
+        return temp_file.name
     except Exception as e:
         print(f'❌ Ошибка загрузки изображения {url_or_id}: {e}')
         return None
@@ -193,8 +205,8 @@ def collect_tags(session_data: Dict[str, Any]) -> List[str]:
 
 class FooterCanvas:
     """Футер с логотипом"""
-    def __init__(self, logo_buffer: Optional[io.BytesIO], meta: Meta):
-        self.logo_buffer = logo_buffer
+    def __init__(self, logo_path: Optional[str], meta: Meta):
+        self.logo_path = logo_path
         self.meta = meta
     
     def draw_footer(self, canvas, doc):
@@ -221,13 +233,10 @@ class FooterCanvas:
             canvas.drawString(20 * mm, y, ' • '.join(meta_parts))
         
         # Логотип справа
-        if self.logo_buffer:
+        if self.logo_path:
             try:
-                from reportlab.lib.utils import ImageReader
-                self.logo_buffer.seek(0)
-                img_reader = ImageReader(self.logo_buffer)
                 x = A4[0] - 20 * mm - 30 * mm
-                canvas.drawImage(img_reader, x, y - 3*mm, 
+                canvas.drawImage(self.logo_path, x, y - 3*mm, 
                                width=30*mm, height=10*mm, 
                                preserveAspectRatio=True, mask='auto')
             except Exception as e:
@@ -386,7 +395,6 @@ def create_pdf(data: Dict[str, Any]) -> bytes:
     # Обложка
     if cover_img:
         try:
-            cover_img.seek(0)
             img = Image(cover_img)
             img_width = A4[0] - 40*mm
             aspect = img.imageHeight / img.imageWidth

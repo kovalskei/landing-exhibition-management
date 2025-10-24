@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { fetchProgramData, ProgramData, Session } from '@/utils/googleSheetsParser';
-import { exportProgramToPdf, exportPlanToPdf } from '@/utils/exportProgramToPdf';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import MobileStyles from '@/components/mobile/MobileStyles';
@@ -34,6 +33,8 @@ export default function MobileProgram() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const contentScrollRef = useRef<HTMLDivElement>(null);
   const isScrollingProgrammatically = useRef(false);
+  const [eventLogoUrl, setEventLogoUrl] = useState<string>('');
+  const [eventCoverUrl, setEventCoverUrl] = useState<string>('');
 
   useEffect(() => {
     const loadSheetId = async () => {
@@ -49,6 +50,9 @@ export default function MobileProgram() {
             setSheetId(match[1]);
           }
         }
+        
+        if (eventData.logoUrl) setEventLogoUrl(eventData.logoUrl);
+        if (eventData.coverUrl) setEventCoverUrl(eventData.coverUrl);
       } catch (err) {
         console.error('Failed to load event:', err);
       }
@@ -266,10 +270,63 @@ export default function MobileProgram() {
     if (!data) return;
     try {
       setExportingPdf(true);
-      await exportProgramToPdf(data);
+      
+      const hallIntros: Record<string, string[]> = {};
+      data.halls.forEach(h => {
+        if (h.bullets && h.bullets.length) hallIntros[h.name] = h.bullets.slice();
+      });
+
+      const pdfData = {
+        halls: data.halls.map(h => h.name),
+        sessions: data.sessions.map(s => ({
+          hall: s.hall,
+          start: s.start,
+          end: s.end,
+          title: s.title || '',
+          speaker: s.speaker || '',
+          role: s.role || '',
+          desc: s.desc || '',
+          photo: s.photo || '',
+          tagsCanon: (s.tagsCanon || []).slice()
+        })),
+        meta: {
+          date: data.meta.date || '',
+          title: data.meta.title || '',
+          subtitle: data.meta.subtitle || '',
+          venue: data.meta.venue || '',
+          logoId: eventLogoUrl || data.meta.logoId || '',
+          coverId: eventCoverUrl || data.meta.coverId || ''
+        },
+        hallIntros
+      };
+
+      const response = await fetch('https://functions.poehali.dev/627176dc-e9bb-4240-b145-2a99dfd51f06', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(pdfData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка сервера при генерации PDF');
+      }
+
+      const result = await response.json();
+      
+      if (!result.ok || !result.b64) {
+        throw new Error(result.error || 'Неизвестная ошибка');
+      }
+
+      const link = document.createElement('a');
+      link.href = 'data:application/pdf;base64,' + result.b64;
+      link.download = 'program.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (err) {
       console.error('Ошибка экспорта PDF:', err);
-      alert('Не удалось создать PDF');
+      alert('Не удалось создать PDF: ' + (err instanceof Error ? err.message : 'Неизвестная ошибка'));
     } finally {
       setExportingPdf(false);
     }
@@ -317,8 +374,8 @@ export default function MobileProgram() {
           subtitle: 'Мой план',
           date: data.meta.date || '',
           venue: data.meta.venue || '',
-          logoId: data.meta.logoId || '',
-          coverId: data.meta.coverId || ''
+          logoId: eventLogoUrl || data.meta.logoId || '',
+          coverId: eventCoverUrl || data.meta.coverId || ''
         },
         hallIntros: {}
       };

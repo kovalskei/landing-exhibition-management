@@ -34,6 +34,8 @@ export interface ProgramData {
     venue: string;
     logoId?: string;
     coverId?: string;
+    logoUrl?: string;
+    coverUrl?: string;
   };
 }
 

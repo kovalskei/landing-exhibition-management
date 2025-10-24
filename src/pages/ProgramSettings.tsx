@@ -109,7 +109,7 @@ export default function ProgramSettings() {
     const baseUrl = window.location.origin;
     return `<!-- FULL-BLEED контейнер: во всю ширину экрана и на высоту окна -->
 <div style="position:relative; width:100vw; height:100vh; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw; overflow:hidden;">
-  <iframe src="${baseUrl}/program?eventId=${eventId}&view=mobile" style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <iframe src="${baseUrl}/program?eventId=${eventId}" style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
 </div>`;
   };
 
