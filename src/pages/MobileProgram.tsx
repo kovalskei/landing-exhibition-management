@@ -199,7 +199,7 @@ export default function MobileProgram() {
     }
     
     if (selectedHall !== 'all') {
-      result = result.filter(s => s.hall === selectedHall);
+      result = result.filter(s => s.hallId === selectedHall);
     }
     
     return result;
