@@ -280,7 +280,7 @@ export async function exportPlanToPdf(data: ProgramData, planSessionIds: Set<str
   y = margin;
   addFooter(doc, data.meta);
 
-  planSessions.forEach((session, idx) => {
+  for (const session of planSessions) {
     const hallName = data.halls.find(h => h.id === session.hallId)?.name || `Зал ${session.hallId}`;
     
     checkPageBreak(40);
