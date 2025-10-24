@@ -246,13 +246,81 @@ export default function MobileProgram() {
   };
 
   const handleExportPlanPdf = async () => {
-    if (!data) return;
+    if (!data || plan.size === 0) {
+      alert('План пуст — добавьте доклады кнопкой «+ В план»');
+      return;
+    }
+    
     try {
       setExportingPdf(true);
-      await exportPlanToPdf(data, plan);
+      
+      const planSessions = data.sessions.filter(s => plan.has(s.id));
+      const sorted = [...planSessions].sort((a, b) => {
+        const toMin = (t: string) => {
+          const [h, m] = t.split(':').map(Number);
+          return h * 60 + m;
+        };
+        return toMin(a.start) - toMin(b.start) || (data.halls.find(h => h.id === a.hallId)?.name || '').localeCompare(data.halls.find(h => h.id === b.hallId)?.name || '');
+      });
+      
+      const halls: string[] = [];
+      sorted.forEach(s => {
+        const hallName = data.halls.find(h => h.id === s.hallId)?.name || '';
+        if (hallName && !halls.includes(hallName)) halls.push(hallName);
+      });
+
+      const pdfData = {
+        halls,
+        sessions: sorted.map(s => ({
+          hall: data.halls.find(h => h.id === s.hallId)?.name || '',
+          start: s.start,
+          end: s.end,
+          title: s.title || '',
+          speaker: s.speaker || '',
+          role: s.role || '',
+          desc: s.desc || '',
+          photo: s.photo || '',
+          tagsCanon: (s.tagsCanon || []).slice()
+        })),
+        meta: {
+          title: (data.meta.title || 'Программа мероприятия') + ' — Мой план',
+          subtitle: 'Мой план',
+          date: data.meta.date || '',
+          venue: data.meta.venue || '',
+          logoId: data.meta.logoId || '',
+          coverId: data.meta.coverId || ''
+        },
+        hallIntros: {}
+      };
+
+      const response = await fetch('https://functions.poehali.dev/627176dc-e9bb-4240-b145-2a99dfd51f06', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(pdfData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка сервера при генерации PDF');
+      }
+
+      const result = await response.json();
+      
+      if (!result.ok || !result.b64) {
+        throw new Error(result.error || 'Неизвестная ошибка');
+      }
+
+      const link = document.createElement('a');
+      link.href = 'data:application/pdf;base64,' + result.b64;
+      link.download = 'my-plan.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
     } catch (err) {
-      console.error('Ошибка экспорта PDF плана:', err);
-      alert('Не удалось создать PDF плана');
+      console.error('Ошибка генерации PDF плана:', err);
+      alert('Ошибка при генерации PDF: ' + (err instanceof Error ? err.message : 'Неизвестная ошибка'));
     } finally {
       setExportingPdf(false);
     }
