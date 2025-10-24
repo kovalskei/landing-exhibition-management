@@ -101,6 +101,7 @@ export default function MobileProgram() {
   }, [sheetId]);
 
   // Автообновление отключено - пользователь может обновить вручную через pull-to-refresh
+  // (!на мобильной версии автообновление запрещено)
 
   useEffect(() => {
     const saved = localStorage.getItem('mobile-program-plan');

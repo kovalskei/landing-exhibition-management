@@ -240,7 +240,13 @@ export default function WebProgram() {
     }
   }, [sheetId]);
 
-  // Автообновление отключено - пользователь может обновить через кнопку Refresh
+  // Автообновление каждые 30 секунд
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadData(true);
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [sheetId]);
 
   useEffect(() => {
     const saved = localStorage.getItem('web-program-plan');

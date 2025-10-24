@@ -110,16 +110,21 @@ def setup_fonts():
         raise Exception(f'Не удалось зарегистрировать семейство шрифтов: {e}')
 
 
-def download_image(file_id: str) -> Optional[io.BytesIO]:
-    """Загрузка изображения из Google Drive"""
-    if not file_id:
-        print('⚠️ file_id пустой, изображение не загружено')
+def download_image(url_or_id: str) -> Optional[io.BytesIO]:
+    """Загрузка изображения из URL или Google Drive ID"""
+    if not url_or_id:
+        print('⚠️ url_or_id пустой, изображение не загружено')
         return None
     
     try:
-        # Используем прямую ссылку для скачивания
-        url = f'https://drive.google.com/uc?export=download&id={file_id}&confirm=t'
-        print(f'📥 Загружаю изображение: {file_id}')
+        # Проверяем, это URL или Drive ID
+        if url_or_id.startswith('http://') or url_or_id.startswith('https://'):
+            url = url_or_id
+            print(f'📥 Загружаю изображение по URL: {url[:80]}...')
+        else:
+            # Это Google Drive ID
+            url = f'https://drive.google.com/uc?export=download&id={url_or_id}&confirm=t'
+            print(f'📥 Загружаю изображение из Google Drive: {url_or_id}')
         
         request = urllib.request.Request(url)
         request.add_header('User-Agent', 'Mozilla/5.0')
@@ -129,7 +134,7 @@ def download_image(file_id: str) -> Optional[io.BytesIO]:
         
         # Проверяем, что это действительно изображение
         if data.startswith(b'<!DOCTYPE') or data.startswith(b'<html'):
-            print(f'❌ Получен HTML вместо изображения для {file_id}')
+            print(f'❌ Получен HTML вместо изображения для {url_or_id}')
             return None
         
         print(f'✅ Изображение загружено: {len(data)} байт')
@@ -137,7 +142,7 @@ def download_image(file_id: str) -> Optional[io.BytesIO]:
         img_buffer.seek(0)
         return img_buffer
     except Exception as e:
-        print(f'❌ Ошибка загрузки изображения {file_id}: {e}')
+        print(f'❌ Ошибка загрузки изображения {url_or_id}: {e}')
         return None
 
 
