@@ -354,7 +354,6 @@ export default function MobileProgram() {
           </>
         )}
       </div>
-      </div>
 
       {selectedSession && (
         <MobileSessionModal
