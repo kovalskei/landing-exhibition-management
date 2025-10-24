@@ -221,6 +221,7 @@ export async function fetchProgramData(customSheetId?: string): Promise<ProgramD
     if (META_SHEET_GID) {
       try {
         const metaUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${META_SHEET_GID}`;
+        console.log('📋 Loading Meta sheet:', metaUrl);
         const metaResponse = await fetch(metaUrl, {
           method: 'GET',
           headers: { Accept: 'text/csv' }
@@ -276,9 +277,10 @@ export async function fetchProgramData(customSheetId?: string): Promise<ProgramD
               }
             }
           }
+          console.log('✅ Meta data loaded:', metaFromSheet);
         }
       } catch (e) {
-        console.warn('Не удалось загрузить лист Meta, используется fallback');
+        console.warn('⚠️ Не удалось загрузить лист Meta:', e);
       }
     }
 

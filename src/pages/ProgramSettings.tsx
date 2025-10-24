@@ -97,7 +97,10 @@ export default function ProgramSettings() {
 
   const getIframeCode = (eventId: string) => {
     const baseUrl = window.location.origin;
-    return `<iframe src="${baseUrl}/program?eventId=${eventId}" width="100%" height="100vh" frameborder="0" style="border:none; display:block;"></iframe>`;
+    return `<!-- FULL-BLEED контейнер: во всю ширину экрана и на высоту окна -->
+<div style="position:relative; width:100vw; height:100vh; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw; overflow:hidden;">
+  <iframe src="${baseUrl}/program?eventId=${eventId}" style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+</div>`;
   };
 
   const copyIframeCode = (eventId: string) => {
