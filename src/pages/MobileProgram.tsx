@@ -40,7 +40,9 @@ export default function MobileProgram() {
         setLoading(true);
         setError(null);
       }
+      console.log('🔍 Loading data with sheetId:', sheetIdFromUrl);
       const programData = await fetchProgramData(sheetIdFromUrl || undefined);
+      console.log('✅ Data loaded:', programData.meta.title);
       setData(programData);
       
       // При первой загрузке устанавливаем время
