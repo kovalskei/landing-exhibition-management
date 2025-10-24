@@ -431,18 +431,14 @@ export default function MobileProgram() {
                   {data.sessions
                     .filter(s => plan.has(s.id))
                     .sort((a, b) => a.start.localeCompare(b.start))
-                    .map(session => {
+                    .map((session, index, sortedPlan) => {
                       const planList = data.sessions.filter(s => plan.has(s.id)).sort((a, b) => a.start.localeCompare(b.start));
                       
                       const conflictingSession = planList.find(p => p.id !== session.id && overlap(p, session));
-                      
-                      const nextSession = planList.find(p => 
-                        p.start >= session.end && p.hallId !== session.hallId
-                      );
-                      
-                      const transitionSession = conflictingSession || nextSession;
                       const hasConflict = !!conflictingSession;
-                      const hasTransition = !conflictingSession && !!nextSession;
+                      
+                      const nextSession = sortedPlan[index + 1];
+                      const needsTransition = !hasConflict && nextSession && nextSession.hallId !== session.hallId;
 
                       return (
                         <MobileSessionCard
@@ -451,9 +447,9 @@ export default function MobileProgram() {
                           inPlan={true}
                           hallName={hallName(session.hallId)}
                           duration={durationText(session)}
-                          hasConflict={hasConflict || hasTransition}
-                          conflictSession={transitionSession}
-                          conflictHallName={transitionSession ? hallName(transitionSession.hallId) : undefined}
+                          hasConflict={hasConflict || needsTransition}
+                          conflictSession={hasConflict ? conflictingSession : (needsTransition ? nextSession : undefined)}
+                          conflictHallName={hasConflict ? (conflictingSession ? hallName(conflictingSession.hallId) : undefined) : (needsTransition ? hallName(nextSession.hallId) : undefined)}
                           onTogglePlan={() => removeFromPlan(session.id)}
                           onClick={() => setSelectedSession(session)}
                         />

@@ -24,6 +24,9 @@ export default function MobileSessionCard({
   onTogglePlan,
   onClick
 }: MobileSessionCardProps) {
+  const isTimeOverlap = conflictSession && session.start < conflictSession.end && conflictSession.start < session.end;
+  const isTransition = conflictSession && !isTimeOverlap;
+
   return (
     <div className="session-card" onClick={onClick}>
       <div className="ses-top">
@@ -45,17 +48,20 @@ export default function MobileSessionCard({
       {session.role && <div className="ses-role">{session.role}</div>}
       {session.title && <div className="ses-title">{session.title}</div>}
 
-      {hasConflict && conflictSession && conflictHallName && (
+      {hasConflict && conflictSession && conflictHallName && isTimeOverlap && (
         <div className="conflict">
           <Icon name="AlertCircle" size={14} />
-          <span>
-            {inPlan 
-              ? `Переход: ${hallName} → ${conflictHallName} к ${conflictSession.start}`
-              : 'Пересечение залов по времени'
-            }
-          </span>
+          <span>Пересечение залов по времени</span>
         </div>
       )}
+      
+      {hasConflict && conflictSession && conflictHallName && isTransition && (
+        <div className="conflict">
+          <Icon name="AlertCircle" size={14} />
+          <span>Переход: {hallName} → {conflictHallName} к {conflictSession.start}</span>
+        </div>
+      )}
+
       {hasConflict && (!conflictSession || !conflictHallName) && (
         <div className="conflict">
           <Icon name="AlertCircle" size={14} />
