@@ -432,6 +432,13 @@ export default function MobileProgram() {
                     const planList = data.sessions.filter(s => plan.has(s.id));
                     const conflictingSession = planList.find(p => p.id !== session.id && overlap(p, session));
                     const hasConflict = !!conflictingSession;
+                    
+                    if (hasConflict) {
+                      console.log('🔴 Конфликт в плане:', {
+                        session: `${session.start}-${session.end} ${hallName(session.hallId)}`,
+                        conflictWith: conflictingSession ? `${conflictingSession.start}-${conflictingSession.end} ${hallName(conflictingSession.hallId)}` : 'unknown'
+                      });
+                    }
 
                     return (
                       <MobileSessionCard
