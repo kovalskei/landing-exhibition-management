@@ -123,7 +123,8 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         padding: 12px 0;
         border-bottom: 1px solid var(--line);
         will-change: transform;
-        transform: translateZ(0);
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
       }
       .chips {
         display: flex;
