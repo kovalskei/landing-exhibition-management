@@ -108,26 +108,25 @@ export default function MobileProgram() {
     let timeoutId: NodeJS.Timeout;
 
     const handleScroll = () => {
-      console.log('scroll event!');
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        console.log('timeout fired, blocked:', isScrollingProgrammatically.current);
         if (isScrollingProgrammatically.current) return;
         
         const allSlots = Array.from(document.querySelectorAll('[data-time]'));
-        console.log('slots found:', allSlots.length);
-        const visibleSlots = allSlots
-          .map(slot => {
-            const rect = slot.getBoundingClientRect();
-            return { slot, top: rect.top, time: slot.getAttribute('data-time') };
-          })
+        const mapped = allSlots.map(slot => {
+          const rect = slot.getBoundingClientRect();
+          return { slot, top: rect.top, time: slot.getAttribute('data-time') };
+        });
+        
+        console.log('All slots:', mapped.map(s => `${s.time}:${Math.round(s.top)}`).join(', '));
+        
+        const visibleSlots = mapped
           .filter(item => item.top >= 100 && item.top <= 400)
           .sort((a, b) => a.top - b.top);
         
-        console.log('visible:', visibleSlots.map(v => v.time));
+        console.log('Visible:', visibleSlots.map(v => v.time));
         if (visibleSlots.length > 0) {
           const time = visibleSlots[0].time;
-          console.log('setting time:', time);
           if (time) {
             setSelectedTime(time);
           }
