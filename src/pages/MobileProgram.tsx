@@ -101,25 +101,36 @@ export default function MobileProgram() {
   useEffect(() => {
     if (!data || tab !== 'now') return;
 
+    console.log('Scroll listener установлен');
     let timeoutId: NodeJS.Timeout;
 
     const handleScroll = () => {
+      console.log('handleScroll вызван');
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        if (isScrollingProgrammatically.current) return;
+        if (isScrollingProgrammatically.current) {
+          console.log('Скролл заблокирован флагом');
+          return;
+        }
         
         const allSlots = Array.from(document.querySelectorAll('[data-time]'));
+        console.log('Всего слотов найдено:', allSlots.length);
+        
         const visibleSlots = allSlots
           .map(slot => {
             const rect = slot.getBoundingClientRect();
-            return { slot, top: rect.top };
+            return { slot, top: rect.top, time: slot.getAttribute('data-time') };
           })
           .filter(item => item.top >= 100 && item.top <= 400)
           .sort((a, b) => a.top - b.top);
         
+        console.log('Видимых слотов:', visibleSlots.length, visibleSlots.map(v => v.time));
+        
         if (visibleSlots.length > 0) {
-          const time = visibleSlots[0].slot.getAttribute('data-time');
+          const time = visibleSlots[0].time;
+          console.log('Детект времени:', time, 'текущее:', selectedTime);
           if (time && time !== selectedTime) {
+            console.log('Устанавливаю время:', time);
             setSelectedTime(time);
           }
         }
@@ -127,9 +138,11 @@ export default function MobileProgram() {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    console.log('Вызываю handleScroll первый раз');
     handleScroll();
 
     return () => {
+      console.log('Отключаю scroll listener');
       clearTimeout(timeoutId);
       window.removeEventListener('scroll', handleScroll);
     };
