@@ -149,6 +149,34 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         border-color: transparent;
         box-shadow: 0 3px 10px rgba(59,130,246,.2);
       }
+      .hall-filter {
+        display: flex;
+        gap: 8px;
+        padding: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        margin-bottom: 14px;
+      }
+      .hall-filter::-webkit-scrollbar { display: none; }
+      .hall-chip {
+        flex-shrink: 0;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        color: var(--text);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .hall-chip.active {
+        background: var(--accent);
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 2px 8px rgba(59,130,246,.2);
+      }
       .now-banner {
         background: linear-gradient(135deg, var(--accent), #8b5cf6);
         color: #fff;

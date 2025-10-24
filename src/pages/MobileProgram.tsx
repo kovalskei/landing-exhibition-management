@@ -10,6 +10,7 @@ import MobileTimeChips from '@/components/mobile/MobileTimeChips';
 import MobileSessionCard from '@/components/mobile/MobileSessionCard';
 import MobileSessionModal from '@/components/mobile/MobileSessionModal';
 import MobileMenu from '@/components/mobile/MobileMenu';
+import MobileHallFilter from '@/components/mobile/MobileHallFilter';
 
 export default function MobileProgram() {
   const [data, setData] = useState<ProgramData | null>(null);
@@ -19,6 +20,7 @@ export default function MobileProgram() {
   const [tab, setTab] = useState<'now' | 'all' | 'plan'>('now');
   const [selectedTime, setSelectedTime] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedHall, setSelectedHall] = useState<string>('all');
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [showMenu, setShowMenu] = useState(false);
@@ -188,10 +190,19 @@ export default function MobileProgram() {
 
   const matchQuery = (sessions: Session[]) => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return sessions;
-    return sessions.filter(s => 
-      (s.title + ' ' + (s.speaker || '') + ' ' + (s.desc || '')).toLowerCase().includes(q)
-    );
+    let result = sessions;
+    
+    if (q) {
+      result = result.filter(s => 
+        (s.title + ' ' + (s.speaker || '') + ' ' + (s.desc || '')).toLowerCase().includes(q)
+      );
+    }
+    
+    if (selectedHall !== 'all') {
+      result = result.filter(s => s.hall === selectedHall);
+    }
+    
+    return result;
   };
 
   const overlap = (a: Session, b: Session) => a.start < b.end && b.start < a.end;
@@ -296,6 +307,11 @@ export default function MobileProgram() {
       {tab === 'now' && (
         <div className="sticky-time-chips">
           <div style={{ padding: '0 14px' }}>
+            <MobileHallFilter
+              halls={data.halls}
+              selectedHall={selectedHall}
+              onHallSelect={setSelectedHall}
+            />
             <MobileTimeChips
               times={times}
               selectedTime={selectedTime}
