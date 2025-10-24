@@ -439,15 +439,43 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         font-size: 48px;
         margin-bottom: 12px;
       }
+      .plan-action {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: var(--accent);
+        color: #fff;
+        border: 0;
+        padding: 14px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .plan-action:active {
+        transform: scale(0.98);
+      }
+      .plan-action:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
       .plan-clear {
+        flex: 1;
         background: var(--err);
         color: #fff;
         border: 0;
-        padding: 12px 20px;
+        padding: 14px 20px;
         border-radius: 12px;
         font-weight: 700;
-        margin: 14px;
+        font-size: 15px;
         cursor: pointer;
+        transition: all 0.15s;
+      }
+      .plan-clear:active {
+        transform: scale(0.98);
       }
       .floating-now-btn {
         position: fixed;

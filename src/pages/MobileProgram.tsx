@@ -424,10 +424,16 @@ export default function MobileProgram() {
               </div>
             ) : (
               <>
-                <button onClick={() => setPlan(new Set())} className="plan-clear">
-                  Очистить план
-                </button>
-                <div style={{ paddingTop: 14 }}>
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
+                  <button onClick={handleExportPdf} disabled={exportingPdf} className="plan-action">
+                    <Icon name={exportingPdf ? 'Loader2' : 'FileDown'} size={18} className={exportingPdf ? 'animate-spin' : ''} />
+                    {exportingPdf ? 'Создание PDF...' : 'Скачать PDF'}
+                  </button>
+                  <button onClick={() => setPlan(new Set())} className="plan-clear">
+                    Очистить план
+                  </button>
+                </div>
+                <div style={{ paddingTop: 0 }}>
                   {data.sessions
                     .filter(s => plan.has(s.id))
                     .sort((a, b) => a.start.localeCompare(b.start))
