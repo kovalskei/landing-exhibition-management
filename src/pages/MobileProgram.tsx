@@ -114,12 +114,19 @@ export default function MobileProgram() {
           console.log('After timeout, isScrolling:', isScrollingProgrammatically.current);
           if (isScrollingProgrammatically.current) return;
           
-          const visibleEntries = entries.filter(e => e.isIntersecting && e.intersectionRatio > 0.3);
+          const visibleEntries = entries.filter(e => {
+            const rect = e.boundingClientRect;
+            const top = rect.top;
+            return e.isIntersecting && top > 0 && top < window.innerHeight / 2;
+          });
+          
           console.log('Visible entries:', visibleEntries.length);
           if (visibleEntries.length > 0) {
-            const topEntry = visibleEntries.reduce((top, curr) => 
-              curr.boundingClientRect.top < top.boundingClientRect.top ? curr : top
-            );
+            const topEntry = visibleEntries.reduce((top, curr) => {
+              const topRect = top.boundingClientRect.top;
+              const currRect = curr.boundingClientRect.top;
+              return Math.abs(currRect - 140) < Math.abs(topRect - 140) ? curr : top;
+            });
             const time = topEntry.target.getAttribute('data-time');
             console.log('Detected time:', time, 'current:', selectedTime);
             if (time && time !== selectedTime) {
@@ -131,8 +138,7 @@ export default function MobileProgram() {
       },
       {
         root: null,
-        rootMargin: '-140px 0px -50% 0px',
-        threshold: [0, 0.3, 0.5, 1]
+        threshold: [0, 0.1, 0.3, 0.5, 0.7, 1]
       }
     );
 
