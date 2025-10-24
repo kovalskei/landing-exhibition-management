@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { fetchProgramData, ProgramData, Session } from '@/utils/googleSheetsParser';
 import { exportProgramToPdf, exportPlanToPdf } from '@/utils/exportProgramToPdf';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,9 @@ import MobileMenu from '@/components/mobile/MobileMenu';
 import MobileHallFilter from '@/components/mobile/MobileHallFilter';
 
 export default function MobileProgram() {
+  const [searchParams] = useSearchParams();
+  const sheetIdFromUrl = searchParams.get('sheetId');
+  
   const [data, setData] = useState<ProgramData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +40,7 @@ export default function MobileProgram() {
         setLoading(true);
         setError(null);
       }
-      const programData = await fetchProgramData();
+      const programData = await fetchProgramData(sheetIdFromUrl || undefined);
       setData(programData);
       
       // При первой загрузке устанавливаем время

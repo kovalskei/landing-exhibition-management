@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { fetchProgramData, ProgramData, Session } from '@/utils/googleSheetsParser';
 import { Button } from '@/components/ui/button';
 import ProgramHeader from '@/components/program/ProgramHeader';
@@ -7,6 +8,9 @@ import ProgramGridV2 from '@/components/program/ProgramGridV2';
 import ProgramPlan from '@/components/program/ProgramPlan';
 
 export default function WebProgram() {
+  const [searchParams] = useSearchParams();
+  const sheetIdFromUrl = searchParams.get('sheetId');
+  
   const [data, setData] = useState<ProgramData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +31,7 @@ export default function WebProgram() {
         setLoading(true);
         setError(null);
       }
-      const programData = await fetchProgramData();
+      const programData = await fetchProgramData(sheetIdFromUrl || undefined);
       setData(programData);
       
       // При фоновой загрузке сохраняем фильтры

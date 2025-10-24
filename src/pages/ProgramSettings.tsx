@@ -65,13 +65,25 @@ export default function ProgramSettings() {
     alert('Источник данных установлен по умолчанию');
   };
 
-  const getIframeCode = (eventId: string) => {
-    const baseUrl = window.location.origin;
-    return `<iframe src="${baseUrl}/program?eventId=${eventId}" width="100%" height="800" frameborder="0" style="border:none;"></iframe>`;
+  const extractSheetId = (url: string): string | null => {
+    const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+    return match ? match[1] : null;
   };
 
-  const copyIframeCode = (eventId: string) => {
-    const code = getIframeCode(eventId);
+  const getIframeCode = (sheetUrl: string) => {
+    const sheetId = extractSheetId(sheetUrl);
+    if (!sheetId) return 'Неверный формат ссылки на Google Sheets';
+    
+    const baseUrl = window.location.origin;
+    return `<iframe src="${baseUrl}/program?sheetId=${sheetId}" width="100%" height="800" frameborder="0" style="border:none;"></iframe>`;
+  };
+
+  const copyIframeCode = (sheetUrl: string) => {
+    const code = getIframeCode(sheetUrl);
+    if (code.includes('Неверный формат')) {
+      alert(code);
+      return;
+    }
     navigator.clipboard.writeText(code);
     alert('Код iframe скопирован в буфер обмена!');
   };
@@ -196,7 +208,7 @@ export default function ProgramSettings() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => copyIframeCode(event.id)}
+                            onClick={() => copyIframeCode(event.sheetUrl)}
                           >
                             <Icon name="Copy" size={14} className="mr-1" />
                             Скопировать
@@ -204,7 +216,7 @@ export default function ProgramSettings() {
                         </div>
                         <Textarea
                           readOnly
-                          value={getIframeCode(event.id)}
+                          value={getIframeCode(event.sheetUrl)}
                           className="font-mono text-xs h-20 resize-none"
                         />
                       </div>
