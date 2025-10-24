@@ -117,14 +117,17 @@ export default function MobileProgram() {
         return { top: rect.top, time: slot.getAttribute('data-time') };
       });
       
-      const headerHeight = 160;
-      const slotsAfterHeader = mapped.filter(s => s.top >= headerHeight);
+      const headerBottom = 180;
+      const slotsPassed = mapped.filter(s => s.top < headerBottom);
       
-      console.log('Slots after header:', slotsAfterHeader.map(s => `${s.time}:${Math.round(s.top)}`).join(', '));
-      
-      if (slotsAfterHeader.length > 0) {
-        const time = slotsAfterHeader[0].time;
-        console.log('Setting time to:', time);
+      if (slotsPassed.length > 0) {
+        const currentSlot = slotsPassed[slotsPassed.length - 1];
+        const time = currentSlot.time;
+        if (time) {
+          setSelectedTime(time);
+        }
+      } else if (mapped.length > 0) {
+        const time = mapped[0].time;
         if (time) {
           setSelectedTime(time);
         }
