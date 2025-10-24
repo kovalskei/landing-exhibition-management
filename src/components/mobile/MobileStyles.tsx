@@ -119,14 +119,16 @@ export default function MobileStyles({ theme }: MobileStylesProps) {
         position: -webkit-sticky;
         position: sticky;
         top: 0;
+        left: 0;
+        right: 0;
         z-index: 100;
         background: var(--bg);
-        padding: 12px 14px;
-        margin: 0 -14px;
+        padding: 12px 0;
         border-bottom: 1px solid var(--line);
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        transform: translateZ(0);
-        -webkit-transform: translateZ(0);
+        transform: translate3d(0,0,0);
+        -webkit-transform: translate3d(0,0,0);
+        will-change: transform;
       }
       .chips {
         display: flex;
