@@ -19,7 +19,7 @@ export default function WebProgram() {
   const [filteredSessions, setFilteredSessions] = useState<Session[]>([]);
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [tagDropdownOpen, setTagDropdownOpen] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [showPlan, setShowPlan] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
@@ -347,49 +347,15 @@ export default function WebProgram() {
           selectedTags={selectedTags}
           showPlan={showPlan}
           theme={theme}
+          viewMode={viewMode}
           onRefresh={handleRefresh}
           onDownloadPdf={downloadProgramPdf}
           onToggleTagDropdown={() => setTagDropdownOpen(!tagDropdownOpen)}
           onTagsChange={setSelectedTags}
           onTogglePlan={() => setShowPlan(!showPlan)}
           onToggleTheme={toggleTheme}
+          onViewModeChange={setViewMode}
         />
-
-        <div className="mb-4 flex items-center gap-2">
-          <style>{`
-            .view-mode-button {
-              background: var(--button-bg);
-              border: 1px solid var(--button-border);
-              color: var(--button-text);
-            }
-            .view-mode-button:hover:not(:disabled) {
-              background: var(--button-hover);
-            }
-            .view-mode-button-active {
-              background: var(--accent);
-              color: #ffffff;
-              border-color: var(--accent);
-            }
-            .view-mode-button-active:hover {
-              background: var(--accent);
-              opacity: 0.9;
-            }
-          `}</style>
-          <Button
-            onClick={() => setViewMode('cards')}
-            size="sm"
-            className={viewMode === 'cards' ? 'view-mode-button-active' : 'view-mode-button'}
-          >
-            По времени
-          </Button>
-          <Button
-            onClick={() => setViewMode('table')}
-            size="sm"
-            className={viewMode === 'table' ? 'view-mode-button-active' : 'view-mode-button'}
-          >
-            По залам
-          </Button>
-        </div>
 
         <div className={`grid gap-6 ${showPlan ? 'xl:grid-cols-[1fr_380px] lg:grid-cols-[1fr_320px] grid-cols-1' : 'grid-cols-1'}`}>
           <div className={viewMode === 'table' ? 'border border-[var(--line)] rounded-lg bg-[var(--panel)] overflow-auto max-h-[calc(100vh-200px)]' : ''}>

@@ -12,12 +12,14 @@ interface ProgramHeaderProps {
   selectedTags: Set<string>;
   showPlan: boolean;
   theme: 'light' | 'dark';
+  viewMode: 'table' | 'cards';
   onRefresh: () => void;
   onDownloadPdf: () => void;
   onToggleTagDropdown: () => void;
   onTagsChange: (tags: Set<string>) => void;
   onTogglePlan: () => void;
   onToggleTheme: () => void;
+  onViewModeChange: (mode: 'table' | 'cards') => void;
 }
 
 export default function ProgramHeader({
@@ -30,12 +32,14 @@ export default function ProgramHeader({
   selectedTags,
   showPlan,
   theme,
+  viewMode,
   onRefresh,
   onDownloadPdf,
   onToggleTagDropdown,
   onTagsChange,
   onTogglePlan,
-  onToggleTheme
+  onToggleTheme,
+  onViewModeChange
 }: ProgramHeaderProps) {
   const tagCanonMap = getTagCanonMap();
   const allCanons = Object.keys(tagCanonMap).sort();
@@ -51,9 +55,26 @@ export default function ProgramHeader({
         .program-button:hover:not(:disabled) {
           background: var(--button-hover);
         }
+        .view-mode-button {
+          background: var(--button-bg);
+          border: 1px solid var(--button-border);
+          color: var(--button-text);
+        }
+        .view-mode-button:hover:not(:disabled) {
+          background: var(--button-hover);
+        }
+        .view-mode-button-active {
+          background: var(--accent);
+          color: #ffffff;
+          border-color: var(--accent);
+        }
+        .view-mode-button-active:hover {
+          background: var(--accent);
+          opacity: 0.9;
+        }
       `}</style>
       
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-3">
         <div className="flex-1 min-w-0">
           <h1 className="text-xl lg:text-2xl font-bold mb-1 truncate">{title}</h1>
           <div className="text-xs lg:text-sm text-[var(--muted)]">
@@ -68,6 +89,23 @@ export default function ProgramHeader({
         </div>
 
         <div className="flex items-center gap-1.5 lg:gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 mr-2">
+            <Button
+              onClick={() => onViewModeChange('cards')}
+              size="sm"
+              className={viewMode === 'cards' ? 'view-mode-button-active' : 'view-mode-button'}
+            >
+              По времени
+            </Button>
+            <Button
+              onClick={() => onViewModeChange('table')}
+              size="sm"
+              className={viewMode === 'table' ? 'view-mode-button-active' : 'view-mode-button'}
+            >
+              По залам
+            </Button>
+          </div>
+          <div className="w-px h-6 bg-[var(--line)] hidden lg:block"></div>
           <Button
             onClick={onRefresh}
             disabled={refreshing}
