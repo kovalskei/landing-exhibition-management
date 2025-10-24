@@ -254,9 +254,10 @@ export default function MobileProgram() {
         </div>
       )}
 
-      {tab === 'now' && (
-        <div style={{ padding: '0 14px' }} ref={timelineRef}>
-          {times.map(slot => {
+      <div style={{ padding: '0 14px' }}>
+        {tab === 'now' && (
+          <div ref={timelineRef}>
+            {times.map(slot => {
             const atSlot = filtered.filter(s => s.start === slot);
             const planList = data.sessions.filter(s => plan.has(s.id));
 
@@ -289,9 +290,9 @@ export default function MobileProgram() {
                 })}
               </div>
             );
-          })}
-        </div>
-      )}
+            })}
+          </div>
+        )}
 
         {tab === 'all' && (
           <div style={{ paddingTop: 14 }}>
@@ -352,6 +353,7 @@ export default function MobileProgram() {
             )}
           </>
         )}
+      </div>
       </div>
 
       {selectedSession && (
