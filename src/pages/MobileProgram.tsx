@@ -86,63 +86,23 @@ export default function MobileProgram() {
     return times[0] || '';
   };
 
-  const isScrollingProgrammatically = useRef(false);
-  const lastSnapIndex = useRef(0);
-
   const scrollToTime = (time: string) => {
-    if (!timelineRef.current || !data) return;
-    const times = [...new Set(data.sessions.map(s => s.start))].sort();
-    const idx = times.indexOf(time);
-    if (idx === -1) return;
+    if (!timelineRef.current) return;
     
-    isScrollingProgrammatically.current = true;
-    lastSnapIndex.current = idx;
-    timelineRef.current.scrollTo({ left: idx * timelineRef.current.clientWidth, behavior: 'smooth' });
-    
-    setTimeout(() => {
-      isScrollingProgrammatically.current = false;
-    }, 600);
+    const slot = timelineRef.current.querySelector(`[data-time="${time}"]`) as HTMLElement;
+    if (slot) {
+      const offset = 80;
+      const elementPosition = slot.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
   };
 
-  const handleTimelineScroll = () => {
-    if (!timelineRef.current || !data || isScrollingProgrammatically.current) return;
-    
-    const times = [...new Set(data.sessions.map(s => s.start))].sort();
-    const scrollLeft = timelineRef.current.scrollLeft;
-    const width = timelineRef.current.clientWidth;
-    const currentIdx = Math.round(scrollLeft / width);
-    
-    // Обновляем чипы сразу
-    if (times[currentIdx] && times[currentIdx] !== selectedTime) {
-      setSelectedTime(times[currentIdx]);
-    }
-    
-    // Мгновенная snap-коррекция
-    const diff = currentIdx - lastSnapIndex.current;
-    
-    if (Math.abs(diff) > 1) {
-      // Перепрыгнули больше чем на 1 слот - сразу корректируем
-      const targetIdx = diff > 0 
-        ? lastSnapIndex.current + 1
-        : lastSnapIndex.current - 1;
-      
-      isScrollingProgrammatically.current = true;
-      timelineRef.current.scrollTo({ 
-        left: targetIdx * width, 
-        behavior: 'smooth' 
-      });
-      lastSnapIndex.current = targetIdx;
-      if (times[targetIdx]) {
-        setSelectedTime(times[targetIdx]);
-      }
-      setTimeout(() => {
-        isScrollingProgrammatically.current = false;
-      }, 600);
-    } else if (Math.abs(diff) === 1) {
-      // Нормальный переход на ±1 - обновляем позицию
-      lastSnapIndex.current = currentIdx;
-    }
-  };
+
 
   const handleTimeChipClick = (time: string) => {
     setSelectedTime(time);
@@ -188,7 +148,9 @@ export default function MobileProgram() {
   const jumpToNow = () => {
     if (!data) return;
     const times = [...new Set(data.sessions.map(s => s.start))].sort();
-    setSelectedTime(nearestSlot(times, data.now));
+    const nearest = nearestSlot(times, data.now);
+    setSelectedTime(nearest);
+    scrollToTime(nearest);
   };
 
   const handleExportPdf = async () => {
@@ -292,43 +254,44 @@ export default function MobileProgram() {
         </div>
       )}
 
-      <div style={{ padding: '0 14px' }}>
-        {tab === 'now' && (
-          <>
-            <div 
-              ref={timelineRef} 
-              className="timeline" 
-              onScroll={handleTimelineScroll}
-            >
-              {times.map(slot => {
-                const atSlot = filtered.filter(s => s.start === slot);
-                const planList = data.sessions.filter(s => plan.has(s.id));
+      {tab === 'now' && (
+        <div style={{ padding: '0 14px' }} ref={timelineRef}>
+          {times.map(slot => {
+            const atSlot = filtered.filter(s => s.start === slot);
+            const planList = data.sessions.filter(s => plan.has(s.id));
 
-                return (
-                  <div key={slot} className="timeline-slot">
-                    {atSlot.map(session => {
-                      const inPlan = plan.has(session.id);
-                      const hasConflict = inPlan ? false : planList.some(p => overlap(p, session));
+            return (
+              <div key={slot} className="timeline-slot" data-time={slot}>
+                <div style={{ 
+                  fontSize: '18px', 
+                  fontWeight: '700', 
+                  marginBottom: '12px',
+                  color: 'var(--text)'
+                }}>
+                  {slot}
+                </div>
+                {atSlot.map(session => {
+                  const inPlan = plan.has(session.id);
+                  const hasConflict = inPlan ? false : planList.some(p => overlap(p, session));
 
-                      return (
-                        <MobileSessionCard
-                          key={session.id}
-                          session={session}
-                          inPlan={inPlan}
-                          hallName={hallName(session.hallId)}
-                          duration={durationText(session)}
-                          hasConflict={hasConflict}
-                          onTogglePlan={() => inPlan ? removeFromPlan(session.id) : addToPlan(session.id)}
-                          onClick={() => setSelectedSession(session)}
-                        />
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        )}
+                  return (
+                    <MobileSessionCard
+                      key={session.id}
+                      session={session}
+                      inPlan={inPlan}
+                      hallName={hallName(session.hallId)}
+                      duration={durationText(session)}
+                      hasConflict={hasConflict}
+                      onTogglePlan={() => inPlan ? removeFromPlan(session.id) : addToPlan(session.id)}
+                      onClick={() => setSelectedSession(session)}
+                    />
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
         {tab === 'all' && (
           <div style={{ paddingTop: 14 }}>
