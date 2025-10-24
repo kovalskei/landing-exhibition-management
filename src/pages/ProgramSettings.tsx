@@ -106,9 +106,8 @@ export default function ProgramSettings() {
   };
 
   const getIframeCode = (eventId: string) => {
-    // Используем production URL, а не window.location.origin (который может быть localhost в dev)
-    const baseUrl = 'https://preview--landing-exhibition-management.poehali.dev';
-    return `<!-- FULL-BLEED контейнер: во всю ширину экрана и на высоту окна -->
+    const baseUrl = 'https://kazan.eventmatrix.ru';
+    return `<!-- FULL-BLEED контайнер: во всю ширину экрана и на высоту окна -->
 <div style="position:relative; width:100vw; height:100vh; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw; overflow:hidden;">
   <iframe src="${baseUrl}/program?eventId=${eventId}" style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
 </div>`;
