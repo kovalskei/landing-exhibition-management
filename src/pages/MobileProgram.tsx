@@ -102,8 +102,8 @@ export default function MobileProgram() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      loadData(true); // Тихое обновление фоном каждые 30 секунд
-    }, 30000);
+      loadData(true); // Тихое обновление фоном каждые 5 минут
+    }, 300000);
     return () => clearInterval(interval);
   }, []);
 

@@ -123,7 +123,11 @@ export default function WebProgram() {
         hallIntros
       };
 
-      console.log('📄 PDF Meta:', pdfData.meta);
+      console.log('📄 PDF Data being sent:', {
+        meta: pdfData.meta,
+        hallsCount: pdfData.halls.length,
+        sessionsCount: pdfData.sessions.length
+      });
 
       const response = await fetch('https://functions.poehali.dev/627176dc-e9bb-4240-b145-2a99dfd51f06', {
         method: 'POST',
@@ -238,8 +242,8 @@ export default function WebProgram() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      loadData(true); // Тихое обновление фоном каждые 30 секунд
-    }, 30000);
+      loadData(true); // Тихое обновление фоном каждые 5 минут
+    }, 300000);
     return () => clearInterval(interval);
   }, []);
 
