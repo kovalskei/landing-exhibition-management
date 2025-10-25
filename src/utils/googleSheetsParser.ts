@@ -126,14 +126,29 @@ function parseTalk(text: string): {
     out.role = p2.join(', ');
   } else {
     const p = cleanHead.split(/\s*,\s*/);
-    if (
-      p.length >= 2 &&
-      /директор|руковод|менеджер|основател|эксперт|инженер|профессор|доцент|автор|тренер|психолог|консультант|специалист|аналитик|координатор|ассистент|преподаватель|лектор|методист/i.test(
-        p.slice(1).join(', ')
-      )
-    ) {
-      out.speaker = p.shift()!;
-      out.role = p.join(', ');
+    if (p.length >= 2) {
+      // Проверяем признаки должности во второй части:
+      // 1. Начинается с маленькой буквы (кроме англ. аббревиатур)
+      // 2. Содержит типичные слова-маркеры должностей
+      // 3. Содержит типичные паттерны (C&B, IT, HR, Senior, Lead и т.д.)
+      const restText = p.slice(1).join(', ');
+      const firstChar = restText.trim()[0];
+      const startsWithLowerCase = firstChar && firstChar === firstChar.toLowerCase() && !/^[A-Z&]/.test(restText);
+      const hasJobKeywords = /директор|руковод|менеджер|основател|эксперт|инженер|профессор|доцент|автор|тренер|психолог|консультант|специалист|аналитик|координатор|ассистент|преподаватель|лектор|методист|Lead|Senior|Junior|Head|Chief|Manager|Director|Recruiter|BP|методолог|начальник/i.test(restText);
+      
+      if (startsWithLowerCase || hasJobKeywords) {
+        out.speaker = p.shift()!;
+        out.role = p.join(', ');
+      } else {
+        // Если не похоже на должность, пробуем найти тире
+        const d = cleanHead.split(/\s[—–-]\s/);
+        if (d.length === 2) {
+          out.speaker = d[0];
+          out.title = out.title || d[1];
+        } else if (!out.title) {
+          out.title = cleanHead;
+        }
+      }
     } else {
       const d = cleanHead.split(/\s[—–-]\s/);
       if (d.length === 2) {
