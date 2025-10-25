@@ -16,6 +16,9 @@ function ProgramRouter() {
   const [searchParams] = useSearchParams();
   const viewParam = searchParams.get('view');
   
+  console.log('🔄 ProgramRouter: Full URL:', window.location.href);
+  console.log('🔄 ProgramRouter: Hash:', window.location.hash);
+  
   // Определяем, мобильное ли устройство
   const isMobile = 
     window.innerWidth <= 900 || 
