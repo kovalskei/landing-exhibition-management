@@ -76,6 +76,36 @@ export default function MobileProgram() {
     loadSheetId();
   }, [eventIdFromUrl]);
 
+  useEffect(() => {
+    const restorePlan = async () => {
+      if (!eventIdFromUrl) return;
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const userIdFromUrl = urlParams.get('userId');
+      
+      if (userIdFromUrl) {
+        localStorage.setItem('userId', userIdFromUrl);
+      }
+      
+      const userId = localStorage.getItem('userId');
+      if (!userId) return;
+      
+      try {
+        const response = await fetch(`https://functions.poehali.dev/ce2d6e5d-831b-4013-85ed-00024ea91741?eventId=${eventIdFromUrl}&userId=${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.sessionIds && data.sessionIds.length > 0) {
+            setPlan(new Set(data.sessionIds));
+          }
+        }
+      } catch (err) {
+        console.error('Failed to restore plan:', err);
+      }
+    };
+    
+    restorePlan();
+  }, [eventIdFromUrl]);
+
   const loadData = async (silent = false, dayGid?: string) => {
     try {
       if (!silent) {
@@ -779,10 +809,20 @@ export default function MobileProgram() {
               </div>
             ) : (
               <>
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '14px', flexWrap: 'wrap' }}>
                   <button onClick={handleExportPlanPdf} disabled={exportingPdf} className="plan-action">
                     <Icon name={exportingPdf ? 'Loader2' : 'FileDown'} size={18} className={exportingPdf ? 'animate-spin' : ''} />
                     {exportingPdf ? 'Создание PDF...' : 'Скачать PDF'}
+                  </button>
+                  <button onClick={() => {
+                    const userId = localStorage.getItem('userId');
+                    if (!userId || !eventIdFromUrl) return;
+                    const shareUrl = `${window.location.origin}${window.location.pathname}?eventId=${eventIdFromUrl}&userId=${userId}`;
+                    navigator.clipboard.writeText(shareUrl);
+                    alert('✅ Ссылка скопирована! Сохраните её, чтобы восстановить план на другом устройстве.');
+                  }} className="plan-action">
+                    <Icon name="Link" size={18} />
+                    Скопировать ссылку
                   </button>
                   <button onClick={() => { const emptyPlan = new Set<string>(); savePlanToBackend(emptyPlan); setPlan(emptyPlan); }} className="plan-clear">
                     Очистить план
