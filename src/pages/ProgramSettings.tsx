@@ -16,6 +16,16 @@ interface ProgramEvent {
   createdAt: string;
 }
 
+interface SessionStat {
+  session_id: string;
+  interest_count: number;
+}
+
+interface EventStats {
+  totalUsers: number;
+  sessions: SessionStat[];
+}
+
 const API_URL = 'https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c';
 
 export default function ProgramSettings() {
@@ -32,6 +42,8 @@ export default function ProgramSettings() {
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingEditLogo, setUploadingEditLogo] = useState<string | null>(null);
   const [uploadingEditCover, setUploadingEditCover] = useState<string | null>(null);
+  const [stats, setStats] = useState<Record<string, EventStats>>({});
+  const [loadingStats, setLoadingStats] = useState<Record<string, boolean>>({});
 
   const loadEvents = async () => {
     try {
@@ -123,6 +135,19 @@ export default function ProgramSettings() {
     const code = getIframeCode(eventId);
     navigator.clipboard.writeText(code);
     alert('Код iframe скопирован в буфер обмена!');
+  };
+
+  const loadStats = async (eventId: string) => {
+    setLoadingStats(prev => ({ ...prev, [eventId]: true }));
+    try {
+      const response = await fetch(`https://functions.poehali.dev/74b8d859-f86d-4472-8953-60d978dafb94?eventId=${eventId}`);
+      const data = await response.json();
+      setStats(prev => ({ ...prev, [eventId]: data }));
+    } catch (err) {
+      console.error('Failed to load stats:', err);
+    } finally {
+      setLoadingStats(prev => ({ ...prev, [eventId]: false }));
+    }
   };
 
   const uploadImage = async (file: File, type: 'logo' | 'cover', eventId?: string) => {
@@ -433,6 +458,52 @@ export default function ProgramSettings() {
                           className="font-mono text-xs h-20 resize-none"
                         />
                       </div>
+                      {stats[event.id] && (
+                        <div className="bg-muted/50 p-3 rounded-md mt-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-semibold text-muted-foreground">Статистика интереса</span>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => loadStats(event.id)}
+                              disabled={loadingStats[event.id]}
+                            >
+                              <Icon name={loadingStats[event.id] ? 'Loader2' : 'RefreshCw'} size={14} className={loadingStats[event.id] ? 'animate-spin' : ''} />
+                            </Button>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-sm">
+                              <span>Всего пользователей:</span>
+                              <span className="font-semibold">{stats[event.id].totalUsers}</span>
+                            </div>
+                            {stats[event.id].sessions.length > 0 && (
+                              <div className="mt-3">
+                                <p className="text-xs font-medium mb-2">Топ-10 докладов:</p>
+                                <div className="space-y-1 max-h-48 overflow-y-auto">
+                                  {stats[event.id].sessions.slice(0, 10).map((s) => (
+                                    <div key={s.session_id} className="flex items-center justify-between text-xs bg-background p-2 rounded">
+                                      <span className="font-mono text-muted-foreground">{s.session_id}</span>
+                                      <span className="font-semibold">{s.interest_count} ★</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      {!stats[event.id] && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => loadStats(event.id)}
+                          disabled={loadingStats[event.id]}
+                          className="w-full mt-3"
+                        >
+                          <Icon name={loadingStats[event.id] ? 'Loader2' : 'BarChart3'} size={14} className={`mr-2 ${loadingStats[event.id] ? 'animate-spin' : ''}`} />
+                          {loadingStats[event.id] ? 'Загрузка...' : 'Показать статистику'}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 )}

@@ -1,0 +1,33 @@
+{
+  "tests": [
+    {
+      "name": "Save new user plan",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "eventId": "test-event",
+        "userId": "user-123",
+        "sessionIds": ["session-1", "session-2", "session-3"]
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing eventId returns error",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "userId": "user-123",
+        "sessionIds": ["session-1"]
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

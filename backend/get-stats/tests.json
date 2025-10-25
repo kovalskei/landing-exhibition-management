@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Get stats for event",
+      "method": "GET",
+      "path": "/?eventId=test-event",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "totalUsers": 1
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing eventId returns error",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
