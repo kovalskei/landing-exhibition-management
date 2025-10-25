@@ -340,6 +340,15 @@ export async function fetchProgramData(customSheetId?: string): Promise<ProgramD
 
     const R = rows.length;
     const C = rows[0].length;
+    
+    // Найдём строку с HR-маркетинг и покажем её полностью
+    for (let i = 0; i < Math.min(R, 50); i++) {
+      const rowText = rows[i].join('|');
+      if (rowText.includes('HR-маркетинг')) {
+        console.log(`📊 Строка ${i} с HR-маркетинг (всего ${rows[i].length} колонок):`, rows[i]);
+        break;
+      }
+    }
     // START_ROW = 5 соответствует строке 6 в Excel (строки 1-4 это meta, row 5 это заголовки времени)
     const START_ROW = 5;
 
