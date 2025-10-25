@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "Missing eventId",
+      "method": "POST",
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "eventId is required"
+      }
+    }
+  ]
+}

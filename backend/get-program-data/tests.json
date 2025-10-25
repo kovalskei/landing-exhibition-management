@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "Missing eventId parameter",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "eventId is required"
+      }
+    }
+  ]
+}
