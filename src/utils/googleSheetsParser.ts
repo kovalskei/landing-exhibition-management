@@ -427,7 +427,16 @@ export async function fetchProgramData(customSheetId?: string): Promise<ProgramD
     }
 
     // Парсинг докладов
-    console.log('🏛️ Найдено залов:', halls.map(h => ({ name: h.name, colIndex: h.id })));
+    console.log('🏛️ Найдено залов:', halls.map(h => ({ 
+      name: h.name, 
+      startCol: h.id,
+      endCol: parseInt(h.id) + 1,
+      textCol: parseInt(h.id) + 2
+    })));
+    
+    // Покажем заголовки колонок для отладки
+    console.log('📋 Заголовки строки 0:', rows[0]?.slice(0, 20));
+    console.log('📋 Заголовки строки 4 (время):', rows[4]?.slice(0, 20));
     
     let totalParsed = 0;
     let skipped = 0;
