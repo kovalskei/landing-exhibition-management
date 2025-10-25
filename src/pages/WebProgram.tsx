@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { fetchProgramData, fetchProgramDataByGid, ProgramData, Session, getDaySheets } from '@/utils/googleSheetsParser';
+import { fetchProgramData, fetchProgramDataByGid, preloadAllSheets, ProgramData, Session, getDaySheets } from '@/utils/googleSheetsParser';
 import { Button } from '@/components/ui/button';
 import ProgramHeader from '@/components/program/ProgramHeader';
 import ProgramGrid from '@/components/program/ProgramGrid';
@@ -49,10 +49,12 @@ export default function WebProgram() {
         const response = await fetch(`https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c?id=${eventIdFromUrl}`);
         const eventData = await response.json();
         
+        let extractedSheetId: string | null = null;
         if (eventData.sheetUrl) {
           const match = eventData.sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
           if (match) {
-            setSheetId(match[1]);
+            extractedSheetId = match[1];
+            setSheetId(extractedSheetId);
           }
         }
         
@@ -69,6 +71,15 @@ export default function WebProgram() {
           if (parsed.length > 0) {
             setDaySheets(parsed);
             setSelectedDay(parsed[0].gid);
+            
+            // Предзагружаем все листы параллельно
+            if (extractedSheetId) {
+              const gids = parsed.map(d => d.gid);
+              console.log('📥 Предзагрузка всех листов:', gids);
+              preloadAllSheets(extractedSheetId, gids).then(() => {
+                console.log('✅ Все листы предзагружены');
+              });
+            }
           }
         }
       } catch (err) {

@@ -211,10 +211,11 @@ function normAll(s: string): string {
   return splitLines(s).map(normLine).join(' ');
 }
 
-export async function fetchProgramData(customSheetId?: string): Promise<ProgramData> {
+export async function fetchProgramData(customSheetId?: string, customGid?: string): Promise<ProgramData> {
   try {
     const sheetId = customSheetId || SHEET_ID;
-    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0`;
+    const gid = customGid || '0';
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
 
     const response = await fetch(csvUrl, {
       method: 'GET',
@@ -630,9 +631,42 @@ export function getDaySheets(): { name: string; gid: string }[] {
   return DAY_SHEETS;
 }
 
+// Кеш для данных листов (чтобы не загружать дважды)
+const sheetsCache = new Map<string, ProgramData>();
+
 export async function fetchProgramDataByGid(customSheetId: string | undefined, gid: string): Promise<ProgramData> {
-  // Используем основной парсер вместо упрощённого
-  return fetchProgramData(customSheetId, gid);
+  const cacheKey = `${customSheetId || SHEET_ID}_${gid}`;
+  
+  // Проверяем кеш
+  if (sheetsCache.has(cacheKey)) {
+    return sheetsCache.get(cacheKey)!;
+  }
+  
+  // Загружаем и кешируем
+  const data = await fetchProgramData(customSheetId, gid);
+  sheetsCache.set(cacheKey, data);
+  return data;
+}
+
+// Функция для предзагрузки всех листов события
+export async function preloadAllSheets(
+  customSheetId: string | undefined, 
+  gids: string[]
+): Promise<Map<string, ProgramData>> {
+  const results = new Map<string, ProgramData>();
+  
+  // Загружаем все листы параллельно
+  const promises = gids.map(async (gid) => {
+    try {
+      const data = await fetchProgramDataByGid(customSheetId, gid);
+      results.set(gid, data);
+    } catch (err) {
+      console.error(`Failed to load sheet gid=${gid}:`, err);
+    }
+  });
+  
+  await Promise.all(promises);
+  return results;
 }
 
 async function fetchProgramDataByGid_OLD(customSheetId: string | undefined, gid: string): Promise<ProgramData> {
