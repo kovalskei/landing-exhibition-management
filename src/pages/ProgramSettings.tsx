@@ -13,6 +13,7 @@ interface ProgramEvent {
   logoUrl?: string;
   coverUrl?: string;
   daySheets?: string;
+  embedUrl?: string;
   createdAt: string;
 }
 
@@ -36,6 +37,7 @@ export default function ProgramSettings() {
   const [newLogoUrl, setNewLogoUrl] = useState('');
   const [newCoverUrl, setNewCoverUrl] = useState('');
   const [newDaySheets, setNewDaySheets] = useState('');
+  const [newEmbedUrl, setNewEmbedUrl] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -71,6 +73,7 @@ export default function ProgramSettings() {
       logoUrl: newLogoUrl.trim() || undefined,
       coverUrl: newCoverUrl.trim() || undefined,
       daySheets: newDaySheets.trim() || undefined,
+      embedUrl: newEmbedUrl.trim() || undefined,
       createdAt: new Date().toISOString()
     };
 
@@ -87,6 +90,7 @@ export default function ProgramSettings() {
       setNewLogoUrl('');
       setNewCoverUrl('');
       setNewDaySheets('');
+      setNewEmbedUrl('');
     } catch (err) {
       console.error('Failed to create event:', err);
       alert('Не удалось создать событие');
@@ -107,12 +111,12 @@ export default function ProgramSettings() {
     }
   };
 
-  const updateEvent = async (id: string, name: string, url: string, logoUrl?: string, coverUrl?: string, daySheets?: string) => {
+  const updateEvent = async (id: string, name: string, url: string, logoUrl?: string, coverUrl?: string, daySheets?: string, embedUrl?: string) => {
     try {
       await fetch(API_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, name, sheetUrl: url, logoUrl, coverUrl, daySheets })
+        body: JSON.stringify({ id, name, sheetUrl: url, logoUrl, coverUrl, daySheets, embedUrl })
       });
       
       await loadEvents();
@@ -366,6 +370,11 @@ export default function ProgramSettings() {
                 Формат: Название: GID листа (каждая строка = отдельный день)
               </p>
             </div>
+            <Input
+              placeholder="URL сайта для шаринга (опционально)"
+              value={newEmbedUrl}
+              onChange={(e) => setNewEmbedUrl(e.target.value)}
+            />
             <Button onClick={addEvent} className="w-full">
               <Icon name="Plus" size={16} className="mr-2" />
               Добавить событие
@@ -452,6 +461,11 @@ export default function ProgramSettings() {
                       rows={3}
                       className="font-mono text-sm"
                     />
+                    <Input
+                      defaultValue={event.embedUrl || ''}
+                      id={`embed-${event.id}`}
+                      placeholder="URL сайта для шаринга"
+                    />
                     <div className="flex gap-2">
                       <Button
                         size="sm"
@@ -461,7 +475,8 @@ export default function ProgramSettings() {
                           const logo = (document.getElementById(`logo-${event.id}`) as HTMLInputElement).value;
                           const cover = (document.getElementById(`cover-${event.id}`) as HTMLInputElement).value;
                           const days = (document.getElementById(`days-${event.id}`) as HTMLTextAreaElement).value;
-                          updateEvent(event.id, name, url, logo, cover, days);
+                          const embed = (document.getElementById(`embed-${event.id}`) as HTMLInputElement).value;
+                          updateEvent(event.id, name, url, logo, cover, days, embed);
                         }}
                       >
                         Сохранить

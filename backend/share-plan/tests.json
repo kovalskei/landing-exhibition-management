@@ -1,0 +1,25 @@
+{
+  "tests": [
+    {
+      "name": "Save plan and get ID",
+      "method": "POST",
+      "body": {
+        "plan": ["session1", "session2", "session3"]
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "planId": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get plan by ID returns error for missing ID",
+      "method": "GET",
+      "queryParams": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "Plan ID is required"
+      }
+    }
+  ]
+}

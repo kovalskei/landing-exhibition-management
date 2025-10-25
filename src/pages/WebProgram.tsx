@@ -281,21 +281,44 @@ export default function WebProgram() {
   // Автообновление отключено - пользователь может обновить через кнопку Refresh
 
   useEffect(() => {
-    const planParam = searchParams.get('plan');
-    if (planParam) {
-      try {
-        const planData = JSON.parse(decodeURIComponent(planParam));
-        setPlan(planData);
-        setShowPlan(true);
-        return;
-      } catch (e) {
-        console.error('Failed to parse plan from URL:', e);
+    const loadPlanFromUrl = async () => {
+      const planId = searchParams.get('planId');
+      if (planId) {
+        try {
+          const response = await fetch(`https://functions.poehali.dev/f95caa2c-ac09-46a2-ac7c-a2b1150fa9bd?id=${planId}`);
+          const result = await response.json();
+          
+          if (result.plan && data) {
+            const planSessions = data.sessions.filter(s => result.plan.includes(s.id));
+            setPlan(planSessions);
+            setShowPlan(true);
+            return;
+          }
+        } catch (e) {
+          console.error('Failed to load plan from server:', e);
+        }
       }
-    }
+      
+      const planParam = searchParams.get('plan');
+      if (planParam) {
+        try {
+          const planData = JSON.parse(decodeURIComponent(planParam));
+          setPlan(planData);
+          setShowPlan(true);
+          return;
+        } catch (e) {
+          console.error('Failed to parse plan from URL:', e);
+        }
+      }
+      
+      const saved = localStorage.getItem('web-program-plan');
+      if (saved) setPlan(JSON.parse(saved));
+    };
     
-    const saved = localStorage.getItem('web-program-plan');
-    if (saved) setPlan(JSON.parse(saved));
-  }, []);
+    if (data) {
+      loadPlanFromUrl();
+    }
+  }, [data]);
 
   useEffect(() => {
     localStorage.setItem('web-program-plan', JSON.stringify(plan));

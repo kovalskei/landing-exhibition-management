@@ -61,42 +61,45 @@ export default function ProgramPlan({
                 return;
               }
               
-              let baseUrl = `${window.location.origin}${window.location.pathname}`;
-              
               try {
-                if (window.self !== window.top && document.referrer) {
-                  const referrerUrl = new URL(document.referrer);
-                  baseUrl = `${referrerUrl.origin}${referrerUrl.pathname}`;
+                const response = await fetch('https://functions.poehali.dev/f95caa2c-ac09-46a2-ac7c-a2b1150fa9bd', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ plan: plan.map(s => s.id) })
+                });
+                
+                const result = await response.json();
+                
+                if (!result.planId) {
+                  throw new Error('Failed to generate share link');
                 }
-              } catch (e) {
-                console.log('Cannot access parent frame, using current URL');
-              }
-              
-              const planData = JSON.stringify(plan);
-              const shareUrl = eventId 
-                ? `${baseUrl}?eventId=${eventId}&plan=${encodeURIComponent(planData)}`
-                : `${baseUrl}?plan=${encodeURIComponent(planData)}`;
-              
-              try {
+                
+                const eventResponse = await fetch(`https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c?id=${eventId}`);
+                const eventData = await eventResponse.json();
+                const embedUrl = eventData.embedUrl || '';
+                
+                let baseUrl = embedUrl || `${window.location.origin}${window.location.pathname}`;
+                
+                if (!embedUrl) {
+                  try {
+                    if (window.self !== window.top && document.referrer) {
+                      const referrerUrl = new URL(document.referrer);
+                      baseUrl = `${referrerUrl.origin}${referrerUrl.pathname}`;
+                    }
+                  } catch (e) {
+                    console.log('Cannot access parent frame, using current URL');
+                  }
+                }
+                
+                const shareUrl = eventId 
+                  ? `${baseUrl}?eventId=${eventId}&planId=${result.planId}`
+                  : `${baseUrl}?planId=${result.planId}`;
+                
                 await navigator.clipboard.writeText(shareUrl);
                 alert('✅ Ссылка скопирована!\n\nСохраните её, чтобы восстановить план на другом устройстве.');
               } catch (err) {
-                const textArea = document.createElement('textarea');
-                textArea.value = shareUrl;
-                textArea.style.position = 'fixed';
-                textArea.style.top = '0';
-                textArea.style.left = '0';
-                textArea.style.opacity = '0';
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                  document.execCommand('copy');
-                  alert('✅ Ссылка скопирована!');
-                } catch (e) {
-                  prompt('Скопируйте ссылку вручную:', shareUrl);
-                }
-                document.body.removeChild(textArea);
+                console.error('Failed to generate share link:', err);
+                alert('❌ Не удалось создать ссылку для шаринга');
               }
             }}
             variant="outline"
