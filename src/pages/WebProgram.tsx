@@ -22,6 +22,16 @@ export default function WebProgram() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [showPlan, setShowPlan] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  
+  // Генерируем userId один раз при загрузке
+  const [userId] = useState<string>(() => {
+    let id = localStorage.getItem('web-program-userId');
+    if (!id) {
+      id = 'user-' + Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('web-program-userId', id);
+    }
+    return id;
+  });
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [generatingPlanPdf, setGeneratingPlanPdf] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('cards');
@@ -287,6 +297,22 @@ export default function WebProgram() {
 
   useEffect(() => {
     localStorage.setItem('web-program-plan', JSON.stringify(plan));
+    
+    // Отправляем статистику на сервер
+    if (eventIdFromUrl && plan.length > 0) {
+      const sessionIds = plan.map(s => s.id);
+      fetch('https://functions.poehali.dev/6ce5a94c-00ee-49fc-b106-0af8a1b0380f', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventId: eventIdFromUrl,
+          userId: userId,
+          sessionIds: sessionIds
+        })
+      }).catch(err => {
+        console.error('Failed to save plan stats:', err);
+      });
+    }
   }, [plan]);
 
   useEffect(() => {
