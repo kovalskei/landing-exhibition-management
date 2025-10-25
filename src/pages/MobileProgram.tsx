@@ -160,7 +160,15 @@ export default function MobileProgram() {
 
   useEffect(() => {
     const loadPlanFromUrl = async () => {
-      const planId = searchParams.get('planId');
+      let planId = searchParams.get('planId');
+      
+      // Проверяем hash (#planId=...)
+      if (!planId && window.location.hash) {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        planId = hashParams.get('planId');
+        console.log('📱 Mobile: Got planId from hash:', planId);
+      }
+      
       if (planId) {
         try {
           const response = await fetch(`https://functions.poehali.dev/f95caa2c-ac09-46a2-ac7c-a2b1150fa9bd?id=${planId}`);
@@ -168,6 +176,7 @@ export default function MobileProgram() {
           
           if (result.plan) {
             setPlan(new Set(result.plan));
+            setTab('plan');
             return;
           }
         } catch (e) {
@@ -881,8 +890,8 @@ export default function MobileProgram() {
                       }
                       
                       const shareUrl = eventIdFromUrl
-                        ? `${baseUrl}?eventId=${eventIdFromUrl}&planId=${result.planId}`
-                        : `${baseUrl}?planId=${result.planId}`;
+                        ? `${baseUrl}?eventId=${eventIdFromUrl}#planId=${result.planId}`
+                        : `${baseUrl}#planId=${result.planId}`;
                       
                       if (navigator.share && navigator.canShare && navigator.canShare({ url: shareUrl })) {
                         try {

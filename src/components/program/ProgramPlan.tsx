@@ -107,10 +107,10 @@ export default function ProgramPlan({
                 }
                 
                 const shareUrl = eventId 
-                  ? `${baseUrl}?eventId=${eventId}&planId=${result.planId}`
+                  ? `${baseUrl}?eventId=${eventId}#planId=${result.planId}`
                   : sheetId
-                  ? `${baseUrl}?sheetId=${sheetId}&planId=${result.planId}`
-                  : `${baseUrl}?planId=${result.planId}`;
+                  ? `${baseUrl}?sheetId=${sheetId}#planId=${result.planId}`
+                  : `${baseUrl}#planId=${result.planId}`;
                 
                 console.log('Generated share URL:', shareUrl);
                 

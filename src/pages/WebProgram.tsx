@@ -289,9 +289,30 @@ export default function WebProgram() {
       console.log('🌐 Current URL:', window.location.href);
       console.log('🔍 Search params:', Object.fromEntries(searchParams.entries()));
       
-      const planId = searchParams.get('planId');
+      let planId = searchParams.get('planId');
+      
+      // Если в URL нет planId, проверяем parent window (для iframe)
       if (!planId) {
-        console.log('❌ No planId in URL');
+        try {
+          if (window.self !== window.top && window.parent) {
+            const parentUrl = new URL(window.parent.location.href);
+            planId = parentUrl.searchParams.get('planId');
+            console.log('📱 Trying to get planId from parent window:', planId);
+          }
+        } catch (e) {
+          console.log('⛔ Cannot access parent URL (cross-origin), trying fragment');
+        }
+      }
+      
+      // Если всё ещё нет planId, пробуем получить из фрагмента URL (#planId=...)
+      if (!planId && window.location.hash) {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        planId = hashParams.get('planId');
+        console.log('🔗 Trying to get planId from hash:', planId);
+      }
+      
+      if (!planId) {
+        console.log('❌ No planId in URL, searchParams, parent, or hash');
         return;
       }
       
