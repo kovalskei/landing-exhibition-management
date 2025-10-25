@@ -236,14 +236,40 @@ export default function MobileProgram() {
 
 
 
+  const savePlanToBackend = async (newPlan: Set<string>) => {
+    if (!eventIdFromUrl) return;
+    
+    try {
+      const userId = localStorage.getItem('userId') || `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('userId', userId);
+      
+      await fetch('https://functions.poehali.dev/6ce5a94c-00ee-49fc-b106-0af8a1b0380f', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventId: eventIdFromUrl,
+          userId: userId,
+          sessionIds: Array.from(newPlan)
+        })
+      });
+    } catch (error) {
+      console.error('Failed to save plan:', error);
+    }
+  };
+
   const addToPlan = (id: string) => {
-    setPlan(prev => new Set([...prev, id]));
+    setPlan(prev => {
+      const newPlan = new Set([...prev, id]);
+      savePlanToBackend(newPlan);
+      return newPlan;
+    });
   };
 
   const removeFromPlan = (id: string) => {
     setPlan(prev => {
       const next = new Set(prev);
       next.delete(id);
+      savePlanToBackend(next);
       return next;
     });
   };
@@ -287,37 +313,7 @@ export default function MobileProgram() {
     scrollToTime(nearest);
   };
 
-  const handleSharePlan = async () => {
-    if (!data || !eventIdFromUrl || plan.size === 0) return;
-    
-    try {
-      const userId = localStorage.getItem('userId') || `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem('userId', userId);
-      
-      const sessionIds = Array.from(plan);
-      
-      const response = await fetch('https://functions.poehali.dev/6ce5a94c-00ee-49fc-b106-0af8a1b0380f', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          eventId: eventIdFromUrl,
-          userId: userId,
-          sessionIds: sessionIds
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Не удалось сохранить план');
-      }
-      
-      alert('✅ Ваш план успешно сохранён! Организаторы увидят статистику интереса к докладам.');
-    } catch (error) {
-      console.error('Ошибка при сохранении плана:', error);
-      alert('❌ Не удалось сохранить план. Попробуйте позже.');
-    }
-  };
+
 
   const handleExportPdf = async () => {
     if (!data) return;
@@ -788,11 +784,7 @@ export default function MobileProgram() {
                     <Icon name={exportingPdf ? 'Loader2' : 'FileDown'} size={18} className={exportingPdf ? 'animate-spin' : ''} />
                     {exportingPdf ? 'Создание PDF...' : 'Скачать PDF'}
                   </button>
-                  <button onClick={handleSharePlan} className="plan-action">
-                    <Icon name="Share2" size={18} />
-                    Поделиться планом
-                  </button>
-                  <button onClick={() => setPlan(new Set())} className="plan-clear">
+                  <button onClick={() => { const emptyPlan = new Set<string>(); savePlanToBackend(emptyPlan); setPlan(emptyPlan); }} className="plan-clear">
                     Очистить план
                   </button>
                 </div>
