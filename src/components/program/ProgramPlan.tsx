@@ -1,3 +1,4 @@
+import React from 'react';
 import { Session, getTagCanonMap } from '@/utils/googleSheetsParser';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -81,16 +82,19 @@ export default function ProgramPlan({
           {sorted.map((session, i) => {
             const prev = sorted[i - 1];
             const notes = [];
+            const isDayChange = prev && prev.date !== session.date;
 
             if (prev) {
-              if (prev.hall !== session.hall) {
+              const sameDay = prev.date === session.date;
+              
+              if (sameDay && prev.hall !== session.hall) {
                 notes.push(
                   <span key="switch" className="text-orange-500">
                     смена зала: {prev.hall} → {session.hall}
                   </span>
                 );
               }
-              if (toMin(prev.end) > toMin(session.start)) {
+              if (sameDay && toMin(prev.end) > toMin(session.start)) {
                 notes.push(
                   <span key="conflict" className="text-red-500">
                     пересечение по времени
@@ -100,7 +104,13 @@ export default function ProgramPlan({
             }
 
             return (
-              <div key={session.id} className="border border-[var(--line)] rounded-lg p-3 space-y-2">
+              <React.Fragment key={session.id}>
+                {isDayChange && session.date && (
+                  <div className="text-xs font-semibold text-[var(--muted)] pt-4 pb-2 border-t border-[var(--line)]">
+                    {session.date}
+                  </div>
+                )}
+                <div className="border border-[var(--line)] rounded-lg p-3 space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="text-xs font-semibold">
                     {session.start} — {session.end} · {session.hall}
@@ -161,6 +171,7 @@ export default function ProgramPlan({
                   Убрать
                 </Button>
               </div>
+              </React.Fragment>
             );
           })}
         </div>

@@ -24,6 +24,7 @@ export interface Session {
   tags: string[];
   tagsCanon: string[];
   photo?: string;
+  date?: string;
 }
 
 export interface ProgramData {
@@ -574,6 +575,8 @@ export async function fetchProgramData(customSheetId?: string, customGid?: strin
         hallCount++;
         totalParsed++;
 
+        const sessionDate = metaFromSheet['date'] || String(rows[2]?.[0] || '').trim();
+        
         sessions.push({
           id: halls[h].name + '|' + s0 + '|' + e0 + '|' + (talk.title || cleanHeader || raw0),
           hallId: halls[h].id,
@@ -586,7 +589,8 @@ export async function fetchProgramData(customSheetId?: string, customGid?: strin
           desc,
           tags: tagsDisp,
           tagsCanon,
-          photo: photoUrl || undefined
+          photo: photoUrl || undefined,
+          date: sessionDate
         });
       }
     }
