@@ -150,6 +150,74 @@ export default function ProgramSettings() {
     }
   };
 
+  const downloadStatsCSV = async (eventId: string) => {
+    try {
+      const programResponse = await fetch(`https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c?id=${eventId}`);
+      const eventData = await programResponse.json();
+      
+      if (!eventData.sheetUrl) {
+        alert('Не удалось получить данные программы');
+        return;
+      }
+      
+      const sheetMatch = eventData.sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+      if (!sheetMatch) {
+        alert('Неверный формат ссылки на таблицу');
+        return;
+      }
+      
+      const sheetId = sheetMatch[1];
+      const gid = eventData.daySheets?.split('\n')[0]?.split(':')[1]?.trim() || '0';
+      const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+      
+      const csvResponse = await fetch(sheetUrl);
+      const csvText = await csvResponse.text();
+      const lines = csvText.split('\n');
+      
+      const sessions: Record<string, { title: string; speaker: string; hall: string; time: string }> = {};
+      
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',');
+        if (cols.length >= 5) {
+          const id = cols[0]?.trim();
+          const hall = cols[1]?.trim();
+          const time = cols[2]?.trim();
+          const title = cols[4]?.trim();
+          const speaker = cols[5]?.trim() || '';
+          
+          if (id) {
+            sessions[id] = { title, speaker, hall, time };
+          }
+        }
+      }
+      
+      const statsData = stats[eventId];
+      if (!statsData) {
+        alert('Сначала загрузите статистику');
+        return;
+      }
+      
+      let csv = 'ID,Название,Спикер,Зал,Время,Интерес\n';
+      statsData.sessions.forEach(s => {
+        const session = sessions[s.session_id] || { title: 'Неизвестно', speaker: '', hall: '', time: '' };
+        csv += `"${s.session_id}","${session.title}","${session.speaker}","${session.hall}","${session.time}",${s.interest_count}\n`;
+      });
+      
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `stats-${eventId}-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to download CSV:', err);
+      alert('Не удалось скачать статистику');
+    }
+  };
+
   const uploadImage = async (file: File, type: 'logo' | 'cover', eventId?: string) => {
     const setUploading = eventId 
       ? (type === 'logo' ? setUploadingEditLogo : setUploadingEditCover)
@@ -462,25 +530,35 @@ export default function ProgramSettings() {
                         <div className="bg-muted/50 p-3 rounded-md mt-3">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-xs font-semibold text-muted-foreground">Статистика интереса</span>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => loadStats(event.id)}
-                              disabled={loadingStats[event.id]}
-                            >
-                              <Icon name={loadingStats[event.id] ? 'Loader2' : 'RefreshCw'} size={14} className={loadingStats[event.id] ? 'animate-spin' : ''} />
-                            </Button>
+                            <div className="flex gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => downloadStatsCSV(event.id)}
+                                title="Скачать CSV"
+                              >
+                                <Icon name="Download" size={14} />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => loadStats(event.id)}
+                                disabled={loadingStats[event.id]}
+                              >
+                                <Icon name={loadingStats[event.id] ? 'Loader2' : 'RefreshCw'} size={14} className={loadingStats[event.id] ? 'animate-spin' : ''} />
+                              </Button>
+                            </div>
                           </div>
                           <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                               <span>Всего пользователей:</span>
                               <span className="font-semibold">{stats[event.id].totalUsers}</span>
                             </div>
-                            {stats[event.id].sessions.length > 0 && (
+                            {stats[event.id].sessions.length > 0 ? (
                               <div className="mt-3">
-                                <p className="text-xs font-medium mb-2">Топ-10 докладов:</p>
-                                <div className="space-y-1 max-h-48 overflow-y-auto">
-                                  {stats[event.id].sessions.slice(0, 10).map((s) => (
+                                <p className="text-xs font-medium mb-2">Все доклады ({stats[event.id].sessions.length}):</p>
+                                <div className="space-y-1 max-h-64 overflow-y-auto">
+                                  {stats[event.id].sessions.map((s) => (
                                     <div key={s.session_id} className="flex items-center justify-between text-xs bg-background p-2 rounded">
                                       <span className="font-mono text-muted-foreground">{s.session_id}</span>
                                       <span className="font-semibold">{s.interest_count} ★</span>
@@ -488,6 +566,8 @@ export default function ProgramSettings() {
                                   ))}
                                 </div>
                               </div>
+                            ) : (
+                              <p className="text-xs text-muted-foreground mt-2">Пока нет данных о планах посетителей</p>
                             )}
                           </div>
                         </div>
