@@ -423,6 +423,7 @@ export default function WebProgram() {
               onClearPlan={() => setPlan([])}
               onDownloadPlanPdf={downloadPlanPdf}
               onRemoveFromPlan={removeFromPlan}
+              eventId={eventIdFromUrl}
             />
           )}
         </div>

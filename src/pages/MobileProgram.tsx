@@ -822,7 +822,7 @@ export default function MobileProgram() {
                     }
                     const shareUrl = `${window.location.origin}${window.location.pathname}?eventId=${eventIdFromUrl}&userId=${userId}`;
                     
-                    if (navigator.share) {
+                    if (navigator.share && navigator.canShare && navigator.canShare({ url: shareUrl })) {
                       try {
                         await navigator.share({
                           title: 'Мой план мероприятия',

@@ -9,6 +9,7 @@ interface ProgramPlanProps {
   onClearPlan: () => void;
   onDownloadPlanPdf: () => void;
   onRemoveFromPlan: (id: string) => void;
+  eventId?: string | null;
 }
 
 function toMin(hhmm: string): number {
@@ -31,7 +32,8 @@ export default function ProgramPlan({
   generatingPlanPdf,
   onClearPlan,
   onDownloadPlanPdf,
-  onRemoveFromPlan
+  onRemoveFromPlan,
+  eventId
 }: ProgramPlanProps) {
   const tagMap = getTagCanonMap();
   const sorted = [...plan].sort((a, b) => toMin(a.start) - toMin(b.start) || a.hall.localeCompare(b.hall));
@@ -52,6 +54,44 @@ export default function ProgramPlan({
       <div className="flex items-center justify-between mb-4">
         <div className="font-bold">Мой план</div>
         <div className="flex gap-2">
+          <Button
+            onClick={async () => {
+              const userId = localStorage.getItem('userId');
+              if (!userId || !eventId) {
+                alert('❌ Ошибка: план не создан');
+                return;
+              }
+              const shareUrl = `${window.location.origin}${window.location.pathname}?eventId=${eventId}&userId=${userId}`;
+              
+              try {
+                await navigator.clipboard.writeText(shareUrl);
+                alert('✅ Ссылка скопирована!\n\nСохраните её, чтобы восстановить план на другом устройстве.');
+              } catch (err) {
+                const textArea = document.createElement('textarea');
+                textArea.value = shareUrl;
+                textArea.style.position = 'fixed';
+                textArea.style.top = '0';
+                textArea.style.left = '0';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                  document.execCommand('copy');
+                  alert('✅ Ссылка скопирована!');
+                } catch (e) {
+                  prompt('Скопируйте ссылку вручную:', shareUrl);
+                }
+                document.body.removeChild(textArea);
+              }
+            }}
+            variant="outline"
+            size="sm"
+            className="plan-button"
+            disabled={plan.length === 0}
+          >
+            <Icon name="Link" size={14} />
+          </Button>
           <Button
             onClick={onDownloadPlanPdf}
             disabled={generatingPlanPdf || plan.length === 0}
