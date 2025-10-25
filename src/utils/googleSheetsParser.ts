@@ -97,8 +97,8 @@ function parseTalk(text: string): {
     s.replace(/\{([^}]*)\}/g, (m, g) => {
       const t = String(g || '').trim();
       if (t) tagsRaw.push(t);
-      return '';
-    });
+      return ' ';
+    }).replace(/\s+/g, ' ').trim();
 
   const cleanHead = pullTags(head).trim();
 
