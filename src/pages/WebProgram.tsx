@@ -10,9 +10,10 @@ import ProgramPlan from '@/components/program/ProgramPlan';
 export default function WebProgram() {
   const [searchParams] = useSearchParams();
   const eventIdFromUrl = searchParams.get('eventId');
+  const sheetIdFromUrl = searchParams.get('sheetId');
   
   const [data, setData] = useState<ProgramData | null>(null);
-  const [sheetId, setSheetId] = useState<string | null>(null);
+  const [sheetId, setSheetId] = useState<string | null>(sheetIdFromUrl);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState<Session[]>([]);
@@ -459,6 +460,7 @@ export default function WebProgram() {
               onDownloadPlanPdf={downloadPlanPdf}
               onRemoveFromPlan={removeFromPlan}
               eventId={eventIdFromUrl}
+              sheetId={sheetId}
             />
           )}
         </div>

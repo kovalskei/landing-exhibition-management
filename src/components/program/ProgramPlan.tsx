@@ -10,6 +10,7 @@ interface ProgramPlanProps {
   onDownloadPlanPdf: () => void;
   onRemoveFromPlan: (id: string) => void;
   eventId?: string | null;
+  sheetId?: string | null;
 }
 
 function toMin(hhmm: string): number {
@@ -33,7 +34,8 @@ export default function ProgramPlan({
   onClearPlan,
   onDownloadPlanPdf,
   onRemoveFromPlan,
-  eventId
+  eventId,
+  sheetId
 }: ProgramPlanProps) {
   const tagMap = getTagCanonMap();
   const sorted = [...plan].sort((a, b) => toMin(a.start) - toMin(b.start) || a.hall.localeCompare(b.hall));
@@ -79,9 +81,11 @@ export default function ProgramPlan({
                 }
                 
                 let embedUrl = '';
-                if (eventId) {
+                const identifier = eventId || sheetId;
+                
+                if (identifier) {
                   try {
-                    const eventResponse = await fetch(`https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c?id=${eventId}`);
+                    const eventResponse = await fetch(`https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c?id=${identifier}`);
                     const eventData = await eventResponse.json();
                     embedUrl = eventData.embedUrl || '';
                   } catch (e) {
@@ -104,6 +108,8 @@ export default function ProgramPlan({
                 
                 const shareUrl = eventId 
                   ? `${baseUrl}?eventId=${eventId}&planId=${result.planId}`
+                  : sheetId
+                  ? `${baseUrl}?sheetId=${sheetId}&planId=${result.planId}`
                   : `${baseUrl}?planId=${result.planId}`;
                 
                 console.log('Generated share URL:', shareUrl);
