@@ -93,7 +93,7 @@ export default function ProgramPlan({
                   }
                 }
                 
-                let baseUrl = embedUrl || `${window.location.origin}/program`;
+                let baseUrl = embedUrl || `${window.location.origin}${window.location.pathname}`;
                 
                 if (!embedUrl) {
                   try {

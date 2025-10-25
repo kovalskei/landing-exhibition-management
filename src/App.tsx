@@ -44,8 +44,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/program" element={<ProgramRouter />} />
           <Route path="/program/settings" element={<ProgramSettings />} />
+          <Route path="/home-page-2" element={<ProgramRouter />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<ProgramRouter />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

@@ -867,7 +867,7 @@ export default function MobileProgram() {
                       const eventData = await eventResponse.json();
                       const embedUrl = eventData.embedUrl || '';
                       
-                      let baseUrl = embedUrl || `${window.location.origin}/program`;
+                      let baseUrl = embedUrl || `${window.location.origin}${window.location.pathname}`;
                       
                       if (!embedUrl) {
                         try {
