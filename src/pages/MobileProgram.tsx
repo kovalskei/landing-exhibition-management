@@ -160,6 +160,10 @@ export default function MobileProgram() {
 
   useEffect(() => {
     const loadPlanFromUrl = async () => {
+      console.log('📱 Mobile: Full window.location.href:', window.location.href);
+      console.log('📱 Mobile: window.location.hash:', window.location.hash);
+      console.log('📱 Mobile: searchParams:', Object.fromEntries(searchParams.entries()));
+      
       let planId = searchParams.get('planId');
       
       // Проверяем hash (#planId=...)
@@ -169,18 +173,24 @@ export default function MobileProgram() {
         console.log('📱 Mobile: Got planId from hash:', planId);
       }
       
+      console.log('📱 Mobile: Final planId to load:', planId);
+      
       if (planId) {
         try {
+          console.log('📱 Mobile: Fetching plan from server...');
           const response = await fetch(`https://functions.poehali.dev/f95caa2c-ac09-46a2-ac7c-a2b1150fa9bd?id=${planId}`);
           const result = await response.json();
           
+          console.log('📱 Mobile: Server response:', result);
+          
           if (result.plan) {
+            console.log('✅ Mobile: Plan loaded successfully, IDs:', result.plan);
             setPlan(new Set(result.plan));
             setTab('plan');
             return;
           }
         } catch (e) {
-          console.error('Failed to load plan from server:', e);
+          console.error('❌ Mobile: Failed to load plan from server:', e);
         }
       }
       
