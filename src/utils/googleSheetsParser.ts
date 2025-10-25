@@ -616,6 +616,11 @@ export function getDaySheets(): { name: string; gid: string }[] {
 }
 
 export async function fetchProgramDataByGid(customSheetId: string | undefined, gid: string): Promise<ProgramData> {
+  // Используем основной парсер вместо упрощённого
+  return fetchProgramData(customSheetId, gid);
+}
+
+async function fetchProgramDataByGid_OLD(customSheetId: string | undefined, gid: string): Promise<ProgramData> {
   try {
     const sheetId = customSheetId || SHEET_ID;
     const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
