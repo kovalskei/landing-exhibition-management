@@ -341,11 +341,14 @@ export async function fetchProgramData(customSheetId?: string): Promise<ProgramD
     const R = rows.length;
     const C = rows[0].length;
     
-    // Найдём строку с HR-маркетинг и покажем её полностью
+    // Найдём строку с HR-маркетинг и покажем её полностью с контекстом
     for (let i = 0; i < Math.min(R, 50); i++) {
       const rowText = rows[i].join('|');
       if (rowText.includes('HR-маркетинг')) {
-        console.log(`📊 Строка ${i} с HR-маркетинг (всего ${rows[i].length} колонок):`, rows[i]);
+        console.log(`📊 Строка ${i-1} (ДО):`, rows[i-1]?.slice(0, 15));
+        console.log(`📊 Строка ${i} (HR-маркетинг):`, rows[i]?.slice(0, 15));
+        console.log(`📊 Строка ${i+1} (ПОСЛЕ):`, rows[i+1]?.slice(0, 15));
+        console.log(`Всего колонок в строке ${i}: ${rows[i].length}`);
         break;
       }
     }
