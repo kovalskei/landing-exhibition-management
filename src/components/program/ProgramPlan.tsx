@@ -56,15 +56,26 @@ export default function ProgramPlan({
         <div className="flex gap-2">
           <Button
             onClick={async () => {
-              const userId = localStorage.getItem('userId');
-              if (!userId || !eventId) {
-                alert('❌ Ошибка: план не создан');
+              if (plan.length === 0) {
+                alert('❌ План пуст');
                 return;
               }
               
-              const inIframe = window.self !== window.top;
-              const baseUrl = inIframe && window.top ? window.top.location.href.split('?')[0] : `${window.location.origin}${window.location.pathname}`;
-              const shareUrl = `${baseUrl}?eventId=${eventId}&userId=${userId}`;
+              let baseUrl = `${window.location.origin}${window.location.pathname}`;
+              
+              try {
+                if (window.self !== window.top && document.referrer) {
+                  const referrerUrl = new URL(document.referrer);
+                  baseUrl = `${referrerUrl.origin}${referrerUrl.pathname}`;
+                }
+              } catch (e) {
+                console.log('Cannot access parent frame, using current URL');
+              }
+              
+              const planData = JSON.stringify(plan);
+              const shareUrl = eventId 
+                ? `${baseUrl}?eventId=${eventId}&plan=${encodeURIComponent(planData)}`
+                : `${baseUrl}?plan=${encodeURIComponent(planData)}`;
               
               try {
                 await navigator.clipboard.writeText(shareUrl);

@@ -281,6 +281,18 @@ export default function WebProgram() {
   // Автообновление отключено - пользователь может обновить через кнопку Refresh
 
   useEffect(() => {
+    const planParam = searchParams.get('plan');
+    if (planParam) {
+      try {
+        const planData = JSON.parse(decodeURIComponent(planParam));
+        setPlan(planData);
+        setShowPlan(true);
+        return;
+      } catch (e) {
+        console.error('Failed to parse plan from URL:', e);
+      }
+    }
+    
     const saved = localStorage.getItem('web-program-plan');
     if (saved) setPlan(JSON.parse(saved));
   }, []);

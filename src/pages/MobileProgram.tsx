@@ -159,6 +159,17 @@ export default function MobileProgram() {
   // (!на мобильной версии автообновление запрещено)
 
   useEffect(() => {
+    const planParam = searchParams.get('plan');
+    if (planParam) {
+      try {
+        const planData = JSON.parse(decodeURIComponent(planParam));
+        setPlan(new Set(planData));
+        return;
+      } catch (e) {
+        console.error('Failed to parse plan from URL:', e);
+      }
+    }
+    
     const saved = localStorage.getItem('mobile-program-plan');
     if (saved) setPlan(new Set(JSON.parse(saved)));
   }, []);
@@ -815,15 +826,26 @@ export default function MobileProgram() {
                     {exportingPdf ? 'Создание PDF...' : 'Скачать PDF'}
                   </button>
                   <button onClick={async () => {
-                    const userId = localStorage.getItem('userId');
-                    if (!userId || !eventIdFromUrl) {
-                      alert('❌ Ошибка: план не создан');
+                    if (plan.size === 0) {
+                      alert('❌ План пуст');
                       return;
                     }
                     
-                    const inIframe = window.self !== window.top;
-                    const baseUrl = inIframe && window.top ? window.top.location.href.split('?')[0] : `${window.location.origin}${window.location.pathname}`;
-                    const shareUrl = `${baseUrl}?eventId=${eventIdFromUrl}&userId=${userId}`;
+                    let baseUrl = `${window.location.origin}${window.location.pathname}`;
+                    
+                    try {
+                      if (window.self !== window.top && document.referrer) {
+                        const referrerUrl = new URL(document.referrer);
+                        baseUrl = `${referrerUrl.origin}${referrerUrl.pathname}`;
+                      }
+                    } catch (e) {
+                      console.log('Cannot access parent frame, using current URL');
+                    }
+                    
+                    const planData = JSON.stringify([...plan]);
+                    const shareUrl = eventIdFromUrl
+                      ? `${baseUrl}?eventId=${eventIdFromUrl}&plan=${encodeURIComponent(planData)}`
+                      : `${baseUrl}?plan=${encodeURIComponent(planData)}`;
                     
                     if (navigator.share && navigator.canShare && navigator.canShare({ url: shareUrl })) {
                       try {
