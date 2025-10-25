@@ -406,6 +406,8 @@ export async function fetchProgramData(customSheetId?: string): Promise<ProgramD
     }
 
     // Парсинг докладов
+    console.log('🏛️ Найдено залов:', halls.map(h => ({ name: h.name, colIndex: h.id })));
+    
     let totalParsed = 0;
     let skipped = 0;
     for (let h = 0; h < halls.length; h++) {
