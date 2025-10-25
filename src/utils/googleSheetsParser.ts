@@ -391,27 +391,36 @@ export async function fetchProgramData(customSheetId?: string): Promise<ProgramD
       return parts.length ? parts : [s];
     }
 
-    // Поиск троек столбцов (начало, конец, доклад) — динамическое определение залов
-    // Используем ту же логику, что в оригинальном JS коде, но адаптируем для неполной таблицы
-    for (let c = 0; c <= C - 3; ) {
-      let hits = 0;
+    // Поиск пар столбцов (начало, конец) для определения залов
+    // Ищем колонки где есть валидное время в формате ЧЧ:ММ
+    for (let c = 0; c <= C - 2; ) {
+      let timeHits = 0;
+      let textCol = c + 2; // По умолчанию текст в c+2
       
-      // Проверяем, есть ли в этой тройке колонок доклады (время начала + конца + текст)
+      // Проверяем, есть ли в паре колонок c и c+1 валидное время
       for (let r = START_ROW; r < R; r++) {
         const s = normalizeTime(rows[r]?.[c] || '');
         const e = normalizeTime(rows[r]?.[c + 1] || '');
-        const t = String(rows[r]?.[c + 2] || '').trim();
-        if (s && e && t) hits++;
+        if (s && e) {
+          timeHits++;
+          // Проверяем, где находится текст - в c+2 или c+3
+          const t2 = String(rows[r]?.[c + 2] || '').trim();
+          const t3 = String(rows[r]?.[c + 3] || '').trim();
+          // Если в c+2 есть время (а не текст), то текст скорее в c+3
+          if (normalizeTime(t2) && t3) {
+            textCol = c + 3;
+          }
+        }
       }
 
-      // Если найдено хотя бы 1 доклад (адаптация для неполной таблицы) — это зал
-      if (hits >= 1) {
-        const name = headerName(c, c + 2);
-        const bullets = hallBullets(c, c + 2);
+      // Если найдено хотя бы 1 доклад с валидным временем — это зал
+      if (timeHits >= 1) {
+        const name = headerName(c, textCol);
+        const bullets = hallBullets(c, textCol);
         if (name) {
           halls.push({ id: String(c), name, bullets });
         }
-        c += 3;
+        c = textCol + 1; // Переходим к следующему залу
       } else {
         c += 1;
       }
