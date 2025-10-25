@@ -85,8 +85,20 @@ export default function MobileProgram() {
       console.log('🔍 Loading data with sheetId:', sheetId);
       const gidToLoad = dayGid || selectedDay;
       const programData = await fetchProgramDataByGid(sheetId || undefined, gidToLoad);
-      console.log('✅ Data loaded:', programData.meta.title);
+      console.log('✅ Data loaded:', programData.meta.title, 'date:', programData.meta.date);
       setData(programData);
+      
+      // Предзагружаем все остальные дни в кеш
+      if (daySheets.length > 1) {
+        const otherGids = daySheets.filter(d => d.gid !== gidToLoad).map(d => d.gid);
+        console.log('🔄 Предзагрузка остальных дней:', otherGids);
+        
+        for (const gid of otherGids) {
+          fetchProgramDataByGid(sheetId || undefined, gid)
+            .then(d => console.log('✅ Предзагружен день:', d.meta.date))
+            .catch(err => console.error('❌ Ошибка предзагрузки дня:', err));
+        }
+      }
       
       // При первой загрузке устанавливаем время
       if (!silent) {
@@ -258,6 +270,8 @@ export default function MobileProgram() {
   };
 
   const addToPlan = (id: string) => {
+    const session = data?.sessions.find(s => s.id === id);
+    console.log('➕ Добавляем в план:', { id, date: session?.date, time: session?.start, title: session?.title?.substring(0, 30) });
     setPlan(prev => {
       const newPlan = new Set([...prev, id]);
       savePlanToBackend(newPlan);

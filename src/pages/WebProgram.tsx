@@ -345,6 +345,12 @@ export default function WebProgram() {
   }, [selectedTags, data]);
 
   const addToPlan = (session: Session) => {
+    console.log('➕ Добавляем/убираем из плана:', { 
+      date: session.date, 
+      time: session.start, 
+      hall: session.hall,
+      title: session.title?.substring(0, 30) 
+    });
     const existing = plan.find(s => s.id === session.id);
     if (existing) {
       removeFromPlan(session.id);
