@@ -93,7 +93,7 @@ export default function ProgramPlan({
                   }
                 }
                 
-                let baseUrl = embedUrl || `${window.location.origin}${window.location.pathname}`;
+                let baseUrl = embedUrl || `${window.location.origin}/program`;
                 
                 if (!embedUrl) {
                   try {
@@ -102,7 +102,7 @@ export default function ProgramPlan({
                       baseUrl = `${referrerUrl.origin}${referrerUrl.pathname}`;
                     }
                   } catch (e) {
-                    console.log('Cannot access parent frame, using current URL');
+                    console.log('Cannot access parent frame, using /program route');
                   }
                 }
                 

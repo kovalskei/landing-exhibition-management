@@ -867,7 +867,7 @@ export default function MobileProgram() {
                       const eventData = await eventResponse.json();
                       const embedUrl = eventData.embedUrl || '';
                       
-                      let baseUrl = embedUrl || `${window.location.origin}${window.location.pathname}`;
+                      let baseUrl = embedUrl || `${window.location.origin}/program`;
                       
                       if (!embedUrl) {
                         try {
@@ -876,7 +876,7 @@ export default function MobileProgram() {
                             baseUrl = `${referrerUrl.origin}${referrerUrl.pathname}`;
                           }
                         } catch (e) {
-                          console.log('Cannot access parent frame, using current URL');
+                          console.log('Cannot access parent frame, using /program route');
                         }
                       }
                       
