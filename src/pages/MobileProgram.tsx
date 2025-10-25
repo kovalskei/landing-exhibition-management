@@ -76,36 +76,6 @@ export default function MobileProgram() {
     loadSheetId();
   }, [eventIdFromUrl]);
 
-  useEffect(() => {
-    const restorePlan = async () => {
-      if (!eventIdFromUrl) return;
-      
-      const urlParams = new URLSearchParams(window.location.search);
-      const userIdFromUrl = urlParams.get('userId');
-      
-      if (userIdFromUrl) {
-        localStorage.setItem('userId', userIdFromUrl);
-      }
-      
-      const userId = localStorage.getItem('userId');
-      if (!userId) return;
-      
-      try {
-        const response = await fetch(`https://functions.poehali.dev/ce2d6e5d-831b-4013-85ed-00024ea91741?eventId=${eventIdFromUrl}&userId=${userId}`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data.sessionIds && data.sessionIds.length > 0) {
-            setPlan(new Set(data.sessionIds));
-          }
-        }
-      } catch (err) {
-        console.error('Failed to restore plan:', err);
-      }
-    };
-    
-    restorePlan();
-  }, [eventIdFromUrl]);
-
   const loadData = async (silent = false, dayGid?: string) => {
     try {
       if (!silent) {
@@ -159,65 +129,8 @@ export default function MobileProgram() {
   // (!на мобильной версии автообновление запрещено)
 
   useEffect(() => {
-    const loadPlanFromUrl = async () => {
-      console.log('📱 Mobile: Full window.location.href:', window.location.href);
-      console.log('📱 Mobile: window.location.hash:', window.location.hash);
-      console.log('📱 Mobile: searchParams:', Object.fromEntries(searchParams.entries()));
-      
-      let planId = searchParams.get('planId');
-      
-      // Проверяем hash (#planId=...)
-      if (!planId && window.location.hash) {
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        planId = hashParams.get('planId');
-        console.log('📱 Mobile: Got planId from hash:', planId);
-      }
-      
-      // Проверяем sessionStorage (сохранено при первом заходе)
-      if (!planId) {
-        planId = sessionStorage.getItem('shared-planId');
-        if (planId) {
-          console.log('💾 Mobile: Got planId from sessionStorage:', planId);
-        }
-      }
-      
-      console.log('📱 Mobile: Final planId to load:', planId);
-      
-      if (planId) {
-        try {
-          console.log('📱 Mobile: Fetching plan from server...');
-          const response = await fetch(`https://functions.poehali.dev/f95caa2c-ac09-46a2-ac7c-a2b1150fa9bd?id=${planId}`);
-          const result = await response.json();
-          
-          console.log('📱 Mobile: Server response:', result);
-          
-          if (result.plan) {
-            console.log('✅ Mobile: Plan loaded successfully, IDs:', result.plan);
-            setPlan(new Set(result.plan));
-            setTab('plan');
-            return;
-          }
-        } catch (e) {
-          console.error('❌ Mobile: Failed to load plan from server:', e);
-        }
-      }
-      
-      const planParam = searchParams.get('plan');
-      if (planParam) {
-        try {
-          const planData = JSON.parse(decodeURIComponent(planParam));
-          setPlan(new Set(planData));
-          return;
-        } catch (e) {
-          console.error('Failed to parse plan from URL:', e);
-        }
-      }
-      
-      const saved = localStorage.getItem('mobile-program-plan');
-      if (saved) setPlan(new Set(JSON.parse(saved)));
-    };
-    
-    loadPlanFromUrl();
+    const saved = localStorage.getItem('mobile-program-plan');
+    if (saved) setPlan(new Set(JSON.parse(saved)));
   }, []);
 
   useEffect(() => {
@@ -866,103 +779,10 @@ export default function MobileProgram() {
               </div>
             ) : (
               <>
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '14px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
                   <button onClick={handleExportPlanPdf} disabled={exportingPdf} className="plan-action">
                     <Icon name={exportingPdf ? 'Loader2' : 'FileDown'} size={18} className={exportingPdf ? 'animate-spin' : ''} />
                     {exportingPdf ? 'Создание PDF...' : 'Скачать PDF'}
-                  </button>
-                  <button onClick={async () => {
-                    if (plan.size === 0) {
-                      alert('❌ План пуст');
-                      return;
-                    }
-                    
-                    try {
-                      const response = await fetch('https://functions.poehali.dev/f95caa2c-ac09-46a2-ac7c-a2b1150fa9bd', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ plan: [...plan] })
-                      });
-                      
-                      const result = await response.json();
-                      
-                      if (!result.planId) {
-                        throw new Error('Failed to generate share link');
-                      }
-                      
-                      const eventResponse = await fetch(`https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c?id=${eventIdFromUrl}`);
-                      const eventData = await eventResponse.json();
-                      const embedUrl = eventData.embedUrl || '';
-                      
-                      let baseUrl = embedUrl || `${window.location.origin}${window.location.pathname}`;
-                      
-                      if (!embedUrl) {
-                        try {
-                          if (window.self !== window.top && document.referrer) {
-                            const referrerUrl = new URL(document.referrer);
-                            baseUrl = `${referrerUrl.origin}${referrerUrl.pathname}`;
-                          }
-                        } catch (e) {
-                          console.log('Cannot access parent frame, using /program route');
-                        }
-                      }
-                      
-                      const shareUrl = eventIdFromUrl
-                        ? `${baseUrl}?eventId=${eventIdFromUrl}#planId=${result.planId}`
-                        : `${baseUrl}#planId=${result.planId}`;
-                      
-                      if (navigator.share && navigator.canShare && navigator.canShare({ url: shareUrl })) {
-                        try {
-                          await navigator.share({
-                            title: 'Мой план мероприятия',
-                            text: 'Ссылка для восстановления плана',
-                            url: shareUrl
-                          });
-                          return;
-                        } catch (err) {
-                          if ((err as Error).name === 'AbortError') {
-                            return;
-                          }
-                        }
-                      }
-                      
-                      const textArea = document.createElement('textarea');
-                      textArea.value = shareUrl;
-                      textArea.style.position = 'absolute';
-                      textArea.style.top = '0';
-                      textArea.style.left = '0';
-                      textArea.style.width = '2em';
-                      textArea.style.height = '2em';
-                      textArea.style.padding = '0';
-                      textArea.style.border = 'none';
-                      textArea.style.outline = 'none';
-                      textArea.style.boxShadow = 'none';
-                      textArea.style.background = 'transparent';
-                      textArea.setAttribute('readonly', '');
-                      document.body.appendChild(textArea);
-                      textArea.focus();
-                      textArea.select();
-                      textArea.setSelectionRange(0, shareUrl.length);
-                      
-                      try {
-                        const successful = document.execCommand('copy');
-                        if (successful) {
-                          alert('✅ Ссылка скопирована!\n\nСохраните её, чтобы восстановить план на другом устройстве.');
-                        } else {
-                          prompt('Скопируйте ссылку вручную:', shareUrl);
-                        }
-                      } catch (err) {
-                        prompt('Скопируйте ссылку вручную:', shareUrl);
-                      } finally {
-                        document.body.removeChild(textArea);
-                      }
-                    } catch (error) {
-                      console.error('Failed to generate share link:', error);
-                      alert('❌ Не удалось создать ссылку для шаринга');
-                    }
-                  }} className="plan-action">
-                    <Icon name="Link" size={18} />
-                    Скопировать ссылку
                   </button>
                   <button onClick={() => { const emptyPlan = new Set<string>(); savePlanToBackend(emptyPlan); setPlan(emptyPlan); }} className="plan-clear">
                     Очистить план

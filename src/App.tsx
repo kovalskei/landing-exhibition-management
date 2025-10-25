@@ -16,19 +16,6 @@ function ProgramRouter() {
   const [searchParams] = useSearchParams();
   const viewParam = searchParams.get('view');
   
-  console.log('🔄 ProgramRouter: Full URL:', window.location.href);
-  console.log('🔄 ProgramRouter: Hash:', window.location.hash);
-  
-  // Сохраняем planId из hash в sessionStorage при первом заходе
-  if (window.location.hash) {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const planId = hashParams.get('planId');
-    if (planId) {
-      console.log('💾 ProgramRouter: Saving planId to sessionStorage:', planId);
-      sessionStorage.setItem('shared-planId', planId);
-    }
-  }
-  
   // Определяем, мобильное ли устройство
   const isMobile = 
     window.innerWidth <= 900 || 
@@ -57,9 +44,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/program" element={<ProgramRouter />} />
           <Route path="/program/settings" element={<ProgramSettings />} />
-          <Route path="/home-page-2" element={<ProgramRouter />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<ProgramRouter />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

@@ -9,8 +9,6 @@ interface ProgramPlanProps {
   onClearPlan: () => void;
   onDownloadPlanPdf: () => void;
   onRemoveFromPlan: (id: string) => void;
-  eventId?: string | null;
-  sheetId?: string | null;
 }
 
 function toMin(hhmm: string): number {
@@ -33,9 +31,7 @@ export default function ProgramPlan({
   generatingPlanPdf,
   onClearPlan,
   onDownloadPlanPdf,
-  onRemoveFromPlan,
-  eventId,
-  sheetId
+  onRemoveFromPlan
 }: ProgramPlanProps) {
   const tagMap = getTagCanonMap();
   const sorted = [...plan].sort((a, b) => toMin(a.start) - toMin(b.start) || a.hall.localeCompare(b.hall));
@@ -56,96 +52,6 @@ export default function ProgramPlan({
       <div className="flex items-center justify-between mb-4">
         <div className="font-bold">Мой план</div>
         <div className="flex gap-2">
-          <Button
-            onClick={async () => {
-              if (plan.length === 0) {
-                alert('❌ План пуст');
-                return;
-              }
-              
-              try {
-                const planIds = plan.map(s => s.id);
-                console.log('Saving plan with IDs:', planIds);
-                
-                const response = await fetch('https://functions.poehali.dev/f95caa2c-ac09-46a2-ac7c-a2b1150fa9bd', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ plan: planIds })
-                });
-                
-                const result = await response.json();
-                console.log('Server response:', result);
-                
-                if (!result.planId) {
-                  throw new Error('Failed to generate share link');
-                }
-                
-                let embedUrl = '';
-                const identifier = eventId || sheetId;
-                
-                if (identifier) {
-                  try {
-                    const eventResponse = await fetch(`https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c?id=${identifier}`);
-                    const eventData = await eventResponse.json();
-                    embedUrl = eventData.embedUrl || '';
-                  } catch (e) {
-                    console.log('Failed to fetch event data:', e);
-                  }
-                }
-                
-                let baseUrl = embedUrl || `${window.location.origin}${window.location.pathname}`;
-                
-                if (!embedUrl) {
-                  try {
-                    if (window.self !== window.top && document.referrer) {
-                      const referrerUrl = new URL(document.referrer);
-                      baseUrl = `${referrerUrl.origin}${referrerUrl.pathname}`;
-                    }
-                  } catch (e) {
-                    console.log('Cannot access parent frame, using /program route');
-                  }
-                }
-                
-                const shareUrl = eventId 
-                  ? `${baseUrl}?eventId=${eventId}#planId=${result.planId}`
-                  : sheetId
-                  ? `${baseUrl}?sheetId=${sheetId}#planId=${result.planId}`
-                  : `${baseUrl}#planId=${result.planId}`;
-                
-                console.log('Generated share URL:', shareUrl);
-                
-                // Используем fallback метод для копирования в clipboard
-                try {
-                  if (navigator.clipboard && window.isSecureContext) {
-                    await navigator.clipboard.writeText(shareUrl);
-                  } else {
-                    // Fallback для iframe и non-secure contexts
-                    const textarea = document.createElement('textarea');
-                    textarea.value = shareUrl;
-                    textarea.style.position = 'fixed';
-                    textarea.style.opacity = '0';
-                    document.body.appendChild(textarea);
-                    textarea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textarea);
-                  }
-                  alert('✅ Ссылка скопирована!\n\nСохраните её, чтобы восстановить план на другом устройстве.');
-                } catch (copyErr) {
-                  // Если копирование не сработало, показываем ссылку для ручного копирования
-                  prompt('📋 Скопируйте ссылку вручную:', shareUrl);
-                }
-              } catch (err) {
-                console.error('Failed to generate share link:', err);
-                alert('❌ Не удалось создать ссылку для шаринга: ' + (err instanceof Error ? err.message : 'Unknown error'));
-              }
-            }}
-            variant="outline"
-            size="sm"
-            className="plan-button"
-            disabled={plan.length === 0}
-          >
-            <Icon name="Link" size={14} />
-          </Button>
           <Button
             onClick={onDownloadPlanPdf}
             disabled={generatingPlanPdf || plan.length === 0}

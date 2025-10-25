@@ -10,16 +10,12 @@ import ProgramPlan from '@/components/program/ProgramPlan';
 export default function WebProgram() {
   const [searchParams] = useSearchParams();
   const eventIdFromUrl = searchParams.get('eventId');
-  const sheetIdFromUrl = searchParams.get('sheetId');
   
   const [data, setData] = useState<ProgramData | null>(null);
-  const [sheetId, setSheetId] = useState<string | null>(sheetIdFromUrl);
+  const [sheetId, setSheetId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [plan, setPlan] = useState<Session[]>(() => {
-    const saved = localStorage.getItem('web-program-plan');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [plan, setPlan] = useState<Session[]>([]);
   const [filteredSessions, setFilteredSessions] = useState<Session[]>([]);
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [tagDropdownOpen, setTagDropdownOpen] = useState(false);
@@ -285,84 +281,9 @@ export default function WebProgram() {
   // Автообновление отключено - пользователь может обновить через кнопку Refresh
 
   useEffect(() => {
-    const loadPlanFromUrl = async () => {
-      console.log('🌐 Current URL:', window.location.href);
-      console.log('🔍 Search params:', Object.fromEntries(searchParams.entries()));
-      
-      let planId = searchParams.get('planId');
-      
-      // Если в URL нет planId, проверяем parent window (для iframe)
-      if (!planId) {
-        try {
-          if (window.self !== window.top && window.parent) {
-            const parentUrl = new URL(window.parent.location.href);
-            planId = parentUrl.searchParams.get('planId');
-            console.log('📱 Trying to get planId from parent window:', planId);
-          }
-        } catch (e) {
-          console.log('⛔ Cannot access parent URL (cross-origin), trying fragment');
-        }
-      }
-      
-      // Если всё ещё нет planId, пробуем получить из фрагмента URL (#planId=...)
-      if (!planId && window.location.hash) {
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        planId = hashParams.get('planId');
-        console.log('🔗 Trying to get planId from hash:', planId);
-      }
-      
-      // Если всё ещё нет planId, проверяем sessionStorage (сохранено при первом заходе)
-      if (!planId) {
-        planId = sessionStorage.getItem('shared-planId');
-        if (planId) {
-          console.log('💾 Web: Got planId from sessionStorage:', planId);
-        }
-      }
-      
-      if (!planId) {
-        console.log('❌ No planId in URL, searchParams, parent, hash, or sessionStorage');
-        return;
-      }
-      
-      if (!data) {
-        console.log('Data not loaded yet, waiting...');
-        return;
-      }
-      
-      try {
-        console.log('🔗 Loading shared plan with ID:', planId);
-        const response = await fetch(`https://functions.poehali.dev/f95caa2c-ac09-46a2-ac7c-a2b1150fa9bd?id=${planId}`);
-        const result = await response.json();
-        console.log('📦 Shared plan response:', result);
-        console.log('📊 Available sessions count:', data.sessions.length);
-        console.log('🔍 First 3 session IDs:', data.sessions.slice(0, 3).map(s => s.id));
-        
-        if (result.plan && Array.isArray(result.plan)) {
-          console.log('📋 Plan session IDs from server:', result.plan);
-          const planSessions = data.sessions.filter(s => result.plan.includes(s.id));
-          console.log('✅ Found sessions for plan:', planSessions.length, 'out of', result.plan.length);
-          
-          if (planSessions.length > 0) {
-            setPlan(planSessions);
-            setShowPlan(true);
-          } else {
-            console.warn('⚠️ No matching sessions found! Checking IDs...');
-            console.log('Expected IDs:', result.plan);
-            console.log('Available IDs sample:', data.sessions.slice(0, 5).map(s => s.id));
-          }
-        }
-      } catch (e) {
-        console.error('❌ Failed to load plan from server:', e);
-      }
-    };
-    
-    loadPlanFromUrl();
-  }, [data, searchParams]);
-
-  // Сохраняем план в localStorage при каждом изменении
-  useEffect(() => {
-    localStorage.setItem('web-program-plan', JSON.stringify(plan));
-  }, [plan]);
+    const saved = localStorage.getItem('web-program-plan');
+    if (saved) setPlan(JSON.parse(saved));
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('web-program-plan', JSON.stringify(plan));
@@ -502,8 +423,6 @@ export default function WebProgram() {
               onClearPlan={() => setPlan([])}
               onDownloadPlanPdf={downloadPlanPdf}
               onRemoveFromPlan={removeFromPlan}
-              eventId={eventIdFromUrl}
-              sheetId={sheetId}
             />
           )}
         </div>
