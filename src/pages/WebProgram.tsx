@@ -16,7 +16,10 @@ export default function WebProgram() {
   const [sheetId, setSheetId] = useState<string | null>(sheetIdFromUrl);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [plan, setPlan] = useState<Session[]>([]);
+  const [plan, setPlan] = useState<Session[]>(() => {
+    const saved = localStorage.getItem('web-program-plan');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [filteredSessions, setFilteredSessions] = useState<Session[]>([]);
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [tagDropdownOpen, setTagDropdownOpen] = useState(false);
@@ -284,42 +287,34 @@ export default function WebProgram() {
   useEffect(() => {
     const loadPlanFromUrl = async () => {
       const planId = searchParams.get('planId');
-      if (planId) {
-        try {
-          const response = await fetch(`https://functions.poehali.dev/f95caa2c-ac09-46a2-ac7c-a2b1150fa9bd?id=${planId}`);
-          const result = await response.json();
-          
-          if (result.plan && data) {
-            const planSessions = data.sessions.filter(s => result.plan.includes(s.id));
-            setPlan(planSessions);
-            setShowPlan(true);
-            return;
-          }
-        } catch (e) {
-          console.error('Failed to load plan from server:', e);
-        }
-      }
+      if (!planId || !data) return;
       
-      const planParam = searchParams.get('plan');
-      if (planParam) {
-        try {
-          const planData = JSON.parse(decodeURIComponent(planParam));
-          setPlan(planData);
+      try {
+        console.log('Loading shared plan with ID:', planId);
+        const response = await fetch(`https://functions.poehali.dev/f95caa2c-ac09-46a2-ac7c-a2b1150fa9bd?id=${planId}`);
+        const result = await response.json();
+        console.log('Shared plan data:', result);
+        
+        if (result.plan && Array.isArray(result.plan)) {
+          const planSessions = data.sessions.filter(s => result.plan.includes(s.id));
+          console.log('Found sessions for plan:', planSessions);
+          setPlan(planSessions);
           setShowPlan(true);
-          return;
-        } catch (e) {
-          console.error('Failed to parse plan from URL:', e);
         }
+      } catch (e) {
+        console.error('Failed to load plan from server:', e);
       }
-      
-      const saved = localStorage.getItem('web-program-plan');
-      if (saved) setPlan(JSON.parse(saved));
     };
     
     if (data) {
       loadPlanFromUrl();
     }
-  }, [data]);
+  }, [data, searchParams]);
+
+  // Сохраняем план в localStorage при каждом изменении
+  useEffect(() => {
+    localStorage.setItem('web-program-plan', JSON.stringify(plan));
+  }, [plan]);
 
   useEffect(() => {
     localStorage.setItem('web-program-plan', JSON.stringify(plan));
