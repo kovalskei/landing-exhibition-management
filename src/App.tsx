@@ -19,6 +19,16 @@ function ProgramRouter() {
   console.log('🔄 ProgramRouter: Full URL:', window.location.href);
   console.log('🔄 ProgramRouter: Hash:', window.location.hash);
   
+  // Сохраняем planId из hash в sessionStorage при первом заходе
+  if (window.location.hash) {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const planId = hashParams.get('planId');
+    if (planId) {
+      console.log('💾 ProgramRouter: Saving planId to sessionStorage:', planId);
+      sessionStorage.setItem('shared-planId', planId);
+    }
+  }
+  
   // Определяем, мобильное ли устройство
   const isMobile = 
     window.innerWidth <= 900 || 

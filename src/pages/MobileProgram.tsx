@@ -173,6 +173,14 @@ export default function MobileProgram() {
         console.log('📱 Mobile: Got planId from hash:', planId);
       }
       
+      // Проверяем sessionStorage (сохранено при первом заходе)
+      if (!planId) {
+        planId = sessionStorage.getItem('shared-planId');
+        if (planId) {
+          console.log('💾 Mobile: Got planId from sessionStorage:', planId);
+        }
+      }
+      
       console.log('📱 Mobile: Final planId to load:', planId);
       
       if (planId) {

@@ -311,8 +311,16 @@ export default function WebProgram() {
         console.log('🔗 Trying to get planId from hash:', planId);
       }
       
+      // Если всё ещё нет planId, проверяем sessionStorage (сохранено при первом заходе)
       if (!planId) {
-        console.log('❌ No planId in URL, searchParams, parent, or hash');
+        planId = sessionStorage.getItem('shared-planId');
+        if (planId) {
+          console.log('💾 Web: Got planId from sessionStorage:', planId);
+        }
+      }
+      
+      if (!planId) {
+        console.log('❌ No planId in URL, searchParams, parent, hash, or sessionStorage');
         return;
       }
       
