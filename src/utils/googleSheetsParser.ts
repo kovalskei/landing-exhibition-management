@@ -443,6 +443,9 @@ export async function fetchProgramData(customSheetId?: string, customGid?: strin
       }
     }
 
+    // Получаем дату мероприятия ДО парсинга сессий
+    const metaDate = metaFromSheet['date'] || String(rows[1]?.[0] || '').trim();
+    
     // Парсинг докладов
     console.log('🏛️ Найдено залов:', halls.map(h => ({ 
       name: h.name, 
@@ -574,8 +577,6 @@ export async function fetchProgramData(customSheetId?: string, customGid?: strin
         
         hallCount++;
         totalParsed++;
-
-        const sessionDate = metaFromSheet['date'] || String(rows[2]?.[0] || '').trim();
         
         sessions.push({
           id: halls[h].name + '|' + s0 + '|' + e0 + '|' + (talk.title || cleanHeader || raw0),
@@ -590,7 +591,7 @@ export async function fetchProgramData(customSheetId?: string, customGid?: strin
           tags: tagsDisp,
           tagsCanon,
           photo: photoUrl || undefined,
-          date: sessionDate
+          date: metaDate
         });
       }
     }
@@ -602,7 +603,6 @@ export async function fetchProgramData(customSheetId?: string, customGid?: strin
 
     const metaTitle = metaFromSheet['title'] || String(rows[0]?.[0] || 'Программа мероприятия').trim();
     const metaSubtitle = metaFromSheet['subtitle'] || String(rows[1]?.[0] || '').trim();
-    const metaDate = metaFromSheet['date'] || String(rows[2]?.[0] || '').trim();
     const metaVenue = metaFromSheet['venue'] || String(rows[3]?.[0] || '').trim();
     const metaLogoId = metaFromSheet['logoid'] || '';
     const metaCoverId = metaFromSheet['coverid'] || '';
