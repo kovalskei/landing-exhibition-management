@@ -62,21 +62,32 @@ export default function ProgramPlan({
               }
               
               try {
+                const planIds = plan.map(s => s.id);
+                console.log('Saving plan with IDs:', planIds);
+                
                 const response = await fetch('https://functions.poehali.dev/f95caa2c-ac09-46a2-ac7c-a2b1150fa9bd', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ plan: plan.map(s => s.id) })
+                  body: JSON.stringify({ plan: planIds })
                 });
                 
                 const result = await response.json();
+                console.log('Server response:', result);
                 
                 if (!result.planId) {
                   throw new Error('Failed to generate share link');
                 }
                 
-                const eventResponse = await fetch(`https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c?id=${eventId}`);
-                const eventData = await eventResponse.json();
-                const embedUrl = eventData.embedUrl || '';
+                let embedUrl = '';
+                if (eventId) {
+                  try {
+                    const eventResponse = await fetch(`https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c?id=${eventId}`);
+                    const eventData = await eventResponse.json();
+                    embedUrl = eventData.embedUrl || '';
+                  } catch (e) {
+                    console.log('Failed to fetch event data:', e);
+                  }
+                }
                 
                 let baseUrl = embedUrl || `${window.location.origin}${window.location.pathname}`;
                 
@@ -95,11 +106,13 @@ export default function ProgramPlan({
                   ? `${baseUrl}?eventId=${eventId}&planId=${result.planId}`
                   : `${baseUrl}?planId=${result.planId}`;
                 
+                console.log('Generated share URL:', shareUrl);
+                
                 await navigator.clipboard.writeText(shareUrl);
                 alert('✅ Ссылка скопирована!\n\nСохраните её, чтобы восстановить план на другом устройстве.');
               } catch (err) {
                 console.error('Failed to generate share link:', err);
-                alert('❌ Не удалось создать ссылку для шаринга');
+                alert('❌ Не удалось создать ссылку для шаринга: ' + (err instanceof Error ? err.message : 'Unknown error'));
               }
             }}
             variant="outline"
