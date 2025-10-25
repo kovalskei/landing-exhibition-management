@@ -36,6 +36,13 @@ export default function ProgramPlan({
 }: ProgramPlanProps) {
   const tagMap = getTagCanonMap();
   const sorted = [...plan].sort((a, b) => toMin(a.start) - toMin(b.start) || a.hall.localeCompare(b.hall));
+  
+  console.log('🗓️ План сессий с датами:', sorted.map(s => ({
+    date: s.date,
+    time: s.start,
+    hall: s.hall,
+    title: s.title?.substring(0, 30)
+  })));
 
   return (
     <aside className="sticky top-24 h-[calc(100vh-120px)] overflow-auto border border-[var(--line)] rounded-lg bg-[var(--panel)] p-4">

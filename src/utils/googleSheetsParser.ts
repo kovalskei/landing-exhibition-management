@@ -445,6 +445,7 @@ export async function fetchProgramData(customSheetId?: string, customGid?: strin
 
     // Получаем дату мероприятия ДО парсинга сессий
     const metaDate = metaFromSheet['date'] || String(rows[1]?.[0] || '').trim();
+    console.log('📅 Дата мероприятия для этого листа:', metaDate, '(из metaFromSheet или rows[1][0])');
     
     // Парсинг докладов
     console.log('🏛️ Найдено залов:', halls.map(h => ({ 
