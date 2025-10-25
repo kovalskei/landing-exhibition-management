@@ -415,10 +415,22 @@ export async function fetchProgramData(customSheetId?: string): Promise<ProgramD
       let hallCount = 0;
 
       for (let r2 = START_ROW; r2 < R; r2++) {
-        const s0 = normalizeTime(rows[r2]?.[cs] || '');
-        const e0 = normalizeTime(rows[r2]?.[ce] || '');
+        const rawStart = rows[r2]?.[cs] || '';
+        const rawEnd = rows[r2]?.[ce] || '';
+        const s0 = normalizeTime(rawStart);
+        const e0 = normalizeTime(rawEnd);
         let raw0 = String(rows[r2]?.[ct] || '').trim();
         const photoUrl = String(rows[r2]?.[ct + 1] || '').trim();
+        
+        if (raw0.includes('HR-маркетинг')) {
+          console.log('🔍 HR-маркетинг - сырые данные из CSV:', {
+            row: r2,
+            hall: halls[h].name,
+            rawStart,
+            rawEnd,
+            normalized: { s0, e0 }
+          });
+        }
 
         // Пропускаем полностью пустые строки
         if (!s0 && !e0 && !raw0) continue;
