@@ -820,7 +820,10 @@ export default function MobileProgram() {
                       alert('❌ Ошибка: план не создан');
                       return;
                     }
-                    const shareUrl = `${window.location.origin}${window.location.pathname}?eventId=${eventIdFromUrl}&userId=${userId}`;
+                    
+                    const inIframe = window.self !== window.top;
+                    const baseUrl = inIframe && window.top ? window.top.location.href.split('?')[0] : `${window.location.origin}${window.location.pathname}`;
+                    const shareUrl = `${baseUrl}?eventId=${eventIdFromUrl}&userId=${userId}`;
                     
                     if (navigator.share && navigator.canShare && navigator.canShare({ url: shareUrl })) {
                       try {
