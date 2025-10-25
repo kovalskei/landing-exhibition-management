@@ -287,28 +287,44 @@ export default function WebProgram() {
   useEffect(() => {
     const loadPlanFromUrl = async () => {
       const planId = searchParams.get('planId');
-      if (!planId || !data) return;
+      if (!planId) {
+        console.log('No planId in URL');
+        return;
+      }
+      
+      if (!data) {
+        console.log('Data not loaded yet, waiting...');
+        return;
+      }
       
       try {
-        console.log('Loading shared plan with ID:', planId);
+        console.log('🔗 Loading shared plan with ID:', planId);
         const response = await fetch(`https://functions.poehali.dev/f95caa2c-ac09-46a2-ac7c-a2b1150fa9bd?id=${planId}`);
         const result = await response.json();
-        console.log('Shared plan data:', result);
+        console.log('📦 Shared plan response:', result);
+        console.log('📊 Available sessions count:', data.sessions.length);
+        console.log('🔍 First 3 session IDs:', data.sessions.slice(0, 3).map(s => s.id));
         
         if (result.plan && Array.isArray(result.plan)) {
+          console.log('📋 Plan session IDs from server:', result.plan);
           const planSessions = data.sessions.filter(s => result.plan.includes(s.id));
-          console.log('Found sessions for plan:', planSessions);
-          setPlan(planSessions);
-          setShowPlan(true);
+          console.log('✅ Found sessions for plan:', planSessions.length, 'out of', result.plan.length);
+          
+          if (planSessions.length > 0) {
+            setPlan(planSessions);
+            setShowPlan(true);
+          } else {
+            console.warn('⚠️ No matching sessions found! Checking IDs...');
+            console.log('Expected IDs:', result.plan);
+            console.log('Available IDs sample:', data.sessions.slice(0, 5).map(s => s.id));
+          }
         }
       } catch (e) {
-        console.error('Failed to load plan from server:', e);
+        console.error('❌ Failed to load plan from server:', e);
       }
     };
     
-    if (data) {
-      loadPlanFromUrl();
-    }
+    loadPlanFromUrl();
   }, [data, searchParams]);
 
   // Сохраняем план в localStorage при каждом изменении
