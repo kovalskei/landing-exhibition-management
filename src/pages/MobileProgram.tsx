@@ -814,12 +814,33 @@ export default function MobileProgram() {
                     <Icon name={exportingPdf ? 'Loader2' : 'FileDown'} size={18} className={exportingPdf ? 'animate-spin' : ''} />
                     {exportingPdf ? 'Создание PDF...' : 'Скачать PDF'}
                   </button>
-                  <button onClick={() => {
+                  <button onClick={async () => {
                     const userId = localStorage.getItem('userId');
-                    if (!userId || !eventIdFromUrl) return;
+                    if (!userId || !eventIdFromUrl) {
+                      alert('❌ Ошибка: план не создан');
+                      return;
+                    }
                     const shareUrl = `${window.location.origin}${window.location.pathname}?eventId=${eventIdFromUrl}&userId=${userId}`;
-                    navigator.clipboard.writeText(shareUrl);
-                    alert('✅ Ссылка скопирована! Сохраните её, чтобы восстановить план на другом устройстве.');
+                    
+                    try {
+                      if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(shareUrl);
+                        alert('✅ Ссылка скопирована в буфер обмена!\n\nСохраните её, чтобы восстановить план на другом устройстве или после очистки кеша.');
+                      } else {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = shareUrl;
+                        textArea.style.position = 'fixed';
+                        textArea.style.left = '-999999px';
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        alert('✅ Ссылка скопирована!\n\n' + shareUrl);
+                      }
+                    } catch (err) {
+                      console.error('Copy failed:', err);
+                      alert('❌ Не удалось скопировать. Ссылка:\n\n' + shareUrl);
+                    }
                   }} className="plan-action">
                     <Icon name="Link" size={18} />
                     Скопировать ссылку
