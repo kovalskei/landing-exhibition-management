@@ -426,9 +426,11 @@ export async function fetchProgramData(customSheetId?: string): Promise<ProgramD
           console.log('🔍 HR-маркетинг - сырые данные из CSV:', {
             row: r2,
             hall: halls[h].name,
+            colIndexes: { cs, ce, ct },
             rawStart,
             rawEnd,
-            normalized: { s0, e0 }
+            normalized: { s0, e0 },
+            fullRow: rows[r2]
           });
         }
 
