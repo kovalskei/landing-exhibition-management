@@ -428,11 +428,22 @@ export async function fetchProgramData(customSheetId?: string): Promise<ProgramD
           console.log('🔍 HR-маркетинг - сырые данные из CSV:', {
             row: r2,
             hall: halls[h].name,
-            colIndexes: { cs, ce, ct },
-            rawStart,
-            rawEnd,
+            colIndexes: { 
+              cs_start_column: cs, 
+              ce_end_column: ce, 
+              ct_text_column: ct 
+            },
+            rawStart: `колонка ${cs} = "${rawStart}"`,
+            rawEnd: `колонка ${ce} = "${rawEnd}"`,
+            rawText: `колонка ${ct} = "${raw0.substring(0, 50)}..."`,
             normalized: { s0, e0 },
-            fullRow: rows[r2]
+            'колонки_вокруг': {
+              [`col_${cs-1}`]: rows[r2]?.[cs-1],
+              [`col_${cs}`]: rows[r2]?.[cs],
+              [`col_${ce}`]: rows[r2]?.[ce],
+              [`col_${ct}`]: rows[r2]?.[ct],
+              [`col_${ct+1}`]: rows[r2]?.[ct+1]
+            }
           });
         }
 
