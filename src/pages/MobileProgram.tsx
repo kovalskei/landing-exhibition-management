@@ -822,24 +822,50 @@ export default function MobileProgram() {
                     }
                     const shareUrl = `${window.location.origin}${window.location.pathname}?eventId=${eventIdFromUrl}&userId=${userId}`;
                     
+                    if (navigator.share) {
+                      try {
+                        await navigator.share({
+                          title: 'Мой план мероприятия',
+                          text: 'Ссылка для восстановления плана',
+                          url: shareUrl
+                        });
+                        return;
+                      } catch (err) {
+                        if ((err as Error).name === 'AbortError') {
+                          return;
+                        }
+                      }
+                    }
+                    
+                    const textArea = document.createElement('textarea');
+                    textArea.value = shareUrl;
+                    textArea.style.position = 'absolute';
+                    textArea.style.top = '0';
+                    textArea.style.left = '0';
+                    textArea.style.width = '2em';
+                    textArea.style.height = '2em';
+                    textArea.style.padding = '0';
+                    textArea.style.border = 'none';
+                    textArea.style.outline = 'none';
+                    textArea.style.boxShadow = 'none';
+                    textArea.style.background = 'transparent';
+                    textArea.setAttribute('readonly', '');
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    textArea.setSelectionRange(0, shareUrl.length);
+                    
                     try {
-                      if (navigator.clipboard && navigator.clipboard.writeText) {
-                        await navigator.clipboard.writeText(shareUrl);
-                        alert('✅ Ссылка скопирована в буфер обмена!\n\nСохраните её, чтобы восстановить план на другом устройстве или после очистки кеша.');
+                      const successful = document.execCommand('copy');
+                      if (successful) {
+                        alert('✅ Ссылка скопирована!\n\nСохраните её, чтобы восстановить план на другом устройстве.');
                       } else {
-                        const textArea = document.createElement('textarea');
-                        textArea.value = shareUrl;
-                        textArea.style.position = 'fixed';
-                        textArea.style.left = '-999999px';
-                        document.body.appendChild(textArea);
-                        textArea.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(textArea);
-                        alert('✅ Ссылка скопирована!\n\n' + shareUrl);
+                        prompt('Скопируйте ссылку вручную:', shareUrl);
                       }
                     } catch (err) {
-                      console.error('Copy failed:', err);
-                      alert('❌ Не удалось скопировать. Ссылка:\n\n' + shareUrl);
+                      prompt('Скопируйте ссылку вручную:', shareUrl);
+                    } finally {
+                      document.body.removeChild(textArea);
                     }
                   }} className="plan-action">
                     <Icon name="Link" size={18} />
