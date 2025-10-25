@@ -588,6 +588,14 @@ export async function fetchProgramDataByGid(customSheetId: string | undefined, g
 
     const csvText = await response.text();
     
+    // Ищем строку с HR-маркетинг для отладки
+    const lines = csvText.split('\n');
+    const hrLine = lines.find(l => l.includes('HR-маркетинг'));
+    if (hrLine) {
+      const cols = hrLine.split(',');
+      console.log('🔍 CSV строка HR-маркетинг (первые 15 колонок):', cols.slice(0, 15));
+    }
+    
     const metaFromSheet: Record<string, string> = {};
     
     if (META_SHEET_GID) {
