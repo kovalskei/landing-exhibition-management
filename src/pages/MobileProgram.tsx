@@ -706,7 +706,6 @@ export default function MobileProgram() {
                       conflictHallName={conflictingSession ? hallName(conflictingSession.hallId) : undefined}
                       onTogglePlan={() => inPlan ? removeFromPlan(session.id) : addToPlan(session.id)}
                       onClick={() => setSelectedSession(session)}
-                      theme={theme}
                     />
                   );
                 })}
@@ -736,7 +735,6 @@ export default function MobileProgram() {
                   conflictHallName={conflictingSession ? hallName(conflictingSession.hallId) : undefined}
                   onTogglePlan={() => inPlan ? removeFromPlan(session.id) : addToPlan(session.id)}
                   onClick={() => setSelectedSession(session)}
-                  theme={theme}
                 />
               );
             })}
@@ -787,7 +785,6 @@ export default function MobileProgram() {
                           conflictHallName={hasConflict ? (conflictingSession ? hallName(conflictingSession.hallId) : undefined) : (needsTransition ? hallName(nextSession.hallId) : undefined)}
                           onTogglePlan={() => removeFromPlan(session.id)}
                           onClick={() => setSelectedSession(session)}
-                          theme={theme}
                         />
                       );
                     })}
