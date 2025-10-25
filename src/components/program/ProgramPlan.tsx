@@ -114,8 +114,26 @@ export default function ProgramPlan({
                 
                 console.log('Generated share URL:', shareUrl);
                 
-                await navigator.clipboard.writeText(shareUrl);
-                alert('✅ Ссылка скопирована!\n\nСохраните её, чтобы восстановить план на другом устройстве.');
+                // Используем fallback метод для копирования в clipboard
+                try {
+                  if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(shareUrl);
+                  } else {
+                    // Fallback для iframe и non-secure contexts
+                    const textarea = document.createElement('textarea');
+                    textarea.value = shareUrl;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                  }
+                  alert('✅ Ссылка скопирована!\n\nСохраните её, чтобы восстановить план на другом устройстве.');
+                } catch (copyErr) {
+                  // Если копирование не сработало, показываем ссылку для ручного копирования
+                  prompt('📋 Скопируйте ссылку вручную:', shareUrl);
+                }
               } catch (err) {
                 console.error('Failed to generate share link:', err);
                 alert('❌ Не удалось создать ссылку для шаринга: ' + (err instanceof Error ? err.message : 'Unknown error'));
