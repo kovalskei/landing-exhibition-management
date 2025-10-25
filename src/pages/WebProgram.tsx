@@ -286,9 +286,12 @@ export default function WebProgram() {
 
   useEffect(() => {
     const loadPlanFromUrl = async () => {
+      console.log('🌐 Current URL:', window.location.href);
+      console.log('🔍 Search params:', Object.fromEntries(searchParams.entries()));
+      
       const planId = searchParams.get('planId');
       if (!planId) {
-        console.log('No planId in URL');
+        console.log('❌ No planId in URL');
         return;
       }
       
