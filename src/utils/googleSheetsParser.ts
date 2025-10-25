@@ -94,7 +94,7 @@ function parseTalk(text: string): {
 
   const tagsRaw: string[] = [];
   const pullTags = (s: string) =>
-    s.replace(/\{([^}]+)\}/g, (m, g) => {
+    s.replace(/\{([^}]*)\}/g, (m, g) => {
       const t = String(g || '').trim();
       if (t) tagsRaw.push(t);
       return '';

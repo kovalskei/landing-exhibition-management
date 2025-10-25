@@ -172,21 +172,52 @@ export default function ProgramSettings() {
       
       const csvResponse = await fetch(sheetUrl);
       const csvText = await csvResponse.text();
-      const lines = csvText.split('\n');
       
+      // Правильный CSV-парсинг с учетом кавычек
+      const parseCSVRow = (line: string): string[] => {
+        const result: string[] = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          
+          if (char === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+              current += '"';
+              i++;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (char === ',' && !inQuotes) {
+            result.push(current);
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        result.push(current);
+        return result;
+      };
+      
+      const lines = csvText.split('\n');
       const sessions: Record<string, { title: string; speaker: string; hall: string; time: string }> = {};
       
       for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(',');
+        const cols = parseCSVRow(lines[i]);
         if (cols.length >= 5) {
           const id = cols[0]?.trim();
           const hall = cols[1]?.trim();
           const time = cols[2]?.trim();
-          const title = cols[4]?.trim();
-          const speaker = cols[5]?.trim() || '';
+          const titleRaw = cols[4]?.trim() || '';
+          const speakerRoleRaw = cols[5]?.trim() || '';
+          
+          // Извлекаем спикера из первой строки поля (до первой запятой или тире)
+          const firstLine = speakerRoleRaw.split('\n')[0] || '';
+          const speaker = firstLine.split(/[,—–-]/)[0]?.trim() || '';
           
           if (id) {
-            sessions[id] = { title, speaker, hall, time };
+            sessions[id] = { title: titleRaw, speaker, hall, time };
           }
         }
       }
