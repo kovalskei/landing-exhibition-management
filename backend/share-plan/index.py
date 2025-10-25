@@ -1,14 +1,18 @@
 '''
 Business: Генерирует короткую ссылку для шаринга плана мероприятия
-Args: event с httpMethod, body (eventId, plan данные)
+Args: event с httpMethod, body (plan - массив ID сессий)
 Returns: HTTP response с коротким кодом или данными плана
 '''
 
 import json
 import uuid
+import os
 from typing import Dict, Any
+import psycopg2
+from psycopg2.extras import execute_values
 
-plans_storage: Dict[str, Any] = {}
+def get_db_connection():
+    return psycopg2.connect(os.environ['DATABASE_URL'])
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
@@ -42,7 +46,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         plan_id = str(uuid.uuid4())[:8]
-        plans_storage[plan_id] = plan_data
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO shared_plans (plan_id, session_ids) VALUES (%s, %s)",
+            (plan_id, plan_data)
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
         
         return {
             'statusCode': 200,
@@ -69,9 +82,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        plan_data = plans_storage.get(plan_id)
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT session_ids FROM shared_plans WHERE plan_id = %s",
+            (plan_id,)
+        )
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
         
-        if not plan_data:
+        if not row:
             return {
                 'statusCode': 404,
                 'headers': {
@@ -88,7 +109,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({'plan': plan_data}),
+            'body': json.dumps({'plan': row[0]}),
             'isBase64Encoded': False
         }
     
