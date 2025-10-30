@@ -319,20 +319,16 @@ export default function ProgramSettings() {
               const speakerLine = textLines[1]?.trim() || '';
               const speaker = speakerLine.split(/[,—–-]/)[0]?.trim() || '';
               
-              // Генерируем ID в ОБОИХ форматах (старый и новый)
-              // Старый формат (без даты): ЗАЛ|НАЧАЛО|КОНЕЦ|НАЗВАНИЕ
-              const idOld = hall.name + '|' + timeStart + '|' + timeEnd + '|' + title;
+              // Генерируем варианты названий зала для совместимости
+              const hallVariants = [
+                hall.name,                                    // "ЗАЛ ANDY"
+                hall.name.replace(/^ЗАЛ\s+/i, ''),          // "ANDY"
+                'комната в ' + hall.name.replace(/^ЗАЛ\s+/i, ''), // "комната в ANDY"
+              ];
               
-              // Новый формат (с датой): ДАТА|ЗАЛ|НАЧАЛО|КОНЕЦ
-              // Проверяем что metaDate не пустой и не состоит из запятых
+              // Проверяем валидность даты
               const hasValidDate = metaDate && metaDate !== ',,,,,' && metaDate !== ',,,,,,' && !/^,+$/.test(metaDate);
-              const idNew = hasValidDate 
-                ? metaDate + '|' + hall.name + '|' + timeStart + '|' + timeEnd
-                : null;
               
-              console.log(`✅ Найдена сессия [${dayName}]: Old="${idOld}", New="${idNew}"`);
-              
-              // Сохраняем под обоими ID
               const sessionData = { 
                 title, 
                 speaker, 
@@ -341,12 +337,19 @@ export default function ProgramSettings() {
                 day: dayName 
               };
               
-              if (!sessionsMap[idOld]) sessionsMap[idOld] = [];
-              sessionsMap[idOld].push(sessionData);
-              
-              if (idNew) {
-                if (!sessionsMap[idNew]) sessionsMap[idNew] = [];
-                sessionsMap[idNew].push(sessionData);
+              // Генерируем ID для всех вариантов названий
+              for (const hallVariant of hallVariants) {
+                // Старый формат (без даты): ЗАЛ|НАЧАЛО|КОНЕЦ|НАЗВАНИЕ
+                const idOld = hallVariant + '|' + timeStart + '|' + timeEnd + '|' + title;
+                if (!sessionsMap[idOld]) sessionsMap[idOld] = [];
+                sessionsMap[idOld].push(sessionData);
+                
+                // Новый формат (с датой): ДАТА|ЗАЛ|НАЧАЛО|КОНЕЦ
+                if (hasValidDate) {
+                  const idNew = metaDate + '|' + hallVariant + '|' + timeStart + '|' + timeEnd;
+                  if (!sessionsMap[idNew]) sessionsMap[idNew] = [];
+                  sessionsMap[idNew].push(sessionData);
+                }
               }
             }
           }
