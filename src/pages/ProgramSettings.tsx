@@ -205,8 +205,11 @@ export default function ProgramSettings() {
       
       const time = `${timeStart}-${timeEnd}`;
       
-      // Ключ для группировки: дата + зал + время
-      const groupKey = `${day}|${hall}|${time}`;
+      // Нормализуем зал (убираем префикс "ЗАЛ ", "комната в " и т.д.)
+      const normalizedHall = hall.replace(/^ЗАЛ\s+/i, '').replace(/^комната в\s+/i, '').trim();
+      
+      // Ключ для группировки: дата + нормализованный зал + время
+      const groupKey = `${day}|${normalizedHall}|${time}`;
       
       if (!grouped.has(groupKey)) {
         grouped.set(groupKey, {
