@@ -840,7 +840,7 @@ export default function MobileProgram() {
 
       {tab === 'now' && (
         <>
-          <button onClick={() => setShowPlan(true)} className="floating-now-btn" style={{ position: 'fixed', bottom: '24px', left: '16px', zIndex: 90, background: 'var(--ok)' }}>
+          <button onClick={() => setShowPlan(true)} className="floating-now-btn" style={{ position: 'fixed', bottom: '24px', left: '16px', zIndex: 90, background: 'rgba(59, 130, 246, 0.15)' }}>
             <Icon name="List" size={20} />
             <span>План {plan.size > 0 && `(${plan.size})`}</span>
           </button>
@@ -852,7 +852,7 @@ export default function MobileProgram() {
       )}
 
       {tab === 'all' && (
-        <button onClick={() => setShowPlan(true)} className="floating-now-btn" style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 90, background: 'var(--ok)' }}>
+        <button onClick={() => setShowPlan(true)} className="floating-now-btn" style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 90, background: 'rgba(59, 130, 246, 0.15)' }}>
           <Icon name="List" size={20} />
           <span>План {plan.size > 0 && `(${plan.size})`}</span>
         </button>
