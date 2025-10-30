@@ -228,11 +228,26 @@ export default function ProgramSettings() {
         return;
       }
       
+      console.log('📊 Всего сессий в статистике:', statsData.sessions.length);
+      console.log('📋 Сессий найдено в таблице:', Object.keys(sessions).length);
+      console.log('🔍 ID из статистики:', statsData.sessions.map(s => s.session_id).slice(0, 10));
+      console.log('🔍 ID из таблицы:', Object.keys(sessions).slice(0, 10));
+      
       let csv = 'ID,Название,Спикер,Зал,Время,Интерес\n';
+      let notFound = 0;
       statsData.sessions.forEach(s => {
-        const session = sessions[s.session_id] || { title: 'Неизвестно', speaker: '', hall: '', time: '' };
-        csv += `"${s.session_id}","${session.title}","${session.speaker}","${session.hall}","${session.time}",${s.interest_count}\n`;
+        const session = sessions[s.session_id];
+        if (!session) {
+          notFound++;
+          console.warn('⚠️ Сессия не найдена в таблице:', s.session_id);
+        }
+        const sessionData = session || { title: 'Неизвестно', speaker: '', hall: '', time: '' };
+        csv += `"${s.session_id}","${sessionData.title}","${sessionData.speaker}","${sessionData.hall}","${sessionData.time}",${s.interest_count}\n`;
       });
+      
+      if (notFound > 0) {
+        console.warn(`⚠️ Не найдено ${notFound} сессий из ${statsData.sessions.length} в таблице`);
+      }
       
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
