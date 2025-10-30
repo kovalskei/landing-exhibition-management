@@ -199,6 +199,7 @@ export default function ProgramSettings() {
       
       // Парсим ВСЕ листы из daySheets
       const sessions: Record<string, { title: string; speaker: string; hall: string; time: string; day: string }> = {};
+      const sessionsMap: Record<string, Array<{ title: string; speaker: string; hall: string; time: string; day: string }>> = {};
       const daySheetLines = eventData.daySheets?.split('\n') || [];
       
       console.log('📅 Загружаем листы:', daySheetLines.length);
@@ -229,7 +230,9 @@ export default function ProgramSettings() {
               const speaker = firstLine.split(/[,—–-]/)[0]?.trim() || '';
               
               if (id) {
-                sessions[id] = { title: titleRaw, speaker, hall, time, day: dayName };
+                // Сохраняем ВСЕ вхождения ID (могут быть на разных днях)
+                if (!sessionsMap[id]) sessionsMap[id] = [];
+                sessionsMap[id].push({ title: titleRaw, speaker, hall, time, day: dayName });
               }
             }
           }
@@ -237,6 +240,14 @@ export default function ProgramSettings() {
           console.error(`Ошибка загрузки листа ${dayName}:`, err);
         }
       }
+      
+      // Преобразуем в старый формат (берём первое вхождение для каждого ID)
+      for (const id in sessionsMap) {
+        sessions[id] = sessionsMap[id][0];
+      }
+      
+      console.log('📊 Всего уникальных ID:', Object.keys(sessionsMap).length);
+      console.log('🔄 ID с дублями:', Object.entries(sessionsMap).filter(([_, arr]) => arr.length > 1).map(([id, arr]) => `${id} (${arr.length} дней)`));
       
       const statsData = stats[eventId];
       if (!statsData) {
