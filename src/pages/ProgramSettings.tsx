@@ -159,13 +159,22 @@ export default function ProgramSettings() {
       return;
     }
     
-    console.log('📊 Формирую CSV из', statsData.sessions.length, 'сессий');
+    console.log('📊 Всего записей в статистике:', statsData.sessions.length);
     
-    let csv = 'ID,Название,Спикер,Зал,Время,День,Интерес\n';
+    // Группируем по уникальным докладам (зал + время + дата)
+    interface GroupedSession {
+      hall: string;
+      time: string;
+      day: string;
+      title: string;
+      totalInterest: number;
+      sources: string[]; // Список всех ID источников
+    }
+    
+    const grouped = new Map<string, GroupedSession>();
     
     statsData.sessions.forEach(s => {
-      // Парсим ID обратно в данные
-      // Формат: "ЗАЛ|НАЧАЛО|КОНЕЦ|НАЗВАНИЕ" или "ДАТА|ЗАЛ|НАЧАЛО|КОНЕЦ"
+      // Парсим ID: "ДАТА|ЗАЛ|НАЧАЛО|КОНЕЦ" или "ЗАЛ|НАЧАЛО|КОНЕЦ|НАЗВАНИЕ"
       const parts = s.session_id.split('|');
       
       let hall = '';
@@ -175,7 +184,6 @@ export default function ProgramSettings() {
       let day = '';
       
       if (parts.length === 4) {
-        // Проверяем, первая часть - дата?
         if (parts[0].match(/^\d{1,2}\.\d{1,2}\.\d{4}$/)) {
           // ДАТА|ЗАЛ|НАЧАЛО|КОНЕЦ
           day = parts[0];
@@ -190,19 +198,56 @@ export default function ProgramSettings() {
           title = parts[3];
         }
       } else if (parts.length === 3) {
-        // ЗАЛ|НАЧАЛО|КОНЕЦ
         hall = parts[0];
         timeStart = parts[1];
         timeEnd = parts[2];
       }
       
-      const time = timeStart && timeEnd ? `${timeStart}-${timeEnd}` : '';
-      const speaker = ''; // Спикера в ID нет, оставляем пустым
+      const time = `${timeStart}-${timeEnd}`;
       
-      csv += `"${s.session_id}","${title}","${speaker}","${hall}","${time}","${day}",${s.interest_count}\n`;
+      // Ключ для группировки: дата + зал + время
+      const groupKey = `${day}|${hall}|${time}`;
+      
+      if (!grouped.has(groupKey)) {
+        grouped.set(groupKey, {
+          hall,
+          time,
+          day,
+          title,
+          totalInterest: 0,
+          sources: []
+        });
+      }
+      
+      const group = grouped.get(groupKey)!;
+      group.totalInterest += s.interest_count;
+      group.sources.push(s.session_id);
+      
+      // Если нашли название - обновляем
+      if (title && !group.title) {
+        group.title = title;
+      }
     });
     
-    console.log('✅ CSV сформирован, строк:', statsData.sessions.length);
+    console.log('📊 Уникальных докладов после группировки:', grouped.size);
+    console.log('📊 Найдено дублей:', statsData.sessions.length - grouped.size);
+    
+    // Формируем CSV
+    let csv = 'Зал,Время,День,Название,Интерес,Источники (ID)\n';
+    
+    Array.from(grouped.values())
+      .sort((a, b) => {
+        // Сортируем: сначала по дню, потом по времени
+        if (a.day !== b.day) return a.day.localeCompare(b.day);
+        return a.time.localeCompare(b.time);
+      })
+      .forEach(item => {
+        const sourcesStr = item.sources.length > 1 
+          ? `${item.sources.length} источников` 
+          : item.sources[0];
+        
+        csv += `"${item.hall}","${item.time}","${item.day}","${item.title}",${item.totalInterest},"${sourcesStr}"\n`;
+      });
     
     // Скачивание CSV
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -210,6 +255,8 @@ export default function ProgramSettings() {
     link.href = URL.createObjectURL(blob);
     link.download = `stats_${eventId}_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
+    
+    console.log('✅ CSV готов!');
   };
 
   const uploadImage = async (file: File, type: 'logo' | 'cover', eventId?: string) => {
