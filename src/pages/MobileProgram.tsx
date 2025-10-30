@@ -574,13 +574,8 @@ export default function MobileProgram() {
 
         {tab === 'now' && (
           <div className="now-banner">
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flex: 1 }}>
-              <button onClick={() => setShowPlan(!showPlan)} className="now-btn" style={{ background: 'var(--ok)', flexShrink: 0 }}>
-                📋 План {plan.size > 0 && `(${plan.size})`}
-              </button>
-              <div className="now-text">⏰ Сейчас: {data.now}</div>
-            </div>
-            <button onClick={jumpToNow} className="now-btn" style={{ flexShrink: 0 }}>Перейти</button>
+            <div className="now-text">⏰ Сейчас: {data.now}</div>
+            <button onClick={jumpToNow} className="now-btn">Перейти</button>
           </div>
         )}
       </div>
@@ -844,9 +839,30 @@ export default function MobileProgram() {
       </div>
 
       {tab === 'now' && (
-        <button onClick={jumpToNow} className="floating-now-btn">
-          <Icon name="Clock" size={20} />
-          <span>Сейчас</span>
+        <div style={{ 
+          position: 'fixed', 
+          bottom: '24px', 
+          left: '50%', 
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          gap: '12px',
+          zIndex: 90
+        }}>
+          <button onClick={() => setShowPlan(true)} className="floating-now-btn" style={{ background: 'var(--ok)' }}>
+            <Icon name="List" size={20} />
+            <span>План {plan.size > 0 && `(${plan.size})`}</span>
+          </button>
+          <button onClick={jumpToNow} className="floating-now-btn">
+            <Icon name="Clock" size={20} />
+            <span>Сейчас</span>
+          </button>
+        </div>
+      )}
+
+      {tab === 'all' && (
+        <button onClick={() => setShowPlan(true)} className="floating-now-btn" style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 90, background: 'var(--ok)' }}>
+          <Icon name="List" size={20} />
+          <span>План {plan.size > 0 && `(${plan.size})`}</span>
         </button>
       )}
 
