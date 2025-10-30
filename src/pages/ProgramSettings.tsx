@@ -300,6 +300,7 @@ export default function ProgramSettings() {
           }
           
           console.log(`📊 День ${dayName}: Найдено ${halls.length} залов:`, halls.map(h => h.name));
+          console.log(`📊 День ${dayName}: Структура залов:`, halls);
           
           // ПАРСИНГ СЕССИЙ используя детектированные залы
           for (let i = START_ROW; i < R; i++) {
@@ -322,6 +323,8 @@ export default function ProgramSettings() {
               const id = metaDate 
                 ? metaDate + '|' + hall.name + '|' + timeStart + '|' + timeEnd
                 : hall.name + '|' + timeStart + '|' + timeEnd + '|' + title;
+              
+              console.log(`✅ Найдена сессия [${dayName}]: ID="${id}", Title="${title}"`);
               
               // Сохраняем
               if (!sessionsMap[id]) sessionsMap[id] = [];
@@ -355,8 +358,17 @@ export default function ProgramSettings() {
       
       console.log('📊 Всего сессий в статистике:', statsData.sessions.length);
       console.log('📋 Сессий найдено в таблице:', Object.keys(sessions).length);
-      console.log('🔍 ID из статистики:', statsData.sessions.map(s => s.session_id).slice(0, 10));
-      console.log('🔍 ID из таблицы:', Object.keys(sessions).slice(0, 10));
+      console.log('🔍 ID из статистики (первые 5):', statsData.sessions.map(s => s.session_id).slice(0, 5));
+      console.log('🔍 ID из таблицы (первые 5):', Object.keys(sessions).slice(0, 5));
+      
+      // Сравниваем ID
+      statsData.sessions.slice(0, 3).forEach(s => {
+        console.log(`\n🔎 Проверка ID: "${s.session_id}"`);
+        console.log(`   Найден в таблице: ${sessions[s.session_id] ? 'ДА ✅' : 'НЕТ ❌'}`);
+        if (sessions[s.session_id]) {
+          console.log(`   Данные:`, sessions[s.session_id]);
+        }
+      });
       
       let csv = 'ID,Название,Спикер,Зал,Время,День,Интерес\n';
       let notFound = 0;
