@@ -142,6 +142,8 @@ export default function ProgramSettings() {
     try {
       const response = await fetch(`https://functions.poehali.dev/74b8d859-f86d-4472-8953-60d978dafb94?eventId=${eventId}`);
       const data = await response.json();
+      console.log('📊 Данные статистики с сервера:', data);
+      console.log('🔍 Примеры session_id:', data.sessions?.slice(0, 5).map((s: SessionStat) => s.session_id));
       setStats(prev => ({ ...prev, [eventId]: data }));
     } catch (err) {
       console.error('Failed to load stats:', err);
