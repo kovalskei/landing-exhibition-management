@@ -227,6 +227,9 @@ export default function ProgramSettings() {
           // Получаем дату из rows[1][0] (аналогично googleSheetsParser.ts строка 447)
           const metaDate = rows.length > 1 ? rows[1][0]?.trim() : '';
           console.log(`📅 Дата листа "${dayName}": ${metaDate}`);
+          console.log(`📋 Строка 0 (заголовки):`, rows[0]?.slice(0, 15));
+          console.log(`📋 Строка 5 (первые данные):`, rows[5]?.slice(0, 15));
+          console.log(`📊 Всего строк в листе:`, rows.length);
           
           // Начинаем парсинг с строки 5 (START_ROW = 5, как в googleSheetsParser.ts)
           for (let i = 5; i < rows.length; i++) {
