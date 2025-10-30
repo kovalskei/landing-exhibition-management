@@ -839,24 +839,16 @@ export default function MobileProgram() {
       </div>
 
       {tab === 'now' && (
-        <div style={{ 
-          position: 'fixed', 
-          bottom: '24px', 
-          left: '50%', 
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          gap: '12px',
-          zIndex: 90
-        }}>
-          <button onClick={() => setShowPlan(true)} className="floating-now-btn" style={{ background: 'var(--ok)' }}>
+        <>
+          <button onClick={() => setShowPlan(true)} className="floating-now-btn" style={{ position: 'fixed', bottom: '24px', left: '16px', zIndex: 90, background: 'var(--ok)' }}>
             <Icon name="List" size={20} />
             <span>План {plan.size > 0 && `(${plan.size})`}</span>
           </button>
-          <button onClick={jumpToNow} className="floating-now-btn">
+          <button onClick={jumpToNow} className="floating-now-btn" style={{ position: 'fixed', bottom: '24px', right: '16px', zIndex: 90 }}>
             <Icon name="Clock" size={20} />
             <span>Сейчас</span>
           </button>
-        </div>
+        </>
       )}
 
       {tab === 'all' && (
