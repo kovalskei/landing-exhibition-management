@@ -216,7 +216,7 @@ export default function ProgramSettings() {
           const csvText = await csvResponse.text();
           const lines = csvText.split('\n');
           
-          // Парсим CSV в rows[][] структуру (как в googleSheetsParser.ts)
+          // Парсим CSV в rows[][] структуру
           const rows: string[][] = [];
           for (const line of lines) {
             if (line.trim()) {
@@ -224,50 +224,113 @@ export default function ProgramSettings() {
             }
           }
           
-          // Получаем дату из rows[1][0] (аналогично googleSheetsParser.ts строка 447)
-          const metaDate = rows.length > 1 ? rows[1][0]?.trim() : '';
-          console.log(`📅 Дата листа "${dayName}": ${metaDate}`);
-          console.log(`📋 Строка 0 (заголовки):`, rows[0]?.slice(0, 15));
-          console.log(`📋 Строка 5 (первые данные):`, rows[5]?.slice(0, 15));
-          console.log(`📊 Всего строк в листе:`, rows.length);
+          const R = rows.length;
+          const C = rows[0]?.length || 0;
           
-          // Начинаем парсинг с строки 5 (START_ROW = 5, как в googleSheetsParser.ts)
-          for (let i = 5; i < rows.length; i++) {
-            const row = rows[i];
-            if (row.length >= 5) {
-              // Ищем залы - проверяем все колонки начиная с 1
-              // Формат: [время][ЗАЛ 1 начало][ЗАЛ 1 конец][ЗАЛ 1 текст][ЗАЛ 2 начало]...
-              for (let c = 1; c < row.length - 2; c += 3) {
-                const timeStart = row[c]?.trim();
-                const timeEnd = row[c + 1]?.trim();
-                const textRaw = row[c + 2]?.trim() || '';
-                
-                // Пропускаем пустые ячейки
-                if (!timeStart || !timeEnd || !textRaw) continue;
-                
-                // Ищем название зала в rows[0] для этой колонки
-                const hallName = rows[0][c]?.trim() || '';
-                if (!hallName) continue;
-                
-                // Извлекаем заголовок и спикера из textRaw
-                const lines = textRaw.split('\n');
-                const title = lines[0]?.trim() || '';
-                const speakerLine = lines[1]?.trim() || '';
-                const speaker = speakerLine.split(/[,—–-]/)[0]?.trim() || '';
-                
-                // Генерируем ID аналогично googleSheetsParser.ts (строка 583-585)
-                // Если есть metaDate - формат: ДАТА|ЗАЛ|НАЧАЛО|КОНЕЦ
-                // Если нет metaDate - формат: ЗАЛ|НАЧАЛО|КОНЕЦ|НАЗВАНИЕ
-                const id = metaDate 
-                  ? metaDate + '|' + hallName + '|' + timeStart + '|' + timeEnd
-                  : hallName + '|' + timeStart + '|' + timeEnd + '|' + title;
-                
-                console.log(`✅ Найдена сессия: ${id}`);
-                
-                // Сохраняем ВСЕ вхождения ID (могут быть на разных днях)
-                if (!sessionsMap[id]) sessionsMap[id] = [];
-                sessionsMap[id].push({ title, speaker, hall: hallName, time: timeStart + '-' + timeEnd, day: dayName });
+          // Константы из googleSheetsParser.ts
+          const EXCLUDED_HEADER_COLS: Record<number, boolean> = { 6: true, 7: true };
+          const START_ROW = 5;
+          
+          // Функция headerName - точно как в googleSheetsParser.ts (строки 378-386)
+          const headerName = (c1: number, c2: number): string => {
+            let s = '';
+            for (let c = c1; c <= c2 && c < C; c++) {
+              if (EXCLUDED_HEADER_COLS[c]) continue;
+              const v = String(rows[0][c] || '').trim();
+              if (v) s += (s ? ' ' : '') + v;
+            }
+            return s.trim();
+          };
+          
+          // Функция normalizeTime - из googleSheetsParser.ts
+          const normalizeTime = (v: string): string => {
+            const s = String(v || '').trim();
+            const m = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+            if (!m) return '';
+            const hh = +m[1];
+            const mm = +m[2];
+            const total = hh * 60 + mm;
+            const MIN_START_MIN = 9 * 60;
+            if (hh === 0 || total < MIN_START_MIN) return '';
+            return hh + ':' + (mm < 10 ? '0' + mm : mm);
+          };
+          
+          // Получаем дату (строка 447 в googleSheetsParser.ts)
+          const metaDate = rows.length > 1 ? String(rows[1][0] || '').trim() : '';
+          console.log(`📅 Дата листа "${dayName}": ${metaDate}`);
+          
+          // ДЕТЕКЦИЯ ЗАЛОВ - точно как в googleSheetsParser.ts (строки 411-444)
+          const halls: { id: string; name: string; startCol: number; endCol: number; textCol: number }[] = [];
+          
+          for (let c = 0; c <= C - 2; ) {
+            let timeHits = 0;
+            let textCol = c + 2;
+            
+            // Проверяем, есть ли в этой паре колонок время
+            for (let r = START_ROW; r < R && r < START_ROW + 50; r++) {
+              const s = normalizeTime(rows[r]?.[c] || '');
+              const e = normalizeTime(rows[r]?.[c + 1] || '');
+              if (s && e) {
+                timeHits++;
+                // Проверяем, не сдвинута ли textCol на +3
+                const t2 = String(rows[r]?.[c + 2] || '').trim();
+                const t3 = String(rows[r]?.[c + 3] || '').trim();
+                if (normalizeTime(t2) && t3) {
+                  textCol = c + 3;
+                }
               }
+            }
+            
+            if (timeHits >= 1) {
+              const name = headerName(c, textCol);
+              if (name) {
+                halls.push({
+                  id: String(c),
+                  name,
+                  startCol: c,
+                  endCol: c + 1,
+                  textCol
+                });
+              }
+              c = textCol + 1;
+            } else {
+              c += 1;
+            }
+          }
+          
+          console.log(`📊 День ${dayName}: Найдено ${halls.length} залов:`, halls.map(h => h.name));
+          
+          // ПАРСИНГ СЕССИЙ используя детектированные залы
+          for (let i = START_ROW; i < R; i++) {
+            const row = rows[i];
+            
+            for (const hall of halls) {
+              const timeStart = normalizeTime(row[hall.startCol] || '');
+              const timeEnd = normalizeTime(row[hall.endCol] || '');
+              const textRaw = String(row[hall.textCol] || '').trim();
+              
+              if (!timeStart || !timeEnd || !textRaw) continue;
+              
+              // Извлекаем название и спикера
+              const textLines = textRaw.split('\n');
+              const title = textLines[0]?.trim() || '';
+              const speakerLine = textLines[1]?.trim() || '';
+              const speaker = speakerLine.split(/[,—–-]/)[0]?.trim() || '';
+              
+              // Генерируем ID точно как в googleSheetsParser.ts (строки 583-585)
+              const id = metaDate 
+                ? metaDate + '|' + hall.name + '|' + timeStart + '|' + timeEnd
+                : hall.name + '|' + timeStart + '|' + timeEnd + '|' + title;
+              
+              // Сохраняем
+              if (!sessionsMap[id]) sessionsMap[id] = [];
+              sessionsMap[id].push({ 
+                title, 
+                speaker, 
+                hall: hall.name, 
+                time: timeStart + '-' + timeEnd, 
+                day: dayName 
+              });
             }
           }
         } catch (err) {
