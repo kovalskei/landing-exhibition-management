@@ -357,7 +357,7 @@ export default function ProgramSettings() {
       console.log('🔍 ID из статистики:', statsData.sessions.map(s => s.session_id).slice(0, 10));
       console.log('🔍 ID из таблицы:', Object.keys(sessions).slice(0, 10));
       
-      let csv = 'ID,Название,Спикер,Зал,Время,Интерес\n';
+      let csv = 'ID,Название,Спикер,Зал,Время,День,Интерес\n';
       let notFound = 0;
       statsData.sessions.forEach(s => {
         const session = sessions[s.session_id];
@@ -365,8 +365,8 @@ export default function ProgramSettings() {
           notFound++;
           console.warn('⚠️ Сессия не найдена в таблице:', s.session_id);
         }
-        const sessionData = session || { title: 'Неизвестно', speaker: '', hall: '', time: '' };
-        csv += `"${s.session_id}","${sessionData.title}","${sessionData.speaker}","${sessionData.hall}","${sessionData.time}",${s.interest_count}\n`;
+        const sessionData = session || { title: 'Неизвестно', speaker: '', hall: '', time: '', day: '' };
+        csv += `"${s.session_id}","${sessionData.title}","${sessionData.speaker}","${sessionData.hall}","${sessionData.time}","${sessionData.day}",${s.interest_count}\n`;
       });
       
       if (notFound > 0) {
