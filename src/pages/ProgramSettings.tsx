@@ -198,6 +198,36 @@ export default function ProgramSettings() {
         return result;
       };
       
+      // Загружаем лист Meta для получения глобальной даты события
+      let globalEventDate = '';
+      try {
+        const metaGids = ['meta', 'Meta', 'META'];
+        for (const metaGid of metaGids) {
+          try {
+            const metaUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${metaGid}`;
+            const metaResp = await fetch(metaUrl);
+            if (metaResp.ok) {
+              const metaText = await metaResp.text();
+              const metaLines = metaText.split('\n');
+              for (const line of metaLines) {
+                const [key, ...valueParts] = line.split(',');
+                const value = valueParts.join(',').replace(/"/g, '').trim();
+                if (key.trim().toLowerCase() === 'date' && value) {
+                  globalEventDate = value;
+                  console.log('📅 Дата из листа Meta:', globalEventDate);
+                  break;
+                }
+              }
+              if (globalEventDate) break;
+            }
+          } catch (e) {
+            // Пробуем следующий вариант
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ Не удалось загрузить лист Meta');
+      }
+      
       // Парсим ВСЕ листы из daySheets
       const sessions: Record<string, { title: string; speaker: string; hall: string; time: string; day: string }> = {};
       const sessionsMap: Record<string, Array<{ title: string; speaker: string; hall: string; time: string; day: string }>> = {};
@@ -326,9 +356,6 @@ export default function ProgramSettings() {
                 'комната в ' + hall.name.replace(/^ЗАЛ\s+/i, ''), // "комната в ANDY"
               ];
               
-              // Проверяем валидность даты
-              const hasValidDate = metaDate && metaDate !== ',,,,,' && metaDate !== ',,,,,,' && !/^,+$/.test(metaDate);
-              
               const sessionData = { 
                 title, 
                 speaker, 
@@ -337,18 +364,26 @@ export default function ProgramSettings() {
                 day: dayName 
               };
               
-              // Генерируем ID для всех вариантов названий
+              // Генерируем ID для всех вариантов названий и дат
               for (const hallVariant of hallVariants) {
-                // Старый формат (без даты): ЗАЛ|НАЧАЛО|КОНЕЦ|НАЗВАНИЕ
+                // 1. Старый формат (без даты): ЗАЛ|НАЧАЛО|КОНЕЦ|НАЗВАНИЕ
                 const idOld = hallVariant + '|' + timeStart + '|' + timeEnd + '|' + title;
                 if (!sessionsMap[idOld]) sessionsMap[idOld] = [];
                 sessionsMap[idOld].push(sessionData);
                 
-                // Новый формат (с датой): ДАТА|ЗАЛ|НАЧАЛО|КОНЕЦ
+                // 2. С датой листа (если есть валидная)
+                const hasValidDate = metaDate && metaDate !== ',,,,,' && metaDate !== ',,,,,,' && !/^,+$/.test(metaDate);
                 if (hasValidDate) {
-                  const idNew = metaDate + '|' + hallVariant + '|' + timeStart + '|' + timeEnd;
-                  if (!sessionsMap[idNew]) sessionsMap[idNew] = [];
-                  sessionsMap[idNew].push(sessionData);
+                  const idWithSheetDate = metaDate + '|' + hallVariant + '|' + timeStart + '|' + timeEnd;
+                  if (!sessionsMap[idWithSheetDate]) sessionsMap[idWithSheetDate] = [];
+                  sessionsMap[idWithSheetDate].push(sessionData);
+                }
+                
+                // 3. С глобальной датой из Meta (если есть)
+                if (globalEventDate) {
+                  const idWithGlobalDate = globalEventDate + '|' + hallVariant + '|' + timeStart + '|' + timeEnd;
+                  if (!sessionsMap[idWithGlobalDate]) sessionsMap[idWithGlobalDate] = [];
+                  sessionsMap[idWithGlobalDate].push(sessionData);
                 }
               }
             }
