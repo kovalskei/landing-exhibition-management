@@ -167,11 +167,6 @@ export default function ProgramSettings() {
       }
       
       const sheetId = sheetMatch[1];
-      const gid = eventData.daySheets?.split('\n')[0]?.split(':')[1]?.trim() || '0';
-      const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
-      
-      const csvResponse = await fetch(sheetUrl);
-      const csvText = await csvResponse.text();
       
       // Правильный CSV-парсинг с учетом кавычек
       const parseCSVRow = (line: string): string[] => {
@@ -200,25 +195,44 @@ export default function ProgramSettings() {
         return result;
       };
       
-      const lines = csvText.split('\n');
-      const sessions: Record<string, { title: string; speaker: string; hall: string; time: string }> = {};
+      // Парсим ВСЕ листы из daySheets
+      const sessions: Record<string, { title: string; speaker: string; hall: string; time: string; day: string }> = {};
+      const daySheetLines = eventData.daySheets?.split('\n') || [];
       
-      for (let i = 1; i < lines.length; i++) {
-        const cols = parseCSVRow(lines[i]);
-        if (cols.length >= 5) {
-          const id = cols[0]?.trim();
-          const hall = cols[1]?.trim();
-          const time = cols[2]?.trim();
-          const titleRaw = cols[4]?.trim() || '';
-          const speakerRoleRaw = cols[5]?.trim() || '';
+      console.log('📅 Загружаем листы:', daySheetLines.length);
+      
+      for (const dayLine of daySheetLines) {
+        const [dayName, gid] = dayLine.split(':').map(s => s.trim());
+        if (!gid) continue;
+        
+        const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+        console.log(`📄 Загружаем лист "${dayName}" (gid=${gid})`);
+        
+        try {
+          const csvResponse = await fetch(sheetUrl);
+          const csvText = await csvResponse.text();
+          const lines = csvText.split('\n');
           
-          // Извлекаем спикера из первой строки поля (до первой запятой или тире)
-          const firstLine = speakerRoleRaw.split('\n')[0] || '';
-          const speaker = firstLine.split(/[,—–-]/)[0]?.trim() || '';
-          
-          if (id) {
-            sessions[id] = { title: titleRaw, speaker, hall, time };
+          for (let i = 1; i < lines.length; i++) {
+            const cols = parseCSVRow(lines[i]);
+            if (cols.length >= 5) {
+              const id = cols[0]?.trim();
+              const hall = cols[1]?.trim();
+              const time = cols[2]?.trim();
+              const titleRaw = cols[4]?.trim() || '';
+              const speakerRoleRaw = cols[5]?.trim() || '';
+              
+              // Извлекаем спикера из первой строки поля (до первой запятой или тире)
+              const firstLine = speakerRoleRaw.split('\n')[0] || '';
+              const speaker = firstLine.split(/[,—–-]/)[0]?.trim() || '';
+              
+              if (id) {
+                sessions[id] = { title: titleRaw, speaker, hall, time, day: dayName };
+              }
+            }
           }
+        } catch (err) {
+          console.error(`Ошибка загрузки листа ${dayName}:`, err);
         }
       }
       
@@ -233,7 +247,7 @@ export default function ProgramSettings() {
       console.log('🔍 ID из статистики:', statsData.sessions.map(s => s.session_id).slice(0, 10));
       console.log('🔍 ID из таблицы:', Object.keys(sessions).slice(0, 10));
       
-      let csv = 'ID,Название,Спикер,Зал,Время,Интерес\n';
+      let csv = 'ID,День,Название,Спикер,Зал,Время,Интерес\n';
       let notFound = 0;
       statsData.sessions.forEach(s => {
         const session = sessions[s.session_id];
@@ -241,8 +255,8 @@ export default function ProgramSettings() {
           notFound++;
           console.warn('⚠️ Сессия не найдена в таблице:', s.session_id);
         }
-        const sessionData = session || { title: 'Неизвестно', speaker: '', hall: '', time: '' };
-        csv += `"${s.session_id}","${sessionData.title}","${sessionData.speaker}","${sessionData.hall}","${sessionData.time}",${s.interest_count}\n`;
+        const sessionData = session || { title: 'Неизвестно', speaker: '', hall: '', time: '', day: '' };
+        csv += `"${s.session_id}","${sessionData.day}","${sessionData.title}","${sessionData.speaker}","${sessionData.hall}","${sessionData.time}",${s.interest_count}\n`;
       });
       
       if (notFound > 0) {
