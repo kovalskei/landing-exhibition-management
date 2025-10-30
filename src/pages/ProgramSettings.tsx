@@ -256,13 +256,17 @@ export default function ProgramSettings() {
                 const speaker = speakerLine.split(/[,—–-]/)[0]?.trim() || '';
                 
                 // Генерируем ID аналогично googleSheetsParser.ts (строка 583-585)
-                if (metaDate) {
-                  const id = metaDate + '|' + hallName + '|' + timeStart + '|' + timeEnd;
-                  
-                  // Сохраняем ВСЕ вхождения ID (могут быть на разных днях)
-                  if (!sessionsMap[id]) sessionsMap[id] = [];
-                  sessionsMap[id].push({ title, speaker, hall: hallName, time: timeStart + '-' + timeEnd, day: dayName });
-                }
+                // Если есть metaDate - формат: ДАТА|ЗАЛ|НАЧАЛО|КОНЕЦ
+                // Если нет metaDate - формат: ЗАЛ|НАЧАЛО|КОНЕЦ|НАЗВАНИЕ
+                const id = metaDate 
+                  ? metaDate + '|' + hallName + '|' + timeStart + '|' + timeEnd
+                  : hallName + '|' + timeStart + '|' + timeEnd + '|' + title;
+                
+                console.log(`✅ Найдена сессия: ${id}`);
+                
+                // Сохраняем ВСЕ вхождения ID (могут быть на разных днях)
+                if (!sessionsMap[id]) sessionsMap[id] = [];
+                sessionsMap[id].push({ title, speaker, hall: hallName, time: timeStart + '-' + timeEnd, day: dayName });
               }
             }
           }
