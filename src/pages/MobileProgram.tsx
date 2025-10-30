@@ -21,7 +21,8 @@ export default function MobileProgram() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState<Set<string>>(new Set());
-  const [tab, setTab] = useState<'now' | 'all' | 'plan'>('now');
+  const [tab, setTab] = useState<'now' | 'all'>('now');
+  const [showPlan, setShowPlan] = useState(false);
   const [selectedTime, setSelectedTime] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedHall, setSelectedHall] = useState<string>('all');
@@ -568,14 +569,18 @@ export default function MobileProgram() {
       <div style={{ padding: '0 14px' }}>
         <MobileTabs
           activeTab={tab}
-          planCount={plan.size}
           onTabChange={setTab}
         />
 
         {tab === 'now' && (
           <div className="now-banner">
-            <div className="now-text">⏰ Сейчас: {data.now}</div>
-            <button onClick={jumpToNow} className="now-btn">Перейти</button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flex: 1 }}>
+              <button onClick={() => setShowPlan(!showPlan)} className="now-btn" style={{ background: 'var(--ok)', flexShrink: 0 }}>
+                📋 План {plan.size > 0 && `(${plan.size})`}
+              </button>
+              <div className="now-text">⏰ Сейчас: {data.now}</div>
+            </div>
+            <button onClick={jumpToNow} className="now-btn" style={{ flexShrink: 0 }}>Перейти</button>
           </div>
         )}
       </div>
@@ -614,28 +619,6 @@ export default function MobileProgram() {
                   ))}
                 </div>
               )}
-              
-              <button
-                onClick={() => setTab('plan')}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '16px',
-                  border: 'none',
-                  background: 'var(--ok)',
-                  color: '#fff',
-                  fontWeight: '600',
-                  fontSize: '13px',
-                  whiteSpace: 'nowrap',
-                  cursor: 'pointer',
-                  boxShadow: 'var(--shadow)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  flex: '0 0 auto'
-                }}
-              >
-                План {plan.size > 0 && `(${plan.size})`}
-              </button>
             </div>
             
             <MobileTimeChips
@@ -681,28 +664,6 @@ export default function MobileProgram() {
                   ))}
                 </div>
               )}
-              
-              <button
-                onClick={() => setTab('plan')}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '16px',
-                  border: 'none',
-                  background: 'var(--ok)',
-                  color: '#fff',
-                  fontWeight: '600',
-                  fontSize: '13px',
-                  whiteSpace: 'nowrap',
-                  cursor: 'pointer',
-                  boxShadow: 'var(--shadow)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  flex: '0 0 auto'
-                }}
-              >
-                План {plan.size > 0 && `(${plan.size})`}
-              </button>
             </div>
             
             <MobileHallFilter
@@ -783,57 +744,102 @@ export default function MobileProgram() {
           </div>
         )}
 
-        {tab === 'plan' && (
-          <>
-            {plan.size === 0 ? (
-              <div className="plan-empty">
-                <div className="plan-empty-icon">📋</div>
-                <div>Ваш план пуст</div>
-                <div style={{ fontSize: 14, marginTop: 8 }}>Добавьте доклады из программы</div>
+        {showPlan && (
+          <div 
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.5)',
+              zIndex: 999,
+              display: 'flex',
+              alignItems: 'flex-end',
+              backdropFilter: 'blur(4px)'
+            }}
+            onClick={() => setShowPlan(false)}
+          >
+            <div 
+              style={{
+                background: 'var(--bg)',
+                borderRadius: '20px 20px 0 0',
+                maxHeight: '90vh',
+                width: '100%',
+                overflowY: 'auto',
+                padding: '20px 14px',
+                boxShadow: '0 -4px 24px rgba(0,0,0,0.2)'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📋 Мой план</h2>
+                <button 
+                  onClick={() => setShowPlan(false)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    fontSize: 24,
+                    cursor: 'pointer',
+                    padding: 0,
+                    width: 32,
+                    height: 32,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  ×
+                </button>
               </div>
-            ) : (
-              <>
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
-                  <button onClick={handleExportPlanPdf} disabled={exportingPdf} className="plan-action">
-                    <Icon name={exportingPdf ? 'Loader2' : 'FileDown'} size={18} className={exportingPdf ? 'animate-spin' : ''} />
-                    {exportingPdf ? 'Создание PDF...' : 'Скачать PDF'}
-                  </button>
-                  <button onClick={() => { const emptyPlan = new Set<string>(); savePlanToBackend(emptyPlan); setPlan(emptyPlan); }} className="plan-clear">
-                    Очистить план
-                  </button>
-                </div>
-                <div style={{ paddingTop: 0 }}>
-                  {data.sessions
-                    .filter(s => plan.has(s.id))
-                    .sort((a, b) => a.start.localeCompare(b.start))
-                    .map((session, index, sortedPlan) => {
-                      const planList = data.sessions.filter(s => plan.has(s.id)).sort((a, b) => a.start.localeCompare(b.start));
-                      
-                      const conflictingSession = planList.find(p => p.id !== session.id && overlap(p, session));
-                      const hasConflict = !!conflictingSession;
-                      
-                      const nextSession = sortedPlan[index + 1];
-                      const needsTransition = !hasConflict && nextSession && nextSession.hallId !== session.hallId;
 
-                      return (
-                        <MobileSessionCard
-                          key={session.id}
-                          session={session}
-                          inPlan={true}
-                          hallName={hallName(session.hallId)}
-                          duration={durationText(session)}
-                          hasConflict={hasConflict || needsTransition}
-                          conflictSession={hasConflict ? conflictingSession : (needsTransition ? nextSession : undefined)}
-                          conflictHallName={hasConflict ? (conflictingSession ? hallName(conflictingSession.hallId) : undefined) : (needsTransition ? hallName(nextSession.hallId) : undefined)}
-                          onTogglePlan={() => removeFromPlan(session.id)}
-                          onClick={() => setSelectedSession(session)}
-                        />
-                      );
-                    })}
+              {plan.size === 0 ? (
+                <div className="plan-empty">
+                  <div className="plan-empty-icon">📋</div>
+                  <div>Ваш план пуст</div>
+                  <div style={{ fontSize: 14, marginTop: 8 }}>Добавьте доклады из программы</div>
                 </div>
-              </>
-            )}
-          </>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
+                    <button onClick={handleExportPlanPdf} disabled={exportingPdf} className="plan-action">
+                      <Icon name={exportingPdf ? 'Loader2' : 'FileDown'} size={18} className={exportingPdf ? 'animate-spin' : ''} />
+                      {exportingPdf ? 'Создание PDF...' : 'Скачать PDF'}
+                    </button>
+                    <button onClick={() => { const emptyPlan = new Set<string>(); savePlanToBackend(emptyPlan); setPlan(emptyPlan); }} className="plan-clear">
+                      Очистить план
+                    </button>
+                  </div>
+                  <div style={{ paddingTop: 0 }}>
+                    {data.sessions
+                      .filter(s => plan.has(s.id))
+                      .sort((a, b) => a.start.localeCompare(b.start))
+                      .map((session, index, sortedPlan) => {
+                        const planList = data.sessions.filter(s => plan.has(s.id)).sort((a, b) => a.start.localeCompare(b.start));
+                        
+                        const conflictingSession = planList.find(p => p.id !== session.id && overlap(p, session));
+                        const hasConflict = !!conflictingSession;
+                        
+                        const nextSession = sortedPlan[index + 1];
+                        const needsTransition = !hasConflict && nextSession && nextSession.hallId !== session.hallId;
+
+                        return (
+                          <MobileSessionCard
+                            key={session.id}
+                            session={session}
+                            inPlan={true}
+                            hallName={hallName(session.hallId)}
+                            duration={durationText(session)}
+                            hasConflict={hasConflict || needsTransition}
+                            conflictSession={hasConflict ? conflictingSession : (needsTransition ? nextSession : undefined)}
+                            conflictHallName={hasConflict ? (conflictingSession ? hallName(conflictingSession.hallId) : undefined) : (needsTransition ? hallName(nextSession.hallId) : undefined)}
+                            onTogglePlan={() => removeFromPlan(session.id)}
+                            onClick={() => setSelectedSession(session)}
+                          />
+                        );
+                      })}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         )}
       </div>
 

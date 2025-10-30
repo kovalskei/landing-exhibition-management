@@ -1,12 +1,11 @@
 interface MobileTabsProps {
-  activeTab: 'now' | 'all' | 'plan';
-  planCount: number;
-  onTabChange: (tab: 'now' | 'all' | 'plan') => void;
+  activeTab: 'now' | 'all';
+  onTabChange: (tab: 'now' | 'all') => void;
 }
 
-export default function MobileTabs({ activeTab, planCount, onTabChange }: MobileTabsProps) {
+export default function MobileTabs({ activeTab, onTabChange }: MobileTabsProps) {
   return (
-    <div className="m-tabs">
+    <div className="m-tabs" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
       <button
         className={`m-tab ${activeTab === 'now' ? 'active' : ''}`}
         onClick={() => onTabChange('now')}
@@ -18,12 +17,6 @@ export default function MobileTabs({ activeTab, planCount, onTabChange }: Mobile
         onClick={() => onTabChange('all')}
       >
         По залам
-      </button>
-      <button
-        className={`m-tab ${activeTab === 'plan' ? 'active' : ''}`}
-        onClick={() => onTabChange('plan')}
-      >
-        План {planCount > 0 && `(${planCount})`}
       </button>
     </div>
   );
