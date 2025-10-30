@@ -153,6 +153,7 @@ export default function ProgramSettings() {
   };
 
   const downloadStatsCSV = async (eventId: string) => {
+    alert('🚀 ТЕСТ: Функция downloadStatsCSV запущена!');
     try {
       const programResponse = await fetch(`https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c?id=${eventId}`);
       const eventData = await programResponse.json();
