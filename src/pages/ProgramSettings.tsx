@@ -319,22 +319,35 @@ export default function ProgramSettings() {
               const speakerLine = textLines[1]?.trim() || '';
               const speaker = speakerLine.split(/[,—–-]/)[0]?.trim() || '';
               
-              // Генерируем ID точно как в googleSheetsParser.ts (строки 583-585)
-              const id = metaDate 
+              // Генерируем ID в ОБОИХ форматах (старый и новый)
+              // Старый формат (без даты): ЗАЛ|НАЧАЛО|КОНЕЦ|НАЗВАНИЕ
+              const idOld = hall.name + '|' + timeStart + '|' + timeEnd + '|' + title;
+              
+              // Новый формат (с датой): ДАТА|ЗАЛ|НАЧАЛО|КОНЕЦ
+              // Проверяем что metaDate не пустой и не состоит из запятых
+              const hasValidDate = metaDate && metaDate !== ',,,,,' && metaDate !== ',,,,,,' && !/^,+$/.test(metaDate);
+              const idNew = hasValidDate 
                 ? metaDate + '|' + hall.name + '|' + timeStart + '|' + timeEnd
-                : hall.name + '|' + timeStart + '|' + timeEnd + '|' + title;
+                : null;
               
-              console.log(`✅ Найдена сессия [${dayName}]: ID="${id}", Title="${title}"`);
+              console.log(`✅ Найдена сессия [${dayName}]: Old="${idOld}", New="${idNew}"`);
               
-              // Сохраняем
-              if (!sessionsMap[id]) sessionsMap[id] = [];
-              sessionsMap[id].push({ 
+              // Сохраняем под обоими ID
+              const sessionData = { 
                 title, 
                 speaker, 
                 hall: hall.name, 
                 time: timeStart + '-' + timeEnd, 
                 day: dayName 
-              });
+              };
+              
+              if (!sessionsMap[idOld]) sessionsMap[idOld] = [];
+              sessionsMap[idOld].push(sessionData);
+              
+              if (idNew) {
+                if (!sessionsMap[idNew]) sessionsMap[idNew] = [];
+                sessionsMap[idNew].push(sessionData);
+              }
             }
           }
         } catch (err) {
