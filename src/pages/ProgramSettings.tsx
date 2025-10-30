@@ -349,43 +349,22 @@ export default function ProgramSettings() {
               const speakerLine = textLines[1]?.trim() || '';
               const speaker = speakerLine.split(/[,—–-]/)[0]?.trim() || '';
               
-              // Генерируем варианты названий зала для совместимости
-              const hallVariants = [
-                hall.name,                                    // "ЗАЛ ANDY"
-                hall.name.replace(/^ЗАЛ\s+/i, ''),          // "ANDY"
-                'комната в ' + hall.name.replace(/^ЗАЛ\s+/i, ''), // "комната в ANDY"
-              ];
-              
               const sessionData = { 
                 title, 
                 speaker, 
                 hall: hall.name, 
                 time: timeStart + '-' + timeEnd, 
-                day: dayName 
+                day: dayName,
+                timeStart,
+                timeEnd
               };
               
-              // Генерируем ID для всех вариантов названий и дат
-              for (const hallVariant of hallVariants) {
-                // 1. Старый формат (без даты): ЗАЛ|НАЧАЛО|КОНЕЦ|НАЗВАНИЕ
-                const idOld = hallVariant + '|' + timeStart + '|' + timeEnd + '|' + title;
-                if (!sessionsMap[idOld]) sessionsMap[idOld] = [];
-                sessionsMap[idOld].push(sessionData);
-                
-                // 2. С датой листа (если есть валидная)
-                const hasValidDate = metaDate && metaDate !== ',,,,,' && metaDate !== ',,,,,,' && !/^,+$/.test(metaDate);
-                if (hasValidDate) {
-                  const idWithSheetDate = metaDate + '|' + hallVariant + '|' + timeStart + '|' + timeEnd;
-                  if (!sessionsMap[idWithSheetDate]) sessionsMap[idWithSheetDate] = [];
-                  sessionsMap[idWithSheetDate].push(sessionData);
-                }
-                
-                // 3. С глобальной датой из Meta (если есть)
-                if (globalEventDate) {
-                  const idWithGlobalDate = globalEventDate + '|' + hallVariant + '|' + timeStart + '|' + timeEnd;
-                  if (!sessionsMap[idWithGlobalDate]) sessionsMap[idWithGlobalDate] = [];
-                  sessionsMap[idWithGlobalDate].push(sessionData);
-                }
-              }
+              // Создаём ключ для быстрого поиска: ВРЕМЯ|ЗАЛ_НОРМАЛИЗОВАННЫЙ
+              const normalizedHall = hall.name.replace(/^ЗАЛ\s+/i, '').replace(/^комната в\s+/i, '').trim();
+              const searchKey = `${timeStart}|${timeEnd}|${normalizedHall}`;
+              
+              if (!sessionsMap[searchKey]) sessionsMap[searchKey] = [];
+              sessionsMap[searchKey].push(sessionData);
             }
           }
         } catch (err) {
@@ -393,13 +372,7 @@ export default function ProgramSettings() {
         }
       }
       
-      // Преобразуем в старый формат (берём первое вхождение для каждого ID)
-      for (const id in sessionsMap) {
-        sessions[id] = sessionsMap[id][0];
-      }
-      
-      console.log('📊 Всего уникальных ID:', Object.keys(sessionsMap).length);
-      console.log('🔄 ID с дублями:', Object.entries(sessionsMap).filter(([_, arr]) => arr.length > 1).map(([id, arr]) => `${id} (${arr.length} дней)`));
+      console.log('📊 Всего сессий в таблице:', Object.keys(sessionsMap).length);
       
       const statsData = stats[eventId];
       if (!statsData) {
@@ -408,30 +381,57 @@ export default function ProgramSettings() {
       }
       
       console.log('📊 Всего сессий в статистике:', statsData.sessions.length);
-      console.log('📋 Сессий найдено в таблице:', Object.keys(sessions).length);
-      console.log('🔍 ID из статистики (первые 5):', statsData.sessions.map(s => s.session_id).slice(0, 5));
-      console.log('🔍 ID из таблицы (первые 5):', Object.keys(sessions).slice(0, 5));
-      
-      // Сравниваем ID
-      statsData.sessions.slice(0, 3).forEach(s => {
-        console.log(`\n🔎 Проверка ID: "${s.session_id}"`);
-        console.log(`   Найден в таблице: ${sessions[s.session_id] ? 'ДА ✅' : 'НЕТ ❌'}`);
-        if (sessions[s.session_id]) {
-          console.log(`   Данные:`, sessions[s.session_id]);
-        }
-      });
       
       let csv = 'ID,Название,Спикер,Зал,Время,День,Интерес\n';
       let notFound = 0;
+      let found = 0;
+      
       statsData.sessions.forEach(s => {
-        const session = sessions[s.session_id];
-        if (!session) {
-          notFound++;
-          console.warn('⚠️ Сессия не найдена в таблице:', s.session_id);
+        // Парсим ID из базы: может быть в разных форматах
+        // "ЗАЛ MORRISON|17:40|18:15|Название" или "MORRISON|17:40|18:15|Название" или "28.10.2025|ЗАЛ|17:40|18:15"
+        const parts = s.session_id.split('|');
+        let timeStart = '';
+        let timeEnd = '';
+        let hallFromId = '';
+        
+        // Пробуем разные форматы
+        if (parts.length === 4) {
+          // Формат 1: ДАТА|ЗАЛ|НАЧАЛО|КОНЕЦ (новый)
+          if (parts[2].match(/^\d{1,2}:\d{2}$/)) {
+            hallFromId = parts[1];
+            timeStart = parts[2];
+            timeEnd = parts[3];
+          } 
+          // Формат 2: ЗАЛ|НАЧАЛО|КОНЕЦ|НАЗВАНИЕ (старый)
+          else {
+            hallFromId = parts[0];
+            timeStart = parts[1];
+            timeEnd = parts[2];
+          }
+        } else if (parts.length === 3) {
+          // Формат 3: ЗАЛ|НАЧАЛО|КОНЕЦ
+          hallFromId = parts[0];
+          timeStart = parts[1];
+          timeEnd = parts[2];
         }
-        const sessionData = session || { title: 'Неизвестно', speaker: '', hall: '', time: '', day: '' };
-        csv += `"${s.session_id}","${sessionData.title}","${sessionData.speaker}","${sessionData.hall}","${sessionData.time}","${sessionData.day}",${s.interest_count}\n`;
+        
+        // Нормализуем зал (убираем "ЗАЛ ", "комната в ")
+        const normalizedHallFromId = hallFromId.replace(/^ЗАЛ\s+/i, '').replace(/^комната в\s+/i, '').trim();
+        
+        // Ищем в таблице по ключу ВРЕМЯ|ЗАЛ
+        const searchKey = `${timeStart}|${timeEnd}|${normalizedHallFromId}`;
+        const sessionData = sessionsMap[searchKey]?.[0];
+        
+        if (sessionData) {
+          found++;
+          csv += `"${s.session_id}","${sessionData.title}","${sessionData.speaker}","${sessionData.hall}","${sessionData.time}","${sessionData.day}",${s.interest_count}\n`;
+        } else {
+          notFound++;
+          csv += `"${s.session_id}","Неизвестно","","","","",${s.interest_count}\n`;
+        }
       });
+      
+      console.log(`✅ Найдено: ${found}, ❌ Не найдено: ${notFound}`);
       
       if (notFound > 0) {
         console.warn(`⚠️ Не найдено ${notFound} сессий из ${statsData.sessions.length} в таблице`);
