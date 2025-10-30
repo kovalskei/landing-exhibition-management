@@ -216,12 +216,19 @@ export default function ProgramSettings() {
           const csvText = await csvResponse.text();
           const lines = csvText.split('\n');
           
+          // Получаем дату из строки 1 (rows[1][0] в таблице) - это дата мероприятия
+          const dateLine = lines.length > 1 ? parseCSVRow(lines[1]) : [];
+          const sheetDate = dateLine[0]?.trim() || dayName;
+          console.log(`📅 Дата листа "${dayName}": ${sheetDate}`);
+          
           for (let i = 1; i < lines.length; i++) {
             const cols = parseCSVRow(lines[i]);
             if (cols.length >= 5) {
-              const id = cols[0]?.trim();
+              // ИСПРАВЛЕНИЕ: Не берём ID из первой колонки, а ГЕНЕРИРУЕМ сами
+              // Формат: ДАТА|ЗАЛ|ВРЕМЯ_НАЧАЛА|ВРЕМЯ_КОНЦА
               const hall = cols[1]?.trim();
-              const time = cols[2]?.trim();
+              const timeStart = cols[2]?.trim();
+              const timeEnd = cols[3]?.trim();
               const titleRaw = cols[4]?.trim() || '';
               const speakerRoleRaw = cols[5]?.trim() || '';
               
@@ -229,10 +236,13 @@ export default function ProgramSettings() {
               const firstLine = speakerRoleRaw.split('\n')[0] || '';
               const speaker = firstLine.split(/[,—–-]/)[0]?.trim() || '';
               
-              if (id) {
+              // Генерируем ID аналогично googleSheetsParser.ts (строка 582-585)
+              if (hall && timeStart && timeEnd) {
+                const id = sheetDate + '|' + hall + '|' + timeStart + '|' + timeEnd;
+                
                 // Сохраняем ВСЕ вхождения ID (могут быть на разных днях)
                 if (!sessionsMap[id]) sessionsMap[id] = [];
-                sessionsMap[id].push({ title: titleRaw, speaker, hall, time, day: dayName });
+                sessionsMap[id].push({ title: titleRaw, speaker, hall, time: timeStart + '-' + timeEnd, day: dayName });
               }
             }
           }

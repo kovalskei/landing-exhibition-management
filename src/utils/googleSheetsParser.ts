@@ -579,8 +579,13 @@ export async function fetchProgramData(customSheetId?: string, customGid?: strin
         hallCount++;
         totalParsed++;
         
+        // ИСПРАВЛЕНИЕ: Добавляем дату в ID чтобы различать одинаковые сессии на разных днях
+        const sessionId = metaDate 
+          ? metaDate + '|' + halls[h].name + '|' + s0 + '|' + e0
+          : halls[h].name + '|' + s0 + '|' + e0 + '|' + (talk.title || cleanHeader || raw0);
+        
         sessions.push({
-          id: halls[h].name + '|' + s0 + '|' + e0 + '|' + (talk.title || cleanHeader || raw0),
+          id: sessionId,
           hallId: halls[h].id,
           hall: halls[h].name,
           start: s0,
