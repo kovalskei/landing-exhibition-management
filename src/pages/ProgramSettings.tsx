@@ -153,25 +153,79 @@ export default function ProgramSettings() {
   };
 
   const downloadStatsCSV = async (eventId: string) => {
-    alert('🚀 ТЕСТ: Функция downloadStatsCSV запущена!');
-    try {
-      const programResponse = await fetch(`https://functions.poehali.dev/1cac6452-8133-4b28-bd68-feb243859e2c?id=${eventId}`);
-      const eventData = await programResponse.json();
+    const statsData = stats[eventId];
+    if (!statsData) {
+      alert('Сначала загрузите статистику');
+      return;
+    }
+    
+    console.log('📊 Формирую CSV из', statsData.sessions.length, 'сессий');
+    
+    let csv = 'ID,Название,Спикер,Зал,Время,День,Интерес\n';
+    
+    statsData.sessions.forEach(s => {
+      // Парсим ID обратно в данные
+      // Формат: "ЗАЛ|НАЧАЛО|КОНЕЦ|НАЗВАНИЕ" или "ДАТА|ЗАЛ|НАЧАЛО|КОНЕЦ"
+      const parts = s.session_id.split('|');
       
-      if (!eventData.sheetUrl) {
-        alert('Не удалось получить данные программы');
-        return;
+      let hall = '';
+      let timeStart = '';
+      let timeEnd = '';
+      let title = '';
+      let day = '';
+      
+      if (parts.length === 4) {
+        // Проверяем, первая часть - дата?
+        if (parts[0].match(/^\d{1,2}\.\d{1,2}\.\d{4}$/)) {
+          // ДАТА|ЗАЛ|НАЧАЛО|КОНЕЦ
+          day = parts[0];
+          hall = parts[1];
+          timeStart = parts[2];
+          timeEnd = parts[3];
+        } else {
+          // ЗАЛ|НАЧАЛО|КОНЕЦ|НАЗВАНИЕ
+          hall = parts[0];
+          timeStart = parts[1];
+          timeEnd = parts[2];
+          title = parts[3];
+        }
+      } else if (parts.length === 3) {
+        // ЗАЛ|НАЧАЛО|КОНЕЦ
+        hall = parts[0];
+        timeStart = parts[1];
+        timeEnd = parts[2];
       }
       
-      const sheetMatch = eventData.sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-      if (!sheetMatch) {
-        alert('Неверный формат ссылки на таблицу');
-        return;
-      }
+      const time = timeStart && timeEnd ? `${timeStart}-${timeEnd}` : '';
+      const speaker = ''; // Спикера в ID нет, оставляем пустым
       
-      const sheetId = sheetMatch[1];
-      
-      // Правильный CSV-парсинг с учетом кавычек
+      csv += `"${s.session_id}","${title}","${speaker}","${hall}","${time}","${day}",${s.interest_count}\n`;
+    });
+    
+    console.log('✅ CSV сформирован, строк:', statsData.sessions.length);
+    
+    // Скачивание CSV
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `stats_${eventId}_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+  };
+  
+  const downloadData_OLD = async (eventId: string) => {
+    const eventData = events[eventId];
+    if (!eventData) {
+      alert('Событие не найдено');
+      return;
+    }
+    
+    const { sheetId } = eventData;
+    if (!sheetId) {
+      alert('Не указан Google Sheet ID');
+      return;
+    }
+    
+    // Правильный CSV-парсинг с учетом кавычек
       const parseCSVRow = (line: string): string[] => {
         const result: string[] = [];
         let current = '';
